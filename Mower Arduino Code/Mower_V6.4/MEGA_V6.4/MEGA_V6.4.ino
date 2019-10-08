@@ -268,12 +268,12 @@ DS1302 rtc(kCePin, kIoPin, kSclkPin);
 
   char Version[16] = "V6.4";
 
-  bool Cutting_Blades_Activate    = 1;                          // Activates the cutting blades and disc in the code
-  bool WIFI_Enabled               = 1;                          // Activates the WIFI Fucntions
-  bool Perimeter_Wire_Enabled     = 1;                          // Activates use of the perimeter boundary wire
+  bool Cutting_Blades_Activate    = 0;                          // Activates the cutting blades and disc in the code
+  bool WIFI_Enabled               = 0;                          // Activates the WIFI Fucntions
+  bool Perimeter_Wire_Enabled     = 0;                          // Activates use of the perimeter boundary wire
 
   //Docking Station
-  bool Use_Charging_Station       = 1;                          // 1 if you are using the docking/charging station     0 if not
+  bool Use_Charging_Station       = 0;                          // 1 if you are using the docking/charging station     0 if not
   bool CW_Tracking_To_Charge      = 1;                          // Clock-Wise         tracking around the boundary wire to the charging station
   bool CCW_Tracking_To_Charge     = 0;                          // Counter-Clock-Wise tracking around the boundary wire to the charging station
   bool CW_Tracking_To_Start       = 0;                          // Clock-Wise         tracking around the boundary wire when tracking to the start position
@@ -289,7 +289,7 @@ DS1302 rtc(kCePin, kIoPin, kSclkPin);
   int  Max_Cycle_Wire_Find_Back   = 50;                         // Maximum number of Backward tracking cycles in finding wire before the mower restarts a compass turn and wire find.  
 
   //Compass Settings
-  bool Compass_Activate               = 0;                      // Turns on the Compass (needs to be 1 to activate further compass features)
+  bool Compass_Activate               = 1;                      // Turns on the Compass (needs to be 1 to activate further compass features)
   bool Compass_Heading_Hold_Enabled   = 1;                      // Activates the compass heading hold function to keep the mower straight
   int  Home_Wire_Compass_Heading      = 110;                    // Heading the Mower will search for the wire once the mowing is completed.
   int  CPower                         = 2;                      // Magnification of heading to PWM - How strong the mower corrects itself in Compass Mowing
@@ -297,7 +297,7 @@ DS1302 rtc(kCePin, kIoPin, kSclkPin);
   int  Compass_Mow_Direction          = 110;                    // Mow Direction of line when pattern mow is activated
 
   //Rain sensor 
-  bool Rain_Sensor_Installed          = 1;                      // 1 for Rain sensor installed    0 for no sensor installed.
+  bool Rain_Sensor_Installed          = 0;                      // 1 for Rain sensor installed    0 for no sensor installed.
   byte Rain_Total_Hits_Go_Home        = 10;                      // This sensor only makes sense in combination with a mower docking station
                                                                 // as the mower is sent there to get out of the rain.
   //Battery Settings
