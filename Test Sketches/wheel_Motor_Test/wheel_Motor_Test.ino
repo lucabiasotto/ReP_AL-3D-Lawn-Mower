@@ -39,7 +39,7 @@ LiquidCrystal_I2C lcd(0x27, 2, 1, 0, 4, 5, 6, 7, 3, POSITIVE);    //Mower 2
 
 
  bool Reverse_Steering           = 1;                          // Swap Left and Right Motor inputs (instead of reversing wiring on the motor bridge)
- byte PWM_MaxSpeed_LH            = 248;                        // Straight line speed LH Wheel (Looking from back of mower)
+ byte PWM_MaxSpeed_LH            = 255;                        // Straight line speed LH Wheel (Looking from back of mower)
  byte PWM_MaxSpeed_RH            = 255;                        // Straight line speed RH Wheel - adjust to keep mower tracking straight.
  byte PWM_Blade_Speed            = 245;                        // PWM signal sent to the blade motor (speed of blade) new motor works well at 245.
 
@@ -95,7 +95,7 @@ void loop() {
   delay(500);
   SetPins_ToTurnLeft();
   Motion_GoFullSpeed();
-  delay(1000);
+  delay(10000);
   Motion_StopMotors(); 
   delay(1000);
   lcd.clear();
@@ -104,7 +104,7 @@ void loop() {
   delay(500);
   SetPins_ToTurnRight();
   Motion_GoFullSpeed();
-  delay(2000);
+  delay(10000);
   Motion_StopMotors(); 
   delay(1000);
   lcd.clear();
@@ -113,7 +113,7 @@ void loop() {
   delay(500);
   SetPins_ToGoForwards();
   Motion_GoFullSpeed();
-  delay(1000);
+  delay(10000);
   Motion_StopMotors(); 
   delay(1000);
   lcd.clear();

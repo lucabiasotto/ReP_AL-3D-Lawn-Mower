@@ -57,7 +57,7 @@ void Print_Membrane_Switch_Input_Timing() {
           Menu_Complete = true;
           lcd.clear();
           lcd.setCursor(0,0);
-          lcd.print("Menu Cancelled");
+          lcd.print(TRS_MENU_CANCELLED);
           delay(1000);
           lcd.clear();          
           Menu_Mode_Selection = 0;

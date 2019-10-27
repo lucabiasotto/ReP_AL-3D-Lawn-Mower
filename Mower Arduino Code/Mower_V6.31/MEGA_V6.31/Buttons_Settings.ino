@@ -3,15 +3,15 @@
 
 // Test to displyed on the LCD screen when using the membrane key menus
 void Print_LCD_Menu_Settings(byte LCD_Menu_Settings) {
-  if (LCD_Menu_Settings == 1) lcd.print("Alarm 1");
-  if (LCD_Menu_Settings == 2) lcd.print("Alarm 2");
-  if (LCD_Menu_Settings == 3) lcd.print("Alarm 3");  
-  if (LCD_Menu_Settings == 4) lcd.print("Wheel Speed LH");
-  if (LCD_Menu_Settings == 5) lcd.print("Wheel Speed RH");
-  if (LCD_Menu_Settings == 6) lcd.print("Blade Speed");
-  if (LCD_Menu_Settings == 7) lcd.print("Compass ON/OFF");
-  if (LCD_Menu_Settings == 8) lcd.print("Tracking PID");
-  if (LCD_Menu_Settings == 9) lcd.print("Set Clock");
+  if (LCD_Menu_Settings == 1) lcd.print(TRS_ALARM_1);
+  if (LCD_Menu_Settings == 2) lcd.print(TRS_ALARM_2);
+  if (LCD_Menu_Settings == 3) lcd.print(TRS_ALARM_3);
+  if (LCD_Menu_Settings == 4) lcd.print(TRS_WHEEL_SPEED_LH);
+  if (LCD_Menu_Settings == 5) lcd.print(TRS_WHEEL_SPEED_RH);
+  if (LCD_Menu_Settings == 6) lcd.print(TRS_BLADE_SPEED);
+  if (LCD_Menu_Settings == 7) lcd.print(TRS_COMPASS_ON_OFF);
+  if (LCD_Menu_Settings == 8) lcd.print(TRS_TRACKING_PID);
+  if (LCD_Menu_Settings == 9) lcd.print(TRS_SET_CLOCK);
   if (LCD_Menu_Settings == 10) lcd.print("-----");
   if (LCD_Menu_Settings == 11) lcd.print("CLEAR EEPROM");  
   if (LCD_Menu_Settings == 12) lcd.print("");   // Leave Blank
@@ -567,7 +567,7 @@ if (Menu_Mode_Selection == 3) {
        lcd.clear();
        delay(100);
        lcd.setCursor(0,0);
-       lcd.print("Wheel Speed LH:");
+       lcd.print(TRS_WHEEL_SPEED_LH);
        lcd.setCursor(0,1);
        lcd.print(PWM_MaxSpeed_LH);
        Serial.print(F("PWM_L:"));
@@ -585,7 +585,7 @@ if (Menu_Mode_Selection == 3) {
              lcd.print("PWM_L:");
              lcd.print(PWM_MaxSpeed_LH);
              lcd.setCursor(0,1);
-             lcd.print("SAVED");
+             lcd.print(TRS_SAVED);
              delay(2000);
              lcd.clear();          
              EEPROM.write(13, 1);
@@ -625,7 +625,7 @@ if (Menu_Mode_Selection == 3) {
        lcd.clear();
        delay(100);
        lcd.setCursor(0,0);
-       lcd.print("Wheel Speed RH:");
+       lcd.print(TRS_WHEEL_SPEED_RH);
        lcd.setCursor(0,1);
        lcd.print(PWM_MaxSpeed_RH);
        Serial.print(F("PWM_R:"));
@@ -643,7 +643,7 @@ if (Menu_Mode_Selection == 3) {
              lcd.print("PWM_R:");
              lcd.print(PWM_MaxSpeed_RH);
              lcd.setCursor(0,1);
-             lcd.print("SAVED");
+             lcd.print(TRS_SAVED);
              delay(2000);
              lcd.clear();       
              EEPROM.write(15, 1);
@@ -680,7 +680,7 @@ if (Menu_Mode_Selection == 3) {
        lcd.clear();
        delay(500);
        lcd.setCursor(0,0);
-       lcd.print("Blade Speed:");
+       lcd.print(TRS_BLADE_SPEED);
        lcd.setCursor(0,1);
        lcd.print(PWM_Blade_Speed);
        Serial.print(F("Blade PWM:"));

@@ -3,8 +3,9 @@
 
 /* Calculates the compass heading as heading & degrees of the onboard compass */
 void Get_Compass_Reading() {
+  
   Vector norm = compass.readNormalize();
-  delay(5);
+  //[LB] tolto delay(5);
   Heading = atan2(norm.YAxis, norm.XAxis);                        // Calculate heading
 
   // Set declination angle. Find your location declination on: http://magnetic-declination.com/

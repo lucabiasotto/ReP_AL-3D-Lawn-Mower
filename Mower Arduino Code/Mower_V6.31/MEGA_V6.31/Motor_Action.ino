@@ -2,6 +2,11 @@ void Motor_Action_Go_Full_Speed()     {
       analogWrite(ENAPin, PWM_MaxSpeed_RH);                       // Speed = 0-255  (255 is max speed). Speed is set in the settings                        
       analogWrite(ENBPin, PWM_MaxSpeed_LH);                       // Anaolgwirte sends PWM signals Speed = 0-255  (255 is max speed)
       Serial.print(F("Wheel:FULL|"));
+
+      Serial.print(F("Wheel:FULL_R|"));
+      Serial.print(PWM_MaxSpeed_RH);
+      Serial.print(F("Wheel:FULL_L|"));
+      Serial.print(PWM_MaxSpeed_LH);
       }
 
 void Motor_Action_GoFullSpeed_Out_Garage()     {
@@ -49,7 +54,7 @@ void Motor_Action_Stop_Motors()  {                                     // Motor 
 }
 
 
-void SetPins_ToTurnLeft()       {                              // Pins are set so that Motors drive in opposite directions
+void SetPins_ToTurnLeft()       {                              // Pins are set so that Motors drive in opposite directionsMotor_Action_Go_Full_Speed
     digitalWrite(IN1Pin, LOW);                                   // Motor 1
     digitalWrite(IN2Pin, HIGH);
     digitalWrite(IN3Pin, HIGH);                                  // Motor 2

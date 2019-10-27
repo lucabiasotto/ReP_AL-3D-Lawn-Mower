@@ -7,6 +7,100 @@
 
 
 
+/**
+   Contains all translation
+
+*/
+
+//#define ENGLISH
+#define ITALIAN
+
+#ifdef ENGLISH
+
+const char TRS_PARKED[] = "Parked";
+char TRS_ROBOT_NAME[] = "ReP_AL Robot";
+char TRS_MANUAL[] = "Manual";
+char TRS_DOCKED[] = "Docked";
+char TRS_CHARGING[] = "Charging";
+char TRS_RAIN[] = "Rain";
+char TRS_RECHARGE_BATT[] = "Recharge Batt";
+char TRS_WIRE_DETECT[] = "WIRE Detect ";
+char TRS_MOVING__[] = "Mowing..    ";
+char TRS_RAINING[] = "RAINING";
+char TRS_SONAR_OBJECT[] = "Sonar Object ";
+char TRS_COMPASS_HOME[] = "Compass Home";
+char TRS_TARGET[] = "Target:";
+char TRS_DOCKED_IN[] = "Docked in";
+char TRS_CHARGING_STATION[] = "Charging Station";
+char TRS_MENU_CANCELLED[] = "Menu Cancelled";
+char TRS_WIRE_OFF[] = ":WIRE OFF";
+char TRS_WIRE_OFF_[] = ":WIRE OFF        ";
+char TRS_ALARM_1[] = "Alarm 1";
+char TRS_ALARM_2[] = "Alarm 2";
+char TRS_ALARM_3[] = "Alarm 3";
+char TRS_WHEEL_SPEED_LH[] = "Wheel Speed LH";
+char TRS_WHEEL_SPEED_RH[] = "Wheel Speed RH";
+char TRS_BLADE_SPEED[] = "Blade Speed";
+char TRS_COMPASS_ON_OFF[] = "Compass ON/OFF";
+char TRS_TRACKING_PID[] = "Tracking PID";
+char TRS_SET_CLOCK[] = "Set Clock";
+char TRS_SAVED[] = "Saved";
+char TRS_EXIT_DOCK_Z_1[] = "Exit Dock Z-1";
+char TRS_EXIT_DOCK_Z_2[] = "Exit Dock Z-2";
+char TRS_QUICK_START[] = "Quick Start";
+char TRS_TRAMPOLINE_CUT[] = "Trampoline Cut";
+char TRS_MOW_THE_LINE[] = "Mow the Line";
+char TRS_TEST_MENU[] = "Test Menu";
+char TRS_SETUP_MOWER[] = "Setup Mower";
+char TRS_MANUAL_START[] = "Manual Start";
+char TRS_BLADE_WILL_SPIN[] = "Blade will spin";
+
+#endif
+
+#ifdef ITALIAN
+
+const char TRS_PARKED[] = "Parcheggiato";
+char TRS_ROBOT_NAME[] = "Fam.Bias8 Robot";
+char TRS_MANUAL[] = "Manuale";
+char TRS_DOCKED[] = "Ai Box";
+char TRS_CHARGING[] = "In carica";
+char TRS_RAIN[] = "Pioggia";
+char TRS_RECHARGE_BATT[] = "Ricaricare Batteria";
+char TRS_WIRE_DETECT[] = "Cavo Rilevato ";
+char TRS_MOVING__[] = "In movimento..    ";
+char TRS_RAINING[] = "STA PIOVENDO";
+char TRS_SONAR_OBJECT[] = "Ostacolo Sonar ";
+char TRS_COMPASS_HOME[] = "Cerca Box";//tramite bussola
+char TRS_TARGET[] = "Obiettivo:";
+char TRS_DOCKED_IN[] = "Ai Box";
+char TRS_CHARGING_STATION[] = "Stazione Ricarica";
+char TRS_MENU_CANCELLED[] = "Menu Annullato";
+char TRS_WIRE_OFF[] = ":CAVO OFF";
+char TRS_WIRE_OFF_[] = ":CAVO OFF        ";
+char TRS_ALARM_1[] = "Alarm 1";
+char TRS_ALARM_2[] = "Alarm 2";
+char TRS_ALARM_3[] = "Alarm 3";
+char TRS_WHEEL_SPEED_LH[] = "Vel. ruota SX";
+char TRS_WHEEL_SPEED_RH[] = "Vel. ruota DX";
+char TRS_BLADE_SPEED[] = "Vel. Lama";
+char TRS_COMPASS_ON_OFF[] = "Compass ON/OFF";
+char TRS_TRACKING_PID[] = "Tracking PID";
+char TRS_SET_CLOCK[] = "Imposta Ora";
+char TRS_SAVED[] = "Salvato";
+char TRS_EXIT_DOCK_Z_1[] = "Esci Box 1";
+char TRS_EXIT_DOCK_Z_2[] = "Esci Box 2";
+char TRS_QUICK_START[] = "Avvio Rapido";
+char TRS_TRAMPOLINE_CUT[] = "Taglio a caso";
+char TRS_MOW_THE_LINE[] = "Segui il cavo";
+char TRS_TEST_MENU[] = "Test Menu";
+char TRS_SETUP_MOWER[] = "Setup Robot";
+char TRS_MANUAL_START[] = "Manual Start";
+char TRS_BLADE_WILL_SPIN[] = "Blade will spin";
+
+
+#endif
+
+
 //Libraries for Perimeter Wire Receiver
 #include <Arduino.h>
 #include <Wire.h>
@@ -267,7 +361,7 @@ bool WIFI_Enabled               = 0;                          // Activates the W
 bool Perimeter_Wire_Enabled     = 0;                          // Activates use of the perimeter boundary wire
 
 //Docking Station
-bool Use_Charging_Station       = 0;                          // 1 if you are using the docking/charging station     0 if not
+bool Use_Charging_Station       = 1;                          // 1 if you are using the docking/charging station     0 if not
 bool CW_Tracking_To_Charge      = 1;                          // Clock-Wise         tracking around the boundary wire to the charging station
 bool CCW_Tracking_To_Charge     = 0;                          // Counter-Clock-Wise tracking around the boundary wire to the charging station
 bool CW_Tracking_To_Start       = 0;                          // Clock-Wise         tracking around the boundary wire when tracking to the start position
@@ -303,12 +397,12 @@ byte  Low_Battery_Instances_Chg = 14;                         // Instances of lo
 bool Sonar_1_Activate           = 1;                          // Activate (1) Deactivate (0) Sonar 1
 bool Sonar_2_Activate           = 1;                          // Activate (1) Deactivate (0) Sonar 2
 bool Sonar_3_Activate           = 1;                          // Activate (1) Deactivate (0) Sonar 3
-int  Max_Sonar_Hit              = 3;                          // Maximum number of Sonar hits before object is discovered
+int  Max_Sonar_Hit              = 2;//default 3                          // Maximum number of Sonar hits before object is discovered
 long maxdistancesonar           = 30;                         // distance in cm from the mower that the sonar will activate at.
 
 //Wheel Motors Setup
 int Max_Cycles                 = 150;                         // Number of loops the Sketch will run before the mower just turns around anyway.
-int PWM_MaxSpeed_LH            = 240;     //EEPROM            // Straight line speed LH Wheel (Looking from back of mower)  Will be overidden if saved in EEPROM
+int PWM_MaxSpeed_LH            = 255;// era 240 boh 240;     //EEPROM            // Straight line speed LH Wheel (Looking from back of mower)  Will be overidden if saved in EEPROM
 int PWM_MaxSpeed_RH            = 255;     //EEPROM            // Straight line speed RH Wheel - adjust to keep mower tracking straight.  Will be overridden if saved in EEPROM
 
 int Max_Motor_PWM_LH           = 255;

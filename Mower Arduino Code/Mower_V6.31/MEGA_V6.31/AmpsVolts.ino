@@ -74,9 +74,9 @@ void Check_if_Docked() {
         Serial.println(F("Mower Docked"));
         lcd.clear();
         lcd.setCursor(0, 0);
-        lcd.print("Docked in");
+        lcd.print(TRS_DOCKED_IN);
         lcd.setCursor(0, 1);
-        lcd.print("Charging Station");                                // Prints info to LCD display
+        lcd.print(TRS_CHARGING_STATION);                                // Prints info to LCD display
         delay(2000);
         Mower_Docked = 1;
         Manouver_Dock_The_Mower();                                    // Shuts down the Mower ready for charging and mowing again.

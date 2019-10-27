@@ -72,6 +72,25 @@ void Test_Wheel_Motors() {
   lcd.print("Remove ALL");
   lcd.setCursor(0,1);
   lcd.print("Blades!!!");
+  delay(2000);
+  lcd.clear();
+
+
+  lcd.print("Forwards");
+  delay(500);
+  SetPins_ToGoForwards();
+  Motor_Action_Go_Full_Speed();
+  delay(2000);
+  Motor_Action_Stop_Motors(); 
+  delay(1000);
+  lcd.clear();
+
+  lcd.print("Backwards");
+  delay(500);
+  SetPins_ToGoBackwards();   
+  Motor_Action_Go_Full_Speed();
+  delay(2000);
+  Motor_Action_Stop_Motors();  
   delay(1000);
   lcd.clear();
 
@@ -80,7 +99,7 @@ void Test_Wheel_Motors() {
   delay(500);
   SetPins_ToTurnLeft();
   Motor_Action_Go_Full_Speed();
-  delay(1000);
+  delay(2000);
   Motor_Action_Stop_Motors();
   delay(1000);
   lcd.clear();
@@ -91,24 +110,6 @@ void Test_Wheel_Motors() {
   Motor_Action_Go_Full_Speed();
   delay(2000);
   Motor_Action_Stop_Motors();
-  delay(1000);
-  lcd.clear();
-
-  lcd.print("Forwards");
-  delay(500);
-  SetPins_ToGoForwards();
-  Motor_Action_Go_Full_Speed();
-  delay(1000);
-  Motor_Action_Stop_Motors(); 
-  delay(1000);
-  lcd.clear();
-
-  lcd.print("Backwards");
-  delay(500);
-  SetPins_ToGoBackwards();   
-  Motor_Action_Go_Full_Speed();
-  delay(1000);
-  Motor_Action_Stop_Motors();  
   delay(1000);
   lcd.clear();
 
