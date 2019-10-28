@@ -3,9 +3,9 @@
 // BUTTONS TIMING MENU
 
 void Print_LCD_Menu_Timing(byte LCD_Menu_Timing) {
-  if (LCD_Menu_Timing == 1) lcd.print("Max Mow Time");
-  if (LCD_Menu_Timing == 2) lcd.print("1hr Mow Time");
-  if (LCD_Menu_Timing == 3) lcd.print("2hr Mow Time");
+  if (LCD_Menu_Timing == 1) lcd.print(TRS_MOW_TIME_MAX);
+  if (LCD_Menu_Timing == 2) lcd.print(TRS_MOW_TIME_1HR);
+  if (LCD_Menu_Timing == 3) lcd.print(TRS_MOW_TIME_2HR);
   if (LCD_Menu_Timing == 4) lcd.print("  ");                  //leave blank
  }  
 
@@ -142,9 +142,9 @@ void Activate_Menu_Option_Timing() {
      if (Menu_Mode_Selection == 1) {
        // Maximum Mower Timing
        lcd.clear();
-       lcd.print("Max Mow");
+       lcd.print(TRS_MAX_MOW);
        lcd.setCursor(0,1);
-       lcd.print("Selected");
+       lcd.print(TRS_SELECTED);
        Serial.println(F("Maximum Mow Time Selected"));
        delay(5000);
        lcd.clear();
@@ -179,9 +179,9 @@ void Activate_Menu_Option_Timing() {
            if (Alarm_Timed_Mow_Minute < 10) Serial.print ("0");
            Serial.println(Alarm_Timed_Mow_Minute);
            
-           lcd.print("1hr Mow Selected");
+           lcd.print(TRS_1HR_MOW_SELECTED);
            lcd.setCursor(0,1);
-           lcd.print("Ends: ");
+           lcd.print(TRS_ENDS_);
            lcd.print(Alarm_Timed_Mow_Hour);
            lcd.print(":");
            if (Alarm_Timed_Mow_Minute < 10) lcd.print("0");
@@ -212,9 +212,9 @@ void Activate_Menu_Option_Timing() {
            if (Alarm_Timed_Mow_Minute < 10) Serial.print ("0");
            Serial.println(Alarm_Timed_Mow_Minute);
            
-           lcd.print("2hr Mow Selected");
+           lcd.print(TRS_2HR_MOW_SELECTED);
            lcd.setCursor(0,1);
-           lcd.print("Ends: ");
+           lcd.print(TRS_ENDS_);
            lcd.print(Alarm_Timed_Mow_Hour);
            lcd.print(":");
            if (Alarm_Timed_Mow_Minute < 10) lcd.print("0");

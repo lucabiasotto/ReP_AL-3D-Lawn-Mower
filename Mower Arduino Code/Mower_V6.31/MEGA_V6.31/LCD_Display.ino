@@ -78,9 +78,9 @@ void Print_LCD_Mowing() {
 void Print_LCD_Compass_Mowing() {
      if (Compass_Heading_Locked == 1) {
          lcd.setCursor(0, 1);
-         if (PWM_Right > PWM_Left)  lcd.print("<H-Lock Mow ");      
-         if (PWM_Left > PWM_Right)  lcd.print(" H-Lock Mow>"); 
-         if (PWM_Left == PWM_Right) lcd.print("|H-Lock Mow|");
+         if (PWM_Right > PWM_Left)  lcd.print(TRS_H_LOCK_LEFT);      
+         if (PWM_Left > PWM_Right)  lcd.print(TRS_H_LOCK_RIGHT); 
+         if (PWM_Left == PWM_Right) lcd.print(TRS_H_LOCK_OK);
          }
      if (Compass_Heading_Locked == 0) {
          lcd.setCursor(0, 1);

@@ -19,11 +19,11 @@ void Print_LCD_Menu_Docked(byte LCD_Menu_Docked) {
   if (LCD_Menu_Docked == 5) lcd.print(TRS_MOW_THE_LINE);
   if (LCD_Menu_Docked == 6) lcd.print(TRS_TEST_MENU);
   if (LCD_Menu_Docked == 7) lcd.print(TRS_SETUP_MOWER);
-  if (LCD_Menu_Docked == 8) lcd.print("-- 8 --");
-  if (LCD_Menu_Docked == 9) lcd.print("-- 9 --");
-  if (LCD_Menu_Docked == 10) lcd.print("-- 10 --");
-  if (LCD_Menu_Docked == 11) lcd.print("-- 11 --");
-  if (LCD_Menu_Docked == 12) lcd.print("-- 12 --");
+  if (LCD_Menu_Docked == 8) lcd.print("-  ");
+  if (LCD_Menu_Docked == 9) lcd.print("-  ");
+  if (LCD_Menu_Docked == 10) lcd.print("-  ");
+  if (LCD_Menu_Docked == 11) lcd.print("-  ");
+  if (LCD_Menu_Docked == 12) lcd.print("-  ");
   }
 
 

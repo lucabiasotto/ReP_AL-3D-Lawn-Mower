@@ -23,7 +23,7 @@ void Check_Membrane_Switch_Input() {
      char Menu_Item_3[16] = "Quick Start";
      char Menu_Item_4[16] = "Trampoline Cut";
      char Menu_Item_5[16] = "Mow the Line";
-     char Menu_Item_6[16] = "-- SPARE 6 ---";
+     char Menu_Item_6[16] = " - ";
      int Menu_View = 0;
 
     
@@ -288,9 +288,9 @@ void Check_Membrane_Switch_Input() {
      char Menu_Item_1[16] = "Continue Mow";
      char Menu_Item_2[16] = "Go Home";
      char Menu_Item_3[16] = "Trampoline Cut";
-     char Menu_Item_4[16] = "-- Spare 4 --";
-     char Menu_Item_5[16] = "-- Spare 5 --";
-     char Menu_Item_6[16] = "-- Spare 6 --";
+     char Menu_Item_4[16] = " - ";
+     char Menu_Item_5[16] = " - ";
+     char Menu_Item_6[16] = " - ";
      int Menu_View = 0;
 
     

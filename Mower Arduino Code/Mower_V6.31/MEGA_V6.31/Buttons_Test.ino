@@ -11,9 +11,9 @@ void Print_LCD_Menu_Tests(byte LCD_Menu_Tests) {
   if (LCD_Menu_Tests == 6) lcd.print("Turn Test");
   if (LCD_Menu_Tests == 7) lcd.print("Volt Amp Test");
   if (LCD_Menu_Tests == 8) lcd.print("Compass Test");
-  if (LCD_Menu_Tests == 9) lcd.print("Spare 9");
-  if (LCD_Menu_Tests == 10) lcd.print("Spare 10");
-  if (LCD_Menu_Tests == 11) lcd.print("Spare 11");  
+  if (LCD_Menu_Tests == 9) lcd.print("-  ");
+  if (LCD_Menu_Tests == 10) lcd.print("-  ");
+  if (LCD_Menu_Tests == 11) lcd.print("-  ");  
   if (LCD_Menu_Tests == 12) lcd.print("");   // Leave Blank
   }
 

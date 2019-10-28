@@ -591,6 +591,9 @@ int16_t DFRobot_QMC5883::readRegister16OnTransmission(uint8_t reg)
         uint8_t vha = Wire.receive();
         uint8_t vla = Wire.receive();
     #endif
+
+    Wire.endTransmission(false); //[LB] false: keep connection open
+    
     value = vha << 8 | vla;
 
   }else if(isQMC_){
@@ -604,7 +607,6 @@ int16_t DFRobot_QMC5883::readRegister16OnTransmission(uint8_t reg)
     
 
     //Serial.print("|beginTransmission");
-    //Wire.beginTransmission(QMC5883_ADDRESS); //[LB] non serve a un cazzo ho la connessione di prima
     Wire.requestFrom(QMC5883_ADDRESS, 2, false); //[LB] false: not closse connection
 
     int notAvailableCount = 10;
@@ -623,7 +625,8 @@ int16_t DFRobot_QMC5883::readRegister16OnTransmission(uint8_t reg)
         uint8_t vha = Wire.receive();
         uint8_t vla = Wire.receive();
     #endif
-    
+    Wire.endTransmission(false); //[LB] false: keep connection open
+
     value = vha << 8 | vla;
   }
   return value;
@@ -631,7 +634,7 @@ int16_t DFRobot_QMC5883::readRegister16OnTransmission(uint8_t reg)
 
 void DFRobot_QMC5883::beginDFTransmission(void){
   if(isHMC_){
-      Wire.beginTransmission(HMC5883L_ADDRESS);
+    Wire.beginTransmission(HMC5883L_ADDRESS);
   }else{
     Wire.beginTransmission(QMC5883_ADDRESS);
   }
