@@ -83,10 +83,18 @@ void Motor_Action_Turn_Speed() {
 void Motor_Action_Spin_Blades()  {
   if (Cutting_Blades_Activate == 1) {                                       // Blades are turn ON in settings and will spin!
     delay(20);
+    /*
+    ho disattivato il controllo della rotazione sulla lama
     digitalWrite(R_EN, HIGH);
     digitalWrite(L_EN, HIGH);
     delay(20);
     analogWrite(RPWM, PWM_Blade_Speed);
+    */
+
+    //la lama è attivata da un relay, gli devo dare 5 Volte
+    //digitalWrite(RPWM, HIGH);
+    analogWrite(RPWM, 255);
+    
     delay(20);
     Serial.print("Blades:ON_|");
    }                 
@@ -99,8 +107,14 @@ void Motor_Action_Spin_Blades()  {
 
 void Motor_Action_Stop_Spin_Blades()  {
   delay(20);
+  /*
   digitalWrite(R_EN, LOW);
   digitalWrite(L_EN, LOW);
+  */
+  //la lama è attivata da un relay, tolgo tensione
+  //digitalWrite(RPWM, LOW);
+  analogWrite(RPWM, 0);
+  
   delay(20);
   Serial.print("Blades:0FF|");
 }

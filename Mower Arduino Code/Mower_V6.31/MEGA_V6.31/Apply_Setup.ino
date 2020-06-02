@@ -82,7 +82,7 @@ void Setup_Motor_Pins() {
   Serial.println("Setup Motor Pins");
   pinMode(L_EN, OUTPUT);
   pinMode(R_EN, OUTPUT);
-  pinMode(RPWM, OUTPUT);
+  //tolto perchè uso analogWrite(RPWM, 255); pinMode(RPWM, OUTPUT);
 
 
   /*Sets up the wheel motor Pins*/

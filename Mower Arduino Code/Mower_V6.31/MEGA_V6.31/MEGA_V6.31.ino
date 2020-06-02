@@ -389,7 +389,7 @@ float Traking_PID_P_EEPROM;
 
 char Version[16] = "V6.31";
 
-bool Cutting_Blades_Activate    = 0;                          // Activates the cutting blades and disc in the code
+bool Cutting_Blades_Activate    = 1;                          // Activates the cutting blades and disc in the code
 bool WIFI_Enabled               = 0;                          // Activates the WIFI Fucntions
 bool Perimeter_Wire_Enabled     = 0;                          // Activates use of the perimeter boundary wire
 
