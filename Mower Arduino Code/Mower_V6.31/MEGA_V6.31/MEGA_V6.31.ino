@@ -392,13 +392,18 @@ char Version[16] = "V6.31";
 bool Cutting_Blades_Activate    = 1;                          // Activates the cutting blades and disc in the code
 bool WIFI_Enabled               = 0;                          // Activates the WIFI Fucntions
 bool Perimeter_Wire_Enabled     = 0;                          // Activates use of the perimeter boundary wire
+//nota, se attivi il perimetro attiva anche i parametri della  docking station
+//   - Use_Charging_Station =1
+//   - CW_Tracking_To_Charge =1
+//   - CCW_Tracking_To_Start=1
+
 
 //Docking Station
-bool Use_Charging_Station       = 1;                          // 1 if you are using the docking/charging station     0 if not
-bool CW_Tracking_To_Charge      = 1;                          // Clock-Wise         tracking around the boundary wire to the charging station
+bool Use_Charging_Station       = 0;//1 perimetro                          // 1 if you are using the docking/charging station     0 if not
+bool CW_Tracking_To_Charge      = 0;//1 perimetro                         // Clock-Wise         tracking around the boundary wire to the charging station
 bool CCW_Tracking_To_Charge     = 0;                          // Counter-Clock-Wise tracking around the boundary wire to the charging station
 bool CW_Tracking_To_Start       = 0;                          // Clock-Wise         tracking around the boundary wire when tracking to the start position
-bool CCW_Tracking_To_Start      = 1;                          // Counter-Clock-Wise tracking around the boundary wire to the charging station
+bool CCW_Tracking_To_Start      = 0;//1 perimetro                         // Counter-Clock-Wise tracking around the boundary wire to the charging station
 byte Docked_Filter_Hits         = 1;                          // Number of charge signals to be detected before mower powers off
 
 int Track_Wire_Zone_1_Cycles    = 600;                       // Zone 1 - Number of Itterations the PID function does before the mower exits the wire track
@@ -422,7 +427,7 @@ byte Rain_Total_Hits_Go_Home        = 10;                      // This sensor on
 // as the mower is sent there to get out of the rain.
 //Battery Settings
 float Battery_Max               = 12.6;                       // Max battery volts in Volts. 3S = 12.6V
-float Battery_Min               = 11.4;                       // Lower Limit of battery charge before re-charge required.
+float Battery_Min               = 10.5; //11.4; alzare il limite quando dovrà tornare a casa                       // Lower Limit of battery charge before re-charge required.
 byte  Low_Battery_Detected      = 0;                          // Always set to 0
 byte  Low_Battery_Instances_Chg = 14;                         // Instances of low battery detected before a re-charge is called..
 

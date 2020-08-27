@@ -138,9 +138,13 @@ void Print_LCD_Compass_Home() {
     lcd.clear();
     lcd.setCursor(0,0);
     lcd.print(TRS_COMPASS_HOME);
-    if (Rain_Detected == 1) {
+    if (Rain_Detected == 1 && Rain_Sensor_Installed == 1 /*aggiunto controllo sensore on */) {
      lcd.setCursor(0,1);
      lcd.print(TRS_RAINING);
+    }else{
+      /* aggiunto else per pulire la seconda riga */
+     lcd.setCursor(0,1);
+     lcd.print(":-(");
     }
 }
 

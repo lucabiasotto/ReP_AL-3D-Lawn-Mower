@@ -5,6 +5,8 @@ void Process_Volt_Information()   {
 //  Logic for how the battery readings should be handled
     
     if (Volts < Battery_Min) {
+      //potrebbe essere un momento sottosforzo, lo mando in carica  solo dopo che ho rilevato un po' di sottosforzo
+      
       Low_Battery_Detected = (Low_Battery_Detected + 1);
       Serial.print("VLow:");
       Serial.print(Low_Battery_Detected);
