@@ -1,0 +1,1 @@
+- No_Wire_Found: indica se il robot sta seguendo il cavo oppure no...si può togliere?

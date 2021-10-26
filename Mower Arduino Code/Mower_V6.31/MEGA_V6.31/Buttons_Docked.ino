@@ -294,7 +294,7 @@ void Activate_Menu_Option_Docked() {
           //Enter here the code to go to zone 1 from dock
           Exit_Zone = 1;
           Track_Wire_Itterations = Track_Wire_Zone_1_Cycles;
-          Manouver_Exit_To_Zone_X();    
+          leaveChargingStation();    
           }
      }
  
@@ -315,7 +315,7 @@ void Activate_Menu_Option_Docked() {
        if (Mow_Time_Set == 1) {
           Exit_Zone = 2;
           Track_Wire_Itterations = Track_Wire_Zone_2_Cycles;
-          Manouver_Exit_To_Zone_X();
+          leaveChargingStation();
           }
      }
 
@@ -353,7 +353,7 @@ void Activate_Menu_Option_Docked() {
          Blade_Override = 1;
          Track_Wire_Itterations = 6000;
          Exit_Zone = 3;    
-         Manouver_Exit_To_Zone_X();
+         leaveChargingStation();
          Manouver_Start_Mower();                                  // Sets up the mower to go.
          }
         }

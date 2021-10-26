@@ -93,7 +93,7 @@ delay(30);
    lcd.clear();
    Exit_Zone = 1;
    Track_Wire_Itterations = Track_Wire_Zone_1_Cycles;
-   Manouver_Exit_To_Zone_X();
+   leaveChargingStation();
    }
    }
 
@@ -127,7 +127,7 @@ delay(30);
    delay(1000);
    lcd.clear();
   
-   Manouver_Go_To_Charging_Station();    
+   goToChargingStation();    
 
    
    }

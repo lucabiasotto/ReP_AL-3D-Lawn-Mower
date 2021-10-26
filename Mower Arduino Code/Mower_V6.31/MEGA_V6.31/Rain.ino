@@ -42,7 +42,7 @@ void Check_if_Raining_From_Nano () {
     Serial.println("");
     Print_Raining_LCD();
     delay(2000);
-    Manouver_Go_To_Charging_Station();            // If the Mower is running then go to the charge station.
+    goToChargingStation();            // If the Mower is running then go to the charge station.
   }
 
 }

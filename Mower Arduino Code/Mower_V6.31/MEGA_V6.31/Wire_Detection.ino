@@ -93,9 +93,12 @@ void Check_Wire_In_Out() {
 
 
 
-//Check that boundary wire is turned on
-//************************************************************************************
-void TestforBoundaryWire()  {
+/**
+ * Check that boundary wire is turned on
+ */
+bool isWireOn()  {
+  bool wireDetected = false;
+
   ADCMan.run();
   UpdateWireSensor();
 
@@ -105,41 +108,42 @@ void TestforBoundaryWire()  {
     MAG_Now = perimeter.getMagnitude(0);
 
 
-    // if the MAG fiels is strong then the wire is on.
-    if (   (MAG_Now < -50 ) || (MAG_Now > 50 )  ) {
-      Wire_Detected = 1;                                            // Wire is detected
-      Wire_Off = 0;                                                 // Resets the counter
-      Print_LCD_Wire_ON();
-    }
-
     // If the MAG field is very low between these values we can assume the wire is off
-    if ( (MAG_Now > -cable_mag_sensibility ) && (MAG_Now < cable_mag_sensibility )  ) {
-      Wire_Detected = 0;
+    if (MAG_Now > -MIN_WIRE_MAG && MAG_Now < MIN_WIRE_MAG ) {
+      wireDetected = false;// Wire not detected
       Print_LCD_NO_Wire();
-      Wire_Off = Wire_Off + 1;
+      wireOffCounter = wireOffCounter + 1;
 
-      // If the mower is docked or Parked then the TFT screen just shows a wire off warning
-      //metto 15 prima di dare errore if ( (Wire_Off > 5) && (Mower_Docked == 0) && (Mower_Parked == 0) ) {
-      if ( (Wire_Off > 15) && (Mower_Docked == 0) && (Mower_Parked == 0) ) {
+      if (wireOffCounter > MAX_WIRE_FAIL && !Mower_Docked && !Mower_Parked) {
         Serial.println(F("Wire Test Failed - Hibernating Mower"));
-        Manouver_Hibernate_Mower();      // Send the mower to sleep
+        Manouver_Hibernate_Mower();      
       }
+
+    }else{
+      wireDetected = true;// Wire is detected
+      wireOffCounter = 0;// Resets the fail counter
+      Print_LCD_Wire_ON();
     }
 
     Serial.print(F("|Wire"));
     Serial.print(F(":"));
-    if (Wire_Detected == 0) Serial.print(F("OFF|"));
-    if (Wire_Detected == 1) Serial.print(F("ON|"));
-  }
+    if (wireDetected) {
+      Serial.print(F("OFF|"));
+    }else{
+      Serial.print(F("ON|"));
+    }
 
-  // If the wire is in test mode
-  if (Perimeter_Wire_Enabled == 0) {
+  }else{
+    //Wire not enable
+
     Serial.print(F("Wire"));
     Serial.print(F(":"));
     Serial.print(F("DISABLED|"));
-    Wire_Detected = 1;
+    wireDetected = true;
 
   }
+
+  return wireDetected;
 }
 
 

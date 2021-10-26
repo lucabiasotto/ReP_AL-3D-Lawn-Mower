@@ -21,7 +21,7 @@ void Process_Volt_Information()   {
 
       if (Use_Charging_Station == 1) {
         // Stops the mowing and sends the mower back to the charging station via the permieter wire
-        Manouver_Go_To_Charging_Station();
+        goToChargingStation();
       } else {
         // Parks the mower with a low battery warning
         Manouver_Park_The_Mower_Low_Batt();

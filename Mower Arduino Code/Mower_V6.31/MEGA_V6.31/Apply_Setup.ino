@@ -14,8 +14,6 @@ void Prepare_Mower_from_Settings() {
 
 void Setup_Compass() {
   if (Compass_Activate == 1) {
-    /*Setup Compass
-    *************************************************************************/
     lcd.clear();
     lcd.print("Compass  ");
     lcd.setCursor(0, 1);

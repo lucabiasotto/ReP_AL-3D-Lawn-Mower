@@ -59,7 +59,7 @@ void Specials_Find_Wire_Track()  {
   delay(5);
   Abort_Wire_Find = 0;
   No_Wire_Found = 0;
-  TestforBoundaryWire();                                                                    // Check to see that the wire is on.
+  bool wireOn = isWireOn();// TODO, non viene mai usato...
 
   for (int i = 0; i <= 1; i++) {
     Serial.print(F("Position Try = "));

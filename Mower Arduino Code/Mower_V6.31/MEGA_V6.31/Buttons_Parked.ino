@@ -289,7 +289,7 @@ void Activate_Menu_Option_Parked() {
           Menu_Mode_Selection = 0;                                      // Releases the loop in the membrane button section.
           delay(1000);
           lcd.clear();
-          Manouver_Go_To_Charging_Station();        
+          goToChargingStation();        
           }
       if (Use_Charging_Station == 0) {
           lcd.clear();

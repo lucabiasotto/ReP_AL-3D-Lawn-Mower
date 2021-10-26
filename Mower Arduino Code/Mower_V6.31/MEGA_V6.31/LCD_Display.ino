@@ -21,14 +21,14 @@ void Print_Mower_Error() {
   lcd.clear();
   lcd.setCursor(0,0);
   lcd.print("Mower Error");
-  if (Wire_Off > 5) {
+  if (wireOffCounter > MAX_WIRE_FAIL) {
     lcd.setCursor(0,1);
     lcd.print("Wire Off");
   }
   
 }
 
-void Print_LCD_Volt_Info() {
+void lcdPrintVoltInfo() {
     lcd.setCursor(10, 0);
     lcd.print("V:");
     lcd.setCursor(12, 0);    

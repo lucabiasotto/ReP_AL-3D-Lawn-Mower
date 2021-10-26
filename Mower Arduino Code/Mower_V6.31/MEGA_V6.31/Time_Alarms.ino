@@ -44,7 +44,7 @@ void Activate_Alarms() {
        // Insert action for Alarm 1 Here
        Exit_Zone = 1;
        Track_Wire_Itterations = Track_Wire_Zone_1_Cycles;
-       Manouver_Exit_To_Zone_X();
+       leaveChargingStation();
        }
      }
  
@@ -86,7 +86,7 @@ void Check_Timed_Mow() {
        Serial.println("Timed Mow Complete");
        delay(2000);
        //Insert action for Timed Mow Alarm Here
-         if (Use_Charging_Station == 1) Manouver_Go_To_Charging_Station();                       // Stops the mowing and sends the mower back to the charging station via the permieter wire
+         if (Use_Charging_Station == 1) goToChargingStation();                       // Stops the mowing and sends the mower back to the charging station via the permieter wire
          if (Use_Charging_Station == 0) Manouver_Park_The_Mower_Low_Batt();                      // Parks the mower with a low battery warning
        }
      }
