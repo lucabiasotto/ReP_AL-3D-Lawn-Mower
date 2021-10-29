@@ -138,7 +138,7 @@ delay(30);
    Serial.print("WIFI Command: "); 
    Serial.print(val_WIFI);
    Serial.println(F("|Pause/Stop"));
-   Manouver_Park_The_Mower(); 
+   manouverParkTheMower(); 
    val_WIFI = 0;   // restes val2 to zero so the command is only executed once
   }
 
@@ -159,7 +159,7 @@ delay(30);
    Serial.print("WIFI Command: "); 
    Serial.print(val_WIFI);
    Serial.println(F("|Automatic Mode"));
-   Manouver_Park_The_Mower(); 
+   manouverParkTheMower(); 
    Turn_On_Relay(); 
    val_WIFI = 0;   // restes val2 to zero so the command is only executed once
   }
@@ -174,7 +174,7 @@ void Execute_Manuel_Blynk_Command_To_Mower() {
    Serial.print("WIFI Command: "); 
    Serial.print(val_WIFI);
    Serial.println(F("|Automatic Mode"));
-   Manouver_Park_The_Mower(); 
+   manouverParkTheMower(); 
    Turn_On_Relay(); 
    val_WIFI = 0;   // restes val2 to zero so the command is only executed once
   }

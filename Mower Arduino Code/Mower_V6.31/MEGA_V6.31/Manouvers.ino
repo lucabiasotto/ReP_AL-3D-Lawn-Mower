@@ -272,7 +272,7 @@ void findWire() {
         Serial.println("Wire Find Aborted");
         Abort_Wire_Find = 0;
         SetPins_ToGoForwards();
-        Manouver_Park_The_Mower();
+        manouverParkTheMower();
     }
 
     if (No_Wire_Found == 1) {
@@ -478,7 +478,10 @@ void Manouver_Mower_Exit_Dock() {
         Get_WIFI_Commands();
 }
 
-void Manouver_Dock_The_Mower() {
+/**
+ * Set the mower in dock status
+ */
+void manouverDockTheMower() {
     Mower_Docked = 1;
     Mower_Parked = 0;
     Mower_Running = 0;
@@ -491,7 +494,7 @@ void Manouver_Dock_The_Mower() {
     Motor_Action_Stop_Motors();
     Motor_Action_Stop_Spin_Blades();
     Turn_Off_Relay();
-    Print_LCD_Info_Docked();
+    //TODO serve? lcdUpdateScreen();
     Charge_Detected_MEGA = 0;
 
     //Setup Alarms
@@ -513,7 +516,7 @@ void Manouver_Park_The_Mower_Low_Batt() {
 }
 
 // Mower is in a parked or paused potion ready to restart
-void Manouver_Park_The_Mower() {
+void manouverParkTheMower() {
     if (Mower_Parked == 0)
         lcd.clear();
     Mower_Docked = 0;
@@ -610,7 +613,7 @@ void leaveChargingStation() {
     Manouver_Mower_Exit_Dock();
 
     Special_Exit_From_Docking_Station();  // Move the Mower into position backing out of the docking station
-    if (Perimeter_Wire_Enabled == 1) {
+    if (isPerimeterWireEnabled == 1) {
         Mower_Track_To_Exit = 1;
         delay(50);  //TODO perchè?
 
@@ -630,20 +633,20 @@ void leaveChargingStation() {
             }
 
             if (Mower_Parked == 1) {
-                Manouver_Park_The_Mower();
+                manouverParkTheMower();
             }
 
         } else {
             //Wire not detected
             Serial.println("");
             Serial.println("Perimeter Wire not detected");
-            Manouver_Park_The_Mower();
+            manouverParkTheMower();
         }
     } else {
         //wire not enable
         Serial.println("");
         Serial.println("Perimeter Wire not activated in settings");
-        Manouver_Park_The_Mower();
+        manouverParkTheMower();
     }
 }
 

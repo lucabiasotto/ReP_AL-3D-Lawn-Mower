@@ -384,6 +384,7 @@ void Activate_Menu_Option_Testing() {
         lcd.clear();
         Test_Compass_Turn_Function();
         }
+
       if (Menu_Mode_Selection == 7) {
         lcd.clear();
         lcd.print("Volt Amps Test");
@@ -393,7 +394,7 @@ void Activate_Menu_Option_Testing() {
         lcd.clear();
         Menu_Complete = false;
         while (Menu_Complete == false) {
-          Calculate_Volt_Amp_Charge();
+          readVoltAmp();
           delay(100);
           lcd.setCursor(0,0);
           lcd.print("Volt:");

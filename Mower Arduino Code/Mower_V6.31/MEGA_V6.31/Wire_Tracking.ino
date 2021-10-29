@@ -278,7 +278,7 @@ void followingWireToDock() {
 
             Serial.print(F(" : MAG_Error="));
             Serial.print(MAG_Error);
-            Calculate_Volt_Amp_Charge();
+            readVoltAmp(); //perchè?? TODO
             Check_if_Charging();
             Check_if_Docked();
             Dock_Cycles = Dock_Cycles + 1;
@@ -380,7 +380,7 @@ void followingWireToDock() {
 
             Serial.print(F(" : MAG_Error="));
             Serial.print(MAG_Error);
-            Calculate_Volt_Amp_Charge();
+            readVoltAmp(); //TODO perchè?
             Check_if_Charging();
             Check_if_Docked();
             Dock_Cycles = Dock_Cycles + 1;
