@@ -7,10 +7,10 @@ DFRobot_QMC5883 compass;
 
 void Setup_Compass() {
     if (Compass_Activate == 1) {
-        lcd.clear();
-        lcd.print("Compass  ");
-        lcd.setCursor(0, 1);
-        lcd.print("Setup");
+        robot.lcdDisplay.clear();
+        robot.lcdDisplay.print("Compass  ");
+        robot.lcdDisplay.setCursor(0, 1);
+        robot.lcdDisplay.print("Setup");
         Serial.println("Setup Compass");
         while (!compass.begin()) {
             Serial.println(F("Could not find a valid QMC5883 sensor, check wiring!"));
@@ -30,12 +30,12 @@ void Setup_Compass() {
             compass.setDataRate(QMC5883_DATARATE_50HZ);
             compass.setSamples(QMC5883_SAMPLES_8);
         }
-        lcd.clear();
-        lcd.print("Compass Setup ");
-        lcd.setCursor(0, 1);
-        lcd.print("Done!             ");
+        robot.lcdDisplay.clear();
+        robot.lcdDisplay.print("Compass Setup ");
+        robot.lcdDisplay.setCursor(0, 1);
+        robot.lcdDisplay.print("Done!             ");
         delay(500);
-        lcd.clear();
+        robot.lcdDisplay.clear();
     }
 
     if (Compass_Activate == 0) {
@@ -82,22 +82,22 @@ void Compass_Turn_Mower_To_Home_Direction() {
   robot.compassTarget = Home_Wire_Compass_Heading;
   Print_LCD_Heading_for_Home();
   delay(2000);
-  lcd.clear();
+  robot.lcdDisplay.clear();
   Get_Compass_Reading();
   SetPins_ToTurnLeft();
   Serial.print(F("Compass robot.heading Now : "));
   Serial.println(robot.compassHeadingDegrees);
   Serial.println(F("********************************"));
   delay(100);
-  lcd.print(robot.compassHeadingDegrees);
+  robot.lcdDisplay.print(robot.compassHeadingDegrees);
   // This spins the mower a little to ensure a true compass reading is being read (calibration).
   SetPins_ToTurnLeft();                                     // Calls the motor function turn Left
   Motor_Action_Turn_Speed();                                       // Sets the speed of the turning motion
   delay(500);
   Motor_Action_Stop_Motors();
   Get_Compass_Reading();
-  lcd.clear();
-  lcd.print(robot.compassHeadingDegrees);
+  robot.lcdDisplay.clear();
+  robot.lcdDisplay.print(robot.compassHeadingDegrees);
   SetPins_ToTurnLeft();                                     // Calls the motor function turn Left
   delay(100);
   Motor_Action_Turn_Speed();                                       // Sets the speed of the turning motion
@@ -105,8 +105,8 @@ void Compass_Turn_Mower_To_Home_Direction() {
   Motor_Action_Stop_Motors();
   Get_Compass_Reading();
   delay(500);
-  lcd.clear();
-  lcd.print("Compass Set");
+  robot.lcdDisplay.clear();
+  robot.lcdDisplay.print("Compass Set");
   Motor_Action_Stop_Motors();
   delay(2000);
   Turn_To_Compass_Heading();
@@ -117,12 +117,12 @@ void Turn_To_Compass_Heading()  {
   // Step turns the mower to the left while the heading is outside the home tolerance
   // Once the heading is found. the mower stops and can then activate the find wire function
 
-  lcd.setCursor(0, 0);
-  lcd.print("Target: ");
-  lcd.print(robot.compassTarget);
-  lcd.setCursor(0, 1);
-  lcd.print("Now:");
-  lcd.setCursor(0, 4);
+  robot.lcdDisplay.setCursor(0, 0);
+  robot.lcdDisplay.print("Target: ");
+  robot.lcdDisplay.print(robot.compassTarget);
+  robot.lcdDisplay.setCursor(0, 1);
+  robot.lcdDisplay.print("Now:");
+  robot.lcdDisplay.setCursor(0, 4);
   robot.headingLowerLimitCompass = robot.compassTarget - 5;
   robot.headingUpperLimitCompass = robot.compassTarget + 5;
   delay(500);
@@ -134,15 +134,15 @@ void Turn_To_Compass_Heading()  {
     Serial.print(F("|"));
     Get_Compass_Reading();
     delay(50);
-    lcd.setCursor(0, 0);
-    lcd.print("Degrees: ");
-    lcd.print(robot.compassHeadingDegrees);
+    robot.lcdDisplay.setCursor(0, 0);
+    robot.lcdDisplay.print("Degrees: ");
+    robot.lcdDisplay.print(robot.compassHeadingDegrees);
     Serial.println("");
     float Compass_Error;
     Compass_Error = robot.compassHeadingDegrees - robot.compassTarget;
-    lcd.setCursor(0, 1);
-    lcd.print("Error:");
-    lcd.print(Compass_Error);
+    robot.lcdDisplay.setCursor(0, 1);
+    robot.lcdDisplay.print("Error:");
+    robot.lcdDisplay.print(Compass_Error);
     Serial.print("Er:");
     Serial.print(Compass_Error);
     Serial.print(F("|"));
@@ -166,8 +166,8 @@ void Turn_To_Compass_Heading()  {
     Motor_Action_Turn_Speed();                                       // Sets the speed of the turning motion
     delay(100);
     Cancel = Cancel + 1;
-    lcd.setCursor(12, 1);
-    lcd.print(Cancel);
+    robot.lcdDisplay.setCursor(12, 1);
+    robot.lcdDisplay.print(Cancel);
   }
   Get_Compass_Reading();
   delay(5);
@@ -180,15 +180,15 @@ void Turn_To_Compass_Heading()  {
   Motor_Action_Stop_Motors();
   robot.turnAdjust = 0;
   SetPins_ToGoForwards();
-  lcd.print("Found");
+  robot.lcdDisplay.print("Found");
   delay(1000);
-  lcd.clear();
+  robot.lcdDisplay.clear();
 }
 
 void Display_Compass_Current_Heading_on_LCD() {
-  lcd.setCursor(5, 1);
-  lcd.print("    ");
-  lcd.print(robot.compassHeadingDegrees);
+  robot.lcdDisplay.setCursor(5, 1);
+  robot.lcdDisplay.print("    ");
+  robot.lcdDisplay.print(robot.compassHeadingDegrees);
   delay(10);
 }
 

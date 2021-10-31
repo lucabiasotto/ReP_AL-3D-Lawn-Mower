@@ -64,8 +64,8 @@ int PingSonarX(int trigPinX, int echoPinX, int distanceX, long durationX, int so
     /*If sonar distance is less than maximum distance then an object is registered to avoid*/
     if (distanceX <= maxdistancesonar) {
         //Prints that Sonar X has detected an object to the Mower LCD.
-        lcd.setCursor(LCDRow, LCDColumn);  //sets location for text to be written
-        lcd.print("X");
+        robot.lcdDisplay.setCursor(LCDRow, LCDColumn);  //sets location for text to be written
+        robot.lcdDisplay.print("X");
         delay(10);
         if (sonarX == 1) {
             robot.SonarHit1Total = (robot.SonarHit1Total + 1);
@@ -90,8 +90,8 @@ int PingSonarX(int trigPinX, int echoPinX, int distanceX, long durationX, int so
     /*If sonar distance is greater than maximum distance then no object is registered to avoid*/
     if (distanceX > maxdistancesonar) {
         //Prints that the path of Sonar X is open.
-        lcd.setCursor(LCDRow, LCDColumn);  //sets location for text to be written
-        lcd.print("_");
+        robot.lcdDisplay.setCursor(LCDRow, LCDColumn);  //sets location for text to be written
+        robot.lcdDisplay.print("_");
         delay(10);
         if (sonarX == 1) {
             robot.SonarHit1Total = 0;

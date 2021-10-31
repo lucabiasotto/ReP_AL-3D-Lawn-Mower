@@ -215,7 +215,7 @@ void Mower::logMowerStatus() {
     }
 }
 
-void Setup_Relays() {
+void Mower::Setup_Relays() {
     Console.println("Setup Relays");
     pinMode(Relay_Motors, OUTPUT);
     delay(5);
@@ -223,7 +223,7 @@ void Setup_Relays() {
     delay(5);
 }
 
-void Prepare_Mower_from_Settings() {
+void Mower::Prepare_Mower_from_Settings() {
     if (Use_Charging_Station == 1) {
         robot.mowerDocked = 1;
         robot.mowerParked = 0;
@@ -237,7 +237,7 @@ void Prepare_Mower_from_Settings() {
     }
 }
 
-void Setup_Motor_Pins() {
+void Mower::Setup_Motor_Pins() {
     Serial.println("Setup Motor Pins");
     pinMode(L_EN, OUTPUT);
     pinMode(R_EN, OUTPUT);
@@ -252,17 +252,17 @@ void Setup_Motor_Pins() {
     pinMode(IN4Pin, OUTPUT);
 }
 
-void Turn_On_Relay() {
+void Mower::Turn_On_Relay() {
     Serial.print("Relay:ON|");
     digitalWrite(Relay_Motors, LOW);  // Turn of the relay for the main battery power
 }
 
-void Turn_Off_Relay() {
+void Mower::Turn_Off_Relay() {
     Serial.print("Relay:Off|");
     digitalWrite(Relay_Motors, HIGH);  // Turn of the relay for the main battery power
 }
 
-void Setup_Membrane_Buttons() {
+void Mower::Setup_Membrane_Buttons() {
     Serial.println("Setup Membrane Keys");
     pinMode(Start_Key, INPUT_PULLUP);  // set pin as input
     pinMode(Plus_Key, INPUT_PULLUP);   // set pin as input
@@ -270,7 +270,7 @@ void Setup_Membrane_Buttons() {
     pinMode(Stop_Key, INPUT_PULLUP);   // set pin as input
 }
 
-void Setup_ADCMan() {
+void Mower::Setup_ADCMan() {
     Serial.println("ADCMAN");
     ADCMan.init();
     robot.perimeter.setPins(pinPerimeterLeft, pinPerimeterRight);

@@ -55,6 +55,7 @@
 // Pin per controllare se usare o no il cavo
 #define USE_CABLE_PIN 11
 
+//LiquidCrystal_I2C lcd(0x27, 2, 1, 0, 4, 5, 6, 7, 3, POSITIVE);
 
 class Mower {
    public:
@@ -65,7 +66,7 @@ class Mower {
     int wireRefindTries = 0;
     int loopCycleMowing = 0;
     Perimeter perimeter;
-    LiquidCrystal_I2C lcd(0x27, 2, 1, 0, 4, 5, 6, 7, 3, POSITIVE);
+    LiquidCrystal_I2C lcdDisplay = LiquidCrystal_I2C(0x27, 2, 1, 0, 4, 5, 6, 7, 3, POSITIVE);
     
     //Sonar Variables
     int distance1 = 999;  // Distance caculated  by the Sonar
@@ -160,7 +161,6 @@ class Mower {
     virtual void setup();
     virtual void loop();
     virtual void Setup_Relays();
-    virtual void Setup_Compass();
     virtual void Turn_Off_Relay();
     virtual void Turn_On_Relay();
     virtual void logMowerStatus();

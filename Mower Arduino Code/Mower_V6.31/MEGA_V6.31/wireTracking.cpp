@@ -48,11 +48,11 @@ void Track_Wire_From_Dock_to_Zone_X() {
     if (robot.bladeOverride == 1) {
         Motor_Action_Spin_Blades();
     }
-    lcd.setCursor(0, 0);
-    lcd.print("Exit Docking to");  // into the garden at a good position to start Mowing
-    lcd.setCursor(2, 1);
-    if (robot.exitZone == 1) lcd.print("Zone 1");
-    if (robot.exitZone == 2) lcd.print("Zone 2");
+    robot.lcdDisplay.setCursor(0, 0);
+    robot.lcdDisplay.print("Exit Docking to");  // into the garden at a good position to start Mowing
+    robot.lcdDisplay.setCursor(2, 1);
+    if (robot.exitZone == 1) robot.lcdDisplay.print("Zone 1");
+    if (robot.exitZone == 2) robot.lcdDisplay.print("Zone 2");
     delay(1000);  // Prints info to LCD display
 
     robot.trackingTurnRight = 0;  // resets the tracking errors for LH and RH.
@@ -71,8 +71,8 @@ void Track_Wire_From_Dock_to_Zone_X() {
     robot.magGoal = 0;
     delay(500);
     delay(5);
-    lcd.setCursor(10, 1);
-    lcd.print("0");
+    robot.lcdDisplay.setCursor(10, 1);
+    robot.lcdDisplay.print("0");
     for (robot.I = 0; robot.I < robot.trackWireItterations; robot.I++) {  // Iterations 'I' before mower leaves the wire.
         if (robot.mowerParked == 0) {
             delay(5);
@@ -94,8 +94,8 @@ void Track_Wire_From_Dock_to_Zone_X() {
                     if (robot.pwmRight > 255) robot.pwmRight = 255;  // robot.pwmRight capped to Max PWM of 255.
                     if (robot.pwmRight >= 0) {
                         SetPins_ToGoForwards();
-                        lcd.setCursor(15, 1);
-                        lcd.print(" ");
+                        robot.lcdDisplay.setCursor(15, 1);
+                        robot.lcdDisplay.print(" ");
                     }
 
                     if (robot.pwmRight < 0) {  // sets the mower to sharp turn to the right (wheels spin opposite) if the Error to the wire is large enough.
@@ -103,8 +103,8 @@ void Track_Wire_From_Dock_to_Zone_X() {
                         if (robot.pwmRight > 255) robot.pwmRight = 255;
                         if (robot.pwmRight >= 0) SetPins_ToTurnRight();
                         delay(5);
-                        lcd.setCursor(15, 1);
-                        lcd.print(">");
+                        robot.lcdDisplay.setCursor(15, 1);
+                        robot.lcdDisplay.print(">");
                     }
 
                     Motor_Action_Dynamic_PWM_Steering();  // Carries out the wheel PWM changes for steering on the wire
@@ -113,11 +113,11 @@ void Track_Wire_From_Dock_to_Zone_X() {
                     robot.trackingTurnRight = robot.trackingTurnRight + 1;        // too many times it is assumed that the mower is spinning and cant get back on the wire.
                     if (robot.trackingTurnRight > Max_Tracking_Turn_Right) {  // if this is detected then a function is ran to find the wire again.
                         Motor_Action_Stop_Motors();
-                        lcd.clear();
-                        lcd.print("Right Wheel");
-                        lcd.print("robot.trackingTurnRight");
+                        robot.lcdDisplay.clear();
+                        robot.lcdDisplay.print("Right Wheel");
+                        robot.lcdDisplay.print("robot.trackingTurnRight");
                         delay(2000);
-                        lcd.clear();
+                        robot.lcdDisplay.clear();
                         Tracking_Restart_Blocked_Path();
                     }
                 }
@@ -128,8 +128,8 @@ void Track_Wire_From_Dock_to_Zone_X() {
                     if (robot.pwmLeft > 255) robot.pwmLeft = 255;  // robot.pwmLeft capped to mex PWM of 255
                     if (robot.pwmLeft >= 0) {
                         SetPins_ToGoForwards();
-                        lcd.setCursor(0, 1);
-                        lcd.print(" ");
+                        robot.lcdDisplay.setCursor(0, 1);
+                        robot.lcdDisplay.print(" ");
                     }
 
                     if (robot.pwmLeft < 0) {  // sets the mower to sharp turn to the left (wheels spin opposite) if the Error to the wire is large enough.
@@ -137,8 +137,8 @@ void Track_Wire_From_Dock_to_Zone_X() {
                         if (robot.pwmLeft > 255) robot.pwmLeft = 255;
                         SetPins_ToTurnLeft();
                         delay(5);
-                        lcd.setCursor(0, 1);
-                        lcd.print("<");
+                        robot.lcdDisplay.setCursor(0, 1);
+                        robot.lcdDisplay.print("<");
                     }
 
                     Motor_Action_Dynamic_PWM_Steering();
@@ -147,11 +147,11 @@ void Track_Wire_From_Dock_to_Zone_X() {
                     robot.trackingTurnLeft = robot.trackingTurnLeft + 1;
                     if (robot.trackingTurnLeft > Max_Tracking_Turn_Left) {
                         Motor_Action_Stop_Motors();
-                        lcd.clear();
-                        lcd.print("Left Wheel");
-                        lcd.print("robot.trackingTurnLeft");
+                        robot.lcdDisplay.clear();
+                        robot.lcdDisplay.print("Left Wheel");
+                        robot.lcdDisplay.print("robot.trackingTurnLeft");
                         delay(2000);
-                        lcd.clear();
+                        robot.lcdDisplay.clear();
                         Tracking_Restart_Blocked_Path();
                     }
                 }
@@ -164,10 +164,10 @@ void Track_Wire_From_Dock_to_Zone_X() {
             }
         }
 
-        lcd.setCursor(10, 1);
-        lcd.print(robot.I);
+        robot.lcdDisplay.setCursor(10, 1);
+        robot.lcdDisplay.print(robot.I);
     }
-    lcd.clear();
+    robot.lcdDisplay.clear();
     robot.trackingWire = 0;
 
     delay(5);
@@ -178,10 +178,10 @@ void Track_Wire_From_Dock_to_Zone_X() {
 //  This error value of (position - center of wire) is mulitplied by the P value in the setup to send a PWM change to the left or right
 //  wheel to bring the sensor back over the wire.*/
 void followingWireToDock() {
-    lcd.clear();
-    lcd.print("Tracking to..");
-    lcd.setCursor(0, 1);
-    lcd.print("Charging Station");  // Prints info to LCD display
+    robot.lcdDisplay.clear();
+    robot.lcdDisplay.print("Tracking to..");
+    robot.lcdDisplay.setCursor(0, 1);
+    robot.lcdDisplay.print("Charging Station");  // Prints info to LCD display
 
     Motor_Action_Stop_Spin_Blades();
     //TODO ?? Docked_Hits = 0;
@@ -208,10 +208,10 @@ void followingWireToDock() {
 
         while ((robot.mowerDocked == 0) && (robot.mowerParked == 0)) {
             delay(5);
-            lcd.clear();
-            lcd.print("Cerco casa");
-            lcd.setCursor(0, 1);
-            lcd.print("");
+            robot.lcdDisplay.clear();
+            robot.lcdDisplay.print("Cerco casa");
+            robot.lcdDisplay.setCursor(0, 1);
+            robot.lcdDisplay.print("");
 
             ADCMan.run();
             robot.magStart = robot.perimeter.getMagnitude(0);
@@ -220,8 +220,8 @@ void followingWireToDock() {
             robot.magError = (robot.magGoal - robot.magStart);
             PrintWirePosition();
 
-            lcd.setCursor(0, 1);
-            lcd.print(robot.magError > 0 ? "<--  Orario     " : "     Orario  -->");
+            robot.lcdDisplay.setCursor(0, 1);
+            robot.lcdDisplay.print(robot.magError > 0 ? "<--  Orario     " : "     Orario  -->");
 
             // Turn the Mower to the left to get back on the wire. Clock Wise Motion around the wire
             // Power down the left wheel and full power right wheel to turn left
@@ -232,15 +232,15 @@ void followingWireToDock() {
                 if (robot.pwmLeft > 255) robot.pwmLeft = 255;  //
                 if (robot.pwmLeft >= 0) {
                     SetPins_ToGoForwards();  // keep the mower moving forward
-                    lcd.setCursor(15, 0);
-                    lcd.print(" ");
+                    robot.lcdDisplay.setCursor(15, 0);
+                    robot.lcdDisplay.print(" ");
                 }
 
                 if (robot.pwmLeft < 0) {
                     robot.pwmLeft = (-1 * robot.pwmLeft) + 220;
                     if (robot.pwmLeft > 255) robot.pwmLeft = 255;
-                    lcd.setCursor(15, 0);
-                    lcd.print("*");
+                    robot.lcdDisplay.setCursor(15, 0);
+                    robot.lcdDisplay.print("*");
                     SetPins_ToTurnLeft();
                     delay(5);
                 }
@@ -261,16 +261,16 @@ void followingWireToDock() {
                 if (robot.pwmRight > 255) robot.pwmRight = 255;
                 if (robot.pwmRight >= 0) {
                     SetPins_ToGoForwards();
-                    lcd.setCursor(15, 0);
-                    lcd.print(" ");
+                    robot.lcdDisplay.setCursor(15, 0);
+                    robot.lcdDisplay.print(" ");
                 }
 
                 if (robot.pwmRight < 0) {
                     robot.pwmRight = (-1 * robot.pwmRight) + 220;
                     if (robot.pwmRight > 255) robot.pwmRight = 255;
                     if (robot.pwmRight >= 0) SetPins_ToTurnRight();
-                    lcd.setCursor(15, 0);
-                    lcd.print("*");
+                    robot.lcdDisplay.setCursor(15, 0);
+                    robot.lcdDisplay.print("*");
                 }
 
                 Motor_Action_Dynamic_PWM_Steering();
@@ -297,10 +297,10 @@ void followingWireToDock() {
         Serial.println(F("TRACKING COUNTER-CLOCKWISE"));
 
         while (robot.mowerDocked == 0 && robot.mowerParked == 0) {
-            lcd.clear();
-            lcd.print("Cerco casa");
-            lcd.setCursor(0, 1);
-            lcd.print("");
+            robot.lcdDisplay.clear();
+            robot.lcdDisplay.print("Cerco casa");
+            robot.lcdDisplay.setCursor(0, 1);
+            robot.lcdDisplay.print("");
 
             delay(5);
 
@@ -312,8 +312,8 @@ void followingWireToDock() {
             robot.magError = (robot.magGoal - robot.magStart);  // Calculates the Error to the center of the wire which is normally zero magnitude (remember - - is + )
             PrintWirePosition();                 // Prints the overview to the Serial Monitor.
 
-            lcd.setCursor(0, 1);
-            lcd.print(robot.magError > 0 ? "<--Antiorario   " : "   Antiorario-->");
+            robot.lcdDisplay.setCursor(0, 1);
+            robot.lcdDisplay.print(robot.magError > 0 ? "<--Antiorario   " : "   Antiorario-->");
 
             if (robot.magError > 0) {  // Trun the mower to the right if robot.magError > 0 with a CCW track direction.
                 // RIGHT TURN
@@ -326,8 +326,8 @@ void followingWireToDock() {
 
                 if (robot.pwmRight >= 0) {
                     SetPins_ToGoForwards();
-                    lcd.setCursor(15, 0);
-                    lcd.print(" ");
+                    robot.lcdDisplay.setCursor(15, 0);
+                    robot.lcdDisplay.print(" ");
                 }
 
                 if (robot.pwmRight < 0) {                     // Set the wheels to rotate around the axis if a sharp turn is required.
@@ -336,8 +336,8 @@ void followingWireToDock() {
                         robot.pwmRight = 255;  // cap the maximum PWM to 255
                     }
                     SetPins_ToTurnRight();  // set the motor bridge pins to turn left
-                    lcd.setCursor(15, 0);
-                    lcd.print("*");
+                    robot.lcdDisplay.setCursor(15, 0);
+                    robot.lcdDisplay.print("*");
                 }
 
                 Motor_Action_Dynamic_PWM_Steering();  // Carries out the wheel PWM changes for steering on the wire
@@ -358,8 +358,8 @@ void followingWireToDock() {
 
                 if (robot.pwmLeft >= 0) {
                     SetPins_ToGoForwards();
-                    lcd.setCursor(15, 0);
-                    lcd.print(" ");
+                    robot.lcdDisplay.setCursor(15, 0);
+                    robot.lcdDisplay.print(" ");
                 }
 
                 if (robot.pwmLeft < 0) {                    // if the PWM calulated is below zero set the mower for a sharp turn
@@ -369,8 +369,8 @@ void followingWireToDock() {
                     }
                     SetPins_ToTurnLeft();  // set the pins to sharp turn left
                     delay(5);
-                    lcd.setCursor(15, 0);
-                    lcd.print("*");
+                    robot.lcdDisplay.setCursor(15, 0);
+                    robot.lcdDisplay.print("*");
                 }
 
                 Motor_Action_Dynamic_PWM_Steering();
@@ -404,10 +404,10 @@ void followingWireToDock() {
 void Tracking_Restart_Blocked_Path() {
     Motor_Action_Stop_Motors();
     Serial.println(F("Possible Blocked Path - Trying to Avoid"));
-    lcd.clear();
-    lcd.print("Wire Lost.");
-    lcd.setCursor(0, 1);
-    lcd.print("Recovering.....");                // Prints info to LCD display
+    robot.lcdDisplay.clear();
+    robot.lcdDisplay.print("Wire Lost.");
+    robot.lcdDisplay.setCursor(0, 1);
+    robot.lcdDisplay.print("Recovering.....");                // Prints info to LCD display
     if (robot.mowerParked != 1) {                     // If Pause has been pressed dont carry on.
         SetPins_ToGoBackwards();
         delay(500);

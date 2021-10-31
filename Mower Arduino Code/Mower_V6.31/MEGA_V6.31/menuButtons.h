@@ -1,11 +1,11 @@
 //Membrane Key Variables
-char Start_Key_X;
-char Plus_Key_X;
-char Minus_Key_X;
-char Stop_Key_X;
-bool Menu_Complete;
-char Menu_Mode_Selection;
-int Menu_View;
+static char Start_Key_X;
+static char Plus_Key_X;
+static char Minus_Key_X;
+static char Stop_Key_X;
+static bool Menu_Complete;
+static char Menu_Mode_Selection;
+static int Menu_View;
 void Read_Membrane_Keys();
 void Print_LCD_Menu_Docked(char LCD_Menu_Docked);
 void checkMembraneSwitchInputDocked();

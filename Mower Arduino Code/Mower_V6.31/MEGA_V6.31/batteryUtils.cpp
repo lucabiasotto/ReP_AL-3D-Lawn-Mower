@@ -96,15 +96,15 @@ void Check_if_Docked() {
         Motor_Action_Stop_Motors();
         Serial.println(F("Charging Current detected"));
         Serial.println(F("Mower Docked"));
-        lcd.clear();
-        lcd.setCursor(0, 0);
-        lcd.print(TRS_DOCKED_IN);
-        lcd.setCursor(0, 1);
-        lcd.print(TRS_CHARGING_STATION);  // Prints info to LCD display
+        robot.lcdDisplay.clear();
+        robot.lcdDisplay.setCursor(0, 0);
+        robot.lcdDisplay.print(TRS_DOCKED_IN);
+        robot.lcdDisplay.setCursor(0, 1);
+        robot.lcdDisplay.print(TRS_CHARGING_STATION);  // Prints info to LCD display
         delay(2000);
         robot.mowerDocked = 1;
         manouverDockTheMower();  // Shuts down the Mower ready for charging and mowing again.
-        lcd.clear();
+        robot.lcdDisplay.clear();
     }
     Serial.println("");
 }

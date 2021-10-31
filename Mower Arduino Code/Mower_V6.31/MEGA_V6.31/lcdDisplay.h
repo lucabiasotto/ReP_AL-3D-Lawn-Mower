@@ -1,5 +1,6 @@
 #include "Arduino.h"
 
+void Print_LCD_Menu_Timing(char LCD_Menu_Timing);
 void lcdUpdateScreen();
 void Setup_Run_LCD_Intro();
 void Print_LCD_Wire();
@@ -11,7 +12,6 @@ void Print_LCD_Wire_ON();
 void Print_Sonar_Hit();
 void Print_LCD_Compass_Home();
 void Print_LCD_Heading_for_Home();
-void Print_LCD_Menu_Timing(byte LCD_Menu_Timing);
 void printLoop(byte lCount);
 void printFindFire();
 void printMessage(char* msg);

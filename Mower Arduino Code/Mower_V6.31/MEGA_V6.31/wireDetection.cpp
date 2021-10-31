@@ -46,10 +46,10 @@ void Check_Wire_In_Out() {
 
         if (Action_On_Over_Wire_Count_Max == 3) {  // try to locate the wire using wire find function
 
-            lcd.clear();
-            lcd.print("Wire Find");
-            lcd.setCursor(0, 1);
-            lcd.print("Special Function");
+            robot.lcdDisplay.clear();
+            robot.lcdDisplay.print("Wire Find");
+            robot.lcdDisplay.setCursor(0, 1);
+            robot.lcdDisplay.print("Special Function");
 
             robot.loopCycleMowing = 999;
             delay(2000);
@@ -75,7 +75,7 @@ void Check_Wire_In_Out() {
             Serial.println("");
             if (robot.wireRefindTries > 4) {
                 Motor_Action_Stop_Motors();
-                lcd.clear();
+                robot.lcdDisplay.clear();
                 robot.mowerError = 1;
                 Serial.println("");
                 Serial.println("Max refind tries exceeded - Parking the Mower");

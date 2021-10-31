@@ -34,14 +34,14 @@
 
 
   
-  lcd.setCursor(0,0);
-  lcd.print("IN/Out:");
-  lcd.setCursor(8,0);
-  lcd.print(robot.perimeter.isInside(0));
-  lcd.setCursor(0,1);
-  lcd.print("MAG:");
-  lcd.setCursor(8,1);
-  lcd.print(robot.perimeter.getMagnitude(0)); 
+  robot.lcdDisplay.setCursor(0,0);
+  robot.lcdDisplay.print("IN/Out:");
+  robot.lcdDisplay.setCursor(8,0);
+  robot.lcdDisplay.print(robot.perimeter.isInside(0));
+  robot.lcdDisplay.setCursor(0,1);
+  robot.lcdDisplay.print("MAG:");
+  robot.lcdDisplay.setCursor(8,1);
+  robot.lcdDisplay.print(robot.perimeter.getMagnitude(0)); 
 
 
 }
@@ -51,14 +51,14 @@ void Test_Relay() {
   
   digitalWrite(Relay_Motors, HIGH);
   Serial.println("Relay OFF");
-  lcd.print("Relay OFF");
+  robot.lcdDisplay.print("Relay OFF");
   delay(1000);
-  lcd.clear();
+  robot.lcdDisplay.clear();
   digitalWrite(Relay_Motors, LOW);
   Serial.println("Relay ON");
-  lcd.print("Relay ON");
+  robot.lcdDisplay.print("Relay ON");
   delay(1000);
-  lcd.clear();
+  robot.lcdDisplay.clear();
 }
 
 
@@ -69,164 +69,164 @@ void Test_Wheel_Motors() {
   delay(200);
   if (robot.I == 1) {
 
-  lcd.clear();
-  lcd.setCursor(0,0);
-  lcd.print("Drive Wheel");
-  lcd.setCursor(1,0);
-  lcd.print("Test");
+  robot.lcdDisplay.clear();
+  robot.lcdDisplay.setCursor(0,0);
+  robot.lcdDisplay.print("Drive Wheel");
+  robot.lcdDisplay.setCursor(1,0);
+  robot.lcdDisplay.print("Test");
   delay(1000);
-  lcd.clear();
+  robot.lcdDisplay.clear();
 
-  lcd.print("Remove ALL");
-  lcd.setCursor(0,1);
-  lcd.print("Blades!!!");
+  robot.lcdDisplay.print("Remove ALL");
+  robot.lcdDisplay.setCursor(0,1);
+  robot.lcdDisplay.print("Blades!!!");
   delay(1000);
-  lcd.clear();
+  robot.lcdDisplay.clear();
 
 
-  lcd.print("<-- Turn Left");
+  robot.lcdDisplay.print("<-- Turn Left");
   delay(500);
   SetPins_ToTurnLeft();
   Motor_Action_Go_Full_Speed();
   delay(1000);
   Motor_Action_Stop_Motors();
   delay(1000);
-  lcd.clear();
+  robot.lcdDisplay.clear();
 
-  lcd.print("Turn Right -->");
+  robot.lcdDisplay.print("Turn Right -->");
   delay(500);
   SetPins_ToTurnRight();
   Motor_Action_Go_Full_Speed();
   delay(2000);
   Motor_Action_Stop_Motors();
   delay(1000);
-  lcd.clear();
+  robot.lcdDisplay.clear();
 
-  lcd.print("Forwards");
+  robot.lcdDisplay.print("Forwards");
   delay(500);
   SetPins_ToGoForwards();
   Motor_Action_Go_Full_Speed();
   delay(1000);
   Motor_Action_Stop_Motors(); 
   delay(1000);
-  lcd.clear();
+  robot.lcdDisplay.clear();
 
-  lcd.print("Backwards");
+  robot.lcdDisplay.print("Backwards");
   delay(500);
   SetPins_ToGoBackwards();   
   Motor_Action_Go_Full_Speed();
   delay(1000);
   Motor_Action_Stop_Motors();  
   delay(1000);
-  lcd.clear();
+  robot.lcdDisplay.clear();
 
-  lcd.clear();
-  lcd.setCursor(0,0);
-  lcd.print("Dynamic");
-  lcd.setCursor(0,1);
+  robot.lcdDisplay.clear();
+  robot.lcdDisplay.setCursor(0,0);
+  robot.lcdDisplay.print("Dynamic");
+  robot.lcdDisplay.setCursor(0,1);
   robot.pwmLeft = 120;
   robot.pwmRight = 120;
-  lcd.print("L:");
-  lcd.print(robot.pwmLeft);
-  lcd.print("  R:");
-  lcd.print(robot.pwmRight);
+  robot.lcdDisplay.print("L:");
+  robot.lcdDisplay.print(robot.pwmLeft);
+  robot.lcdDisplay.print("  R:");
+  robot.lcdDisplay.print(robot.pwmRight);
   SetPins_ToGoForwards();
   Motor_Action_Dynamic_PWM_Steering();
   delay(2000);
 
   
-  lcd.clear();
-  lcd.setCursor(0,1);  
+  robot.lcdDisplay.clear();
+  robot.lcdDisplay.setCursor(0,1);  
   robot.pwmLeft = 255;
   robot.pwmRight = 0;
-  lcd.print("L:");
-  lcd.print(robot.pwmLeft);
-  lcd.print("  R:");
-  lcd.print(robot.pwmRight);
+  robot.lcdDisplay.print("L:");
+  robot.lcdDisplay.print(robot.pwmLeft);
+  robot.lcdDisplay.print("  R:");
+  robot.lcdDisplay.print(robot.pwmRight);
   SetPins_ToGoForwards();
   Motor_Action_Dynamic_PWM_Steering();
 
-  lcd.clear();
-  lcd.setCursor(0,1);
+  robot.lcdDisplay.clear();
+  robot.lcdDisplay.setCursor(0,1);
   robot.pwmLeft = 255;
   robot.pwmRight = 0;
-  lcd.print("L:");
-  lcd.print(robot.pwmLeft);
-  lcd.print("  R:");
-  lcd.print(robot.pwmRight);
+  robot.lcdDisplay.print("L:");
+  robot.lcdDisplay.print(robot.pwmLeft);
+  robot.lcdDisplay.print("  R:");
+  robot.lcdDisplay.print(robot.pwmRight);
   SetPins_ToGoForwards();
   Motor_Action_Dynamic_PWM_Steering();
   delay(2000);
 
 
-  lcd.clear();
-  lcd.setCursor(0,1);  
+  robot.lcdDisplay.clear();
+  robot.lcdDisplay.setCursor(0,1);  
   robot.pwmLeft = 150;
   robot.pwmRight = 0;
-  lcd.print("L:");
-  lcd.print(robot.pwmLeft);
-  lcd.print("  R:");
-  lcd.print(robot.pwmRight);
+  robot.lcdDisplay.print("L:");
+  robot.lcdDisplay.print(robot.pwmLeft);
+  robot.lcdDisplay.print("  R:");
+  robot.lcdDisplay.print(robot.pwmRight);
   SetPins_ToGoForwards();
   Motor_Action_Dynamic_PWM_Steering();
   delay(2000);
   
-  lcd.clear();
-  lcd.setCursor(0,1);  
+  robot.lcdDisplay.clear();
+  robot.lcdDisplay.setCursor(0,1);  
   robot.pwmLeft = 255;
   robot.pwmRight = 0;
-  lcd.print("L:");
-  lcd.print(robot.pwmLeft);
-  lcd.print("  R:");
-  lcd.print(robot.pwmRight);
+  robot.lcdDisplay.print("L:");
+  robot.lcdDisplay.print(robot.pwmLeft);
+  robot.lcdDisplay.print("  R:");
+  robot.lcdDisplay.print(robot.pwmRight);
   SetPins_ToGoForwards();
   Motor_Action_Dynamic_PWM_Steering();
   delay(2000);
 
-    lcd.clear();
-  lcd.setCursor(0,1);  
+    robot.lcdDisplay.clear();
+  robot.lcdDisplay.setCursor(0,1);  
   robot.pwmLeft = 255;
   robot.pwmRight = 0;
-  lcd.print("L:");
-  lcd.print(robot.pwmLeft);
-  lcd.print("  R:");
-  lcd.print(robot.pwmRight);
+  robot.lcdDisplay.print("L:");
+  robot.lcdDisplay.print(robot.pwmLeft);
+  robot.lcdDisplay.print("  R:");
+  robot.lcdDisplay.print(robot.pwmRight);
   SetPins_ToGoForwards();
   Motor_Action_Dynamic_PWM_Steering();
 
-  lcd.clear();
-  lcd.setCursor(0,1);
+  robot.lcdDisplay.clear();
+  robot.lcdDisplay.setCursor(0,1);
   robot.pwmLeft = 0;
   robot.pwmRight = 255;
-  lcd.print("L:");
-  lcd.print(robot.pwmLeft);
-  lcd.print("  R:");
-  lcd.print(robot.pwmRight);
+  robot.lcdDisplay.print("L:");
+  robot.lcdDisplay.print(robot.pwmLeft);
+  robot.lcdDisplay.print("  R:");
+  robot.lcdDisplay.print(robot.pwmRight);
   SetPins_ToGoForwards();
   Motor_Action_Dynamic_PWM_Steering();
   delay(2000);
 
 
-  lcd.clear();
-  lcd.setCursor(0,1);  
+  robot.lcdDisplay.clear();
+  robot.lcdDisplay.setCursor(0,1);  
   robot.pwmLeft = 0;
   robot.pwmRight = 150;
-  lcd.print("L:");
-  lcd.print(robot.pwmLeft);
-  lcd.print("  R:");
-  lcd.print(robot.pwmRight);
+  robot.lcdDisplay.print("L:");
+  robot.lcdDisplay.print(robot.pwmLeft);
+  robot.lcdDisplay.print("  R:");
+  robot.lcdDisplay.print(robot.pwmRight);
   SetPins_ToGoForwards();
   Motor_Action_Dynamic_PWM_Steering();
   delay(2000);
   
-  lcd.clear();
-  lcd.setCursor(0,1);  
+  robot.lcdDisplay.clear();
+  robot.lcdDisplay.setCursor(0,1);  
   robot.pwmLeft = 0;
   robot.pwmRight = 255;
-  lcd.print("L:");
-  lcd.print(robot.pwmLeft);
-  lcd.print("  R:");
-  lcd.print(robot.pwmRight);
+  robot.lcdDisplay.print("L:");
+  robot.lcdDisplay.print(robot.pwmLeft);
+  robot.lcdDisplay.print("  R:");
+  robot.lcdDisplay.print(robot.pwmRight);
   SetPins_ToGoForwards();
   Motor_Action_Dynamic_PWM_Steering();
   delay(2000);
@@ -235,10 +235,10 @@ void Test_Wheel_Motors() {
   Motor_Action_Stop_Motors();  
   delay(1000);
 
-  lcd.clear();
-  lcd.print("Test Finished");
+  robot.lcdDisplay.clear();
+  robot.lcdDisplay.print("Test Finished");
   delay(1000);
-  lcd.clear();
+  robot.lcdDisplay.clear();
 
   robot.I = 2;
   }
@@ -252,38 +252,38 @@ void Test_Mower_Blade_Motor() {
   // Spin the blade motor for 7 seconds
   digitalWrite(Relay_Motors, LOW);
   delay(200);
-  lcd.print("Blade Motor");
-  lcd.setCursor(0,1);
-  lcd.print("Test..!!");
+  robot.lcdDisplay.print("Blade Motor");
+  robot.lcdDisplay.setCursor(0,1);
+  robot.lcdDisplay.print("Test..!!");
   delay(1000);
-  lcd.clear();
-  lcd.print("Remove ALL");
-  lcd.setCursor(0,1);
-  lcd.print("Blades!!!");
+  robot.lcdDisplay.clear();
+  robot.lcdDisplay.print("Remove ALL");
+  robot.lcdDisplay.setCursor(0,1);
+  robot.lcdDisplay.print("Blades!!!");
   delay(4000);
-  lcd.clear();
+  robot.lcdDisplay.clear();
   delay(2000);
-  lcd.print("BLADE MOTOR");
+  robot.lcdDisplay.print("BLADE MOTOR");
   delay(500);
   Serial.println("Blades ON");
-  lcd.setCursor(0,1);
-  lcd.print("ON ");
-  lcd.setCursor(6,1);
-  lcd.print("PWM =");
-  lcd.print(PWM_Blade_Speed);
+  robot.lcdDisplay.setCursor(0,1);
+  robot.lcdDisplay.print("ON ");
+  robot.lcdDisplay.setCursor(6,1);
+  robot.lcdDisplay.print("PWM =");
+  robot.lcdDisplay.print(PWM_Blade_Speed);
   Motor_Action_Spin_Blades();
   delay(7000);
 
 
   // Stop the blade motor spinning for 2 seconds
-  lcd.clear();
+  robot.lcdDisplay.clear();
   Serial.println("Blades OFF");
-  lcd.print("BLADE MOTOR");
-  lcd.setCursor(0,1);
-  lcd.print("OFF..  ");
+  robot.lcdDisplay.print("BLADE MOTOR");
+  robot.lcdDisplay.setCursor(0,1);
+  robot.lcdDisplay.print("OFF..  ");
   Motor_Action_Stop_Spin_Blades();
   delay(2000);
-  lcd.clear();
+  robot.lcdDisplay.clear();
   delay(500);
 
   digitalWrite(Relay_Motors, HIGH);
@@ -361,13 +361,13 @@ int PingSonarY(int trigPinY, int echoPinY, int distanceY, long durationY, int so
   /*If sonar distance is less than maximum distance then an object is registered to avoid*/
   if (distanceY <= maxdistancesonar ) {
     //Prints that Sonar X has detected an object to the Mower LCD.
-    lcd.setCursor(LCDRow, LCDColumn);                //sets location for text to be written
-    lcd.print("X");
+    robot.lcdDisplay.setCursor(LCDRow, LCDColumn);                //sets location for text to be written
+    robot.lcdDisplay.print("X");
     LCDColumn = LCDColumn + 1;    
-    lcd.setCursor(LCDRow, LCDColumn);                //sets location for text to be written
-    lcd.print("   ");
-    lcd.setCursor(LCDRow, LCDColumn);
-    lcd.print(distanceY);
+    robot.lcdDisplay.setCursor(LCDRow, LCDColumn);                //sets location for text to be written
+    robot.lcdDisplay.print("   ");
+    robot.lcdDisplay.setCursor(LCDRow, LCDColumn);
+    robot.lcdDisplay.print(distanceY);
     delay(10);
   }
 
@@ -375,8 +375,8 @@ int PingSonarY(int trigPinY, int echoPinY, int distanceY, long durationY, int so
   if (distanceY > 100) {
     //Prints that the path of Sonar X is open.
     LCDColumn = LCDColumn - 1;   
-    lcd.setCursor(LCDRow, LCDColumn);                 //sets location for text to be written
-    lcd.print("_");
+    robot.lcdDisplay.setCursor(LCDRow, LCDColumn);                 //sets location for text to be written
+    robot.lcdDisplay.print("_");
     delay(10);
   }
 
