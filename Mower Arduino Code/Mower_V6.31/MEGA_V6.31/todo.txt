@@ -1,5 +1,10 @@
-- No_Wire_Found: indica se il robot sta seguendo il cavo oppure no...si può togliere?
+- robot.noWireFound: indica se il robot sta seguendo il cavo oppure no...si può togliere?
 
 - Fare unico metodo per aggiornare LCD
 
 - controlalre byte e std:byte
+- usar char per 0/1 o numeri piccoli 1 byte of memory space and ranges from -128 to 127 or 0 to 255. 
+
+- usare ifdefine invece di if(variabile) per i setup
+
+- elimina sovrascrizioni da eepron

@@ -1,4 +1,12 @@
 
+#include "testSketches.h"
+#include "robot.h"
+#include "adcman.h"
+#include "motorsController.h"
+#include "movementsUtils.h"
+#include "compassUtils.h"
+
+
 /* Perimieter Wire Collision Motion
   ************************************************************************************/
   void Test_Mower_Check_Wire()  {
@@ -6,34 +14,34 @@
   ADCMan.run();
   // ADCMan.setCapture(pinPerimeterLeft, 1, 0);
 
-  if (millis() >= nextTime)  {
-    nextTime = millis() + 50;
-    if (perimeter.isInside(0) != inside) {
-      inside = perimeter.isInside(0);
-      counter++;
+  if (millis() >= robot.nextTime)  {
+    robot.nextTime = millis() + 50;
+    if (robot.perimeter.isInside(0) != robot.inside) {
+      robot.inside = robot.perimeter.isInside(0);
+      robot.counter++;
     }
   }
 
   /* Prints Values to the Serial Monitor of mag, smag and signal quality.  */
   Serial.print("Inside (1) or Outside (0):  ");
-  Serial.print((perimeter.isInside(0)));
+  Serial.print((robot.perimeter.isInside(0)));
   Serial.print("     MAG: ");
-  Serial.print((int)perimeter.getMagnitude(0));
+  Serial.print((int)robot.perimeter.getMagnitude(0));
   Serial.print("    smag: ");
-  Serial.print((int)perimeter.getSmoothMagnitude(0));
+  Serial.print((int)robot.perimeter.getSmoothMagnitude(0));
   Serial.print("     qaulity: ");
-  Serial.println((perimeter.getFilterQuality(0)));
+  Serial.println((robot.perimeter.getFilterQuality(0)));
 
 
   
   lcd.setCursor(0,0);
   lcd.print("IN/Out:");
   lcd.setCursor(8,0);
-  lcd.print(perimeter.isInside(0));
+  lcd.print(robot.perimeter.isInside(0));
   lcd.setCursor(0,1);
   lcd.print("MAG:");
   lcd.setCursor(8,1);
-  lcd.print(perimeter.getMagnitude(0)); 
+  lcd.print(robot.perimeter.getMagnitude(0)); 
 
 
 }
@@ -59,7 +67,7 @@ void Test_Wheel_Motors() {
 
   digitalWrite(Relay_Motors, LOW);
   delay(200);
-  if (I == 1) {
+  if (robot.I == 1) {
 
   lcd.clear();
   lcd.setCursor(0,0);
@@ -116,12 +124,12 @@ void Test_Wheel_Motors() {
   lcd.setCursor(0,0);
   lcd.print("Dynamic");
   lcd.setCursor(0,1);
-  PWM_Left = 120;
-  PWM_Right = 120;
+  robot.pwmLeft = 120;
+  robot.pwmRight = 120;
   lcd.print("L:");
-  lcd.print(PWM_Left);
+  lcd.print(robot.pwmLeft);
   lcd.print("  R:");
-  lcd.print(PWM_Right);
+  lcd.print(robot.pwmRight);
   SetPins_ToGoForwards();
   Motor_Action_Dynamic_PWM_Steering();
   delay(2000);
@@ -129,23 +137,23 @@ void Test_Wheel_Motors() {
   
   lcd.clear();
   lcd.setCursor(0,1);  
-  PWM_Left = 255;
-  PWM_Right = 0;
+  robot.pwmLeft = 255;
+  robot.pwmRight = 0;
   lcd.print("L:");
-  lcd.print(PWM_Left);
+  lcd.print(robot.pwmLeft);
   lcd.print("  R:");
-  lcd.print(PWM_Right);
+  lcd.print(robot.pwmRight);
   SetPins_ToGoForwards();
   Motor_Action_Dynamic_PWM_Steering();
 
   lcd.clear();
   lcd.setCursor(0,1);
-  PWM_Left = 255;
-  PWM_Right = 0;
+  robot.pwmLeft = 255;
+  robot.pwmRight = 0;
   lcd.print("L:");
-  lcd.print(PWM_Left);
+  lcd.print(robot.pwmLeft);
   lcd.print("  R:");
-  lcd.print(PWM_Right);
+  lcd.print(robot.pwmRight);
   SetPins_ToGoForwards();
   Motor_Action_Dynamic_PWM_Steering();
   delay(2000);
@@ -153,47 +161,47 @@ void Test_Wheel_Motors() {
 
   lcd.clear();
   lcd.setCursor(0,1);  
-  PWM_Left = 150;
-  PWM_Right = 0;
+  robot.pwmLeft = 150;
+  robot.pwmRight = 0;
   lcd.print("L:");
-  lcd.print(PWM_Left);
+  lcd.print(robot.pwmLeft);
   lcd.print("  R:");
-  lcd.print(PWM_Right);
+  lcd.print(robot.pwmRight);
   SetPins_ToGoForwards();
   Motor_Action_Dynamic_PWM_Steering();
   delay(2000);
   
   lcd.clear();
   lcd.setCursor(0,1);  
-  PWM_Left = 255;
-  PWM_Right = 0;
+  robot.pwmLeft = 255;
+  robot.pwmRight = 0;
   lcd.print("L:");
-  lcd.print(PWM_Left);
+  lcd.print(robot.pwmLeft);
   lcd.print("  R:");
-  lcd.print(PWM_Right);
+  lcd.print(robot.pwmRight);
   SetPins_ToGoForwards();
   Motor_Action_Dynamic_PWM_Steering();
   delay(2000);
 
     lcd.clear();
   lcd.setCursor(0,1);  
-  PWM_Left = 255;
-  PWM_Right = 0;
+  robot.pwmLeft = 255;
+  robot.pwmRight = 0;
   lcd.print("L:");
-  lcd.print(PWM_Left);
+  lcd.print(robot.pwmLeft);
   lcd.print("  R:");
-  lcd.print(PWM_Right);
+  lcd.print(robot.pwmRight);
   SetPins_ToGoForwards();
   Motor_Action_Dynamic_PWM_Steering();
 
   lcd.clear();
   lcd.setCursor(0,1);
-  PWM_Left = 0;
-  PWM_Right = 255;
+  robot.pwmLeft = 0;
+  robot.pwmRight = 255;
   lcd.print("L:");
-  lcd.print(PWM_Left);
+  lcd.print(robot.pwmLeft);
   lcd.print("  R:");
-  lcd.print(PWM_Right);
+  lcd.print(robot.pwmRight);
   SetPins_ToGoForwards();
   Motor_Action_Dynamic_PWM_Steering();
   delay(2000);
@@ -201,24 +209,24 @@ void Test_Wheel_Motors() {
 
   lcd.clear();
   lcd.setCursor(0,1);  
-  PWM_Left = 0;
-  PWM_Right = 150;
+  robot.pwmLeft = 0;
+  robot.pwmRight = 150;
   lcd.print("L:");
-  lcd.print(PWM_Left);
+  lcd.print(robot.pwmLeft);
   lcd.print("  R:");
-  lcd.print(PWM_Right);
+  lcd.print(robot.pwmRight);
   SetPins_ToGoForwards();
   Motor_Action_Dynamic_PWM_Steering();
   delay(2000);
   
   lcd.clear();
   lcd.setCursor(0,1);  
-  PWM_Left = 0;
-  PWM_Right = 255;
+  robot.pwmLeft = 0;
+  robot.pwmRight = 255;
   lcd.print("L:");
-  lcd.print(PWM_Left);
+  lcd.print(robot.pwmLeft);
   lcd.print("  R:");
-  lcd.print(PWM_Right);
+  lcd.print(robot.pwmRight);
   SetPins_ToGoForwards();
   Motor_Action_Dynamic_PWM_Steering();
   delay(2000);
@@ -232,7 +240,7 @@ void Test_Wheel_Motors() {
   delay(1000);
   lcd.clear();
 
-  I = 2;
+  robot.I = 2;
   }
   digitalWrite(Relay_Motors, HIGH);
   delay(200);
@@ -298,11 +306,11 @@ void Test_Sonar_Array()   {
    * Sonars are not fired in order to avoid reflections of sonar in the next sensor.
      distance# reurned (trigpin#, echopin#, distance#, duration#, Sonar#, LCDColumn#, LCD Row#)
    *********************************************************************************************/
-    if (Sonar_1_Activate) distance1 = PingSonarY(trigPin1, echoPin1, 1, 1, 1, 5, 0);          //SONAR1
+    if (Sonar_1_Activate) robot.distance1 = PingSonarY(trigPin1, echoPin1, 1, 1, 1, 5, 0);          //SONAR1
     delay(15);
-    if (Sonar_2_Activate) distance2 = PingSonarY(trigPin2, echoPin2, 2, 2, 2, 0, 0);         //SONAR2
+    if (Sonar_2_Activate) robot.distance2 = PingSonarY(trigPin2, echoPin2, 2, 2, 2, 0, 0);         //SONAR2
     delay(15);
-    if (Sonar_3_Activate) distance3 = PingSonarY(trigPin3, echoPin3, 3, 3, 3, 10, 0);          //SONAR3
+    if (Sonar_3_Activate) robot.distance3 = PingSonarY(trigPin3, echoPin3, 3, 3, 3, 10, 0);          //SONAR3
     delay(15);
   }
 

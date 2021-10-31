@@ -1,49 +1,57 @@
 /**
  *  Print mower status on LCD screen
  */
-#include "config.h"
- 
+#include "lcdDisplay.h"
+#include "robot.h"
+
+
 void lcdUpdateScreen() {
     /**********************
      * RIGA 1
      **********************/
     lcd.setCursor(0, 0);
-    if (Mower_Docked == 1 && Charge_Detected_MEGA == 1) {
+    if (robot.mowerDocked == 1 && robot.chargeDetectedMEGA == 1) {
         lcd.print(TRS_CHARGING);  //is charging
+    } else if (robot.rainDetected == 1) {
+        lcd.print(TRS_RAIN);
     } else {
         lcd.print("        ");
-
         //stampa l'orario
+        //TODO RTC
+        /*
         Time t = rtc.time();
         lcd.print(t.hr);
         lcd.print(":");
         if (t.min < 10) lcd.print("0");
         lcd.print(t.min);
+        */
     }
     //stampa voltaggio
     lcd.setCursor(10, 0);
     lcd.print("V:");
     lcd.setCursor(12, 0);
-    lcd.print(Volts);
+    lcd.print(robot.volts);
 
     /**********************
      * RIGA 2
      **********************/
     lcd.setCursor(0, 1);
-    if (Mower_Docked == 1) {
+    if (robot.mowerDocked == 1) {
         lcd.print(TRS_PARKED);
-    } else if (Mower_Parked == 1) {
+    } else if (robot.mowerParked == 1) {
         lcd.print(TRS_PARKED);
-    } else if (Mower_Parked_Low_Batt == 1) {
+    } else if (robot.mowerParkedLowBatt == 1) {
         lcd.print(TRS_RECHARG_BAT);
-    } else if (Mower_Error == 1) {
+    } else if (robot.mowerError == 1) {
         lcd.clear();
         lcd.setCursor(0, 0);
         lcd.print("ERROR");
-        if (wireOffCounter > MAX_WIRE_FAIL) { //TODO migliorare questo iff?
+        if (robot.wireOffCounter > MAX_WIRE_FAIL) {  //TODO migliorare questo iff?
             lcd.setCursor(0, 1);
             lcd.print(TRS_WIRE_OFF);
         }
+    } else if (robot.mowerRunning == 1) {
+        lcd.print(TRS_MOVING__);
     }
 }
 
@@ -54,20 +62,9 @@ void Setup_Run_LCD_Intro() {
     lcd.print("ReP_AL Robot");
     lcd.setCursor(0, 1);
     lcd.print(Version);
-    if (WIFI_Enabled == 1) {
-        lcd.setCursor(7, 1);
-        lcd.print("WIFI ON");
-    }
     delay(1000);
     lcd.clear();
     Serial.println("LCD Setup OK");
-}
-
-void Print_Raining_LCD() {
-    lcd.setCursor(4, 0);
-    if (Rain_Detected == 1) lcd.print("Rain");
-    // See raining and charging clause if this is not displying correctly.
-    if ((Rain_Detected == 0) && (Charge_Detected_MEGA == 0)) lcd.print("    ");
 }
 
 void Print_LCD_Wire() {
@@ -76,29 +73,29 @@ void Print_LCD_Wire() {
 }
 
 void Print_LCD_Mowing() {
-    if (Alarm_Timed_Mow_ON == 0) {
+    if (robot.alarmTimedMowON == 0) {
         lcd.setCursor(0, 1);
         lcd.print("Mowing..    ");
     }
-    if (Alarm_Timed_Mow_ON == 1) {
+    if (robot.alarmTimedMowON == 1) {
         lcd.setCursor(0, 1);
         lcd.print("Timer:");
-        lcd.print(Alarm_Timed_Mow_Hour);
+        lcd.print(robot.alarmTimedMowHour);
         lcd.print(":");
-        if (Alarm_Timed_Mow_Minute < 10) lcd.print("0");
-        lcd.print(Alarm_Timed_Mow_Minute);
-        Mow_Time_Set = 1;
+        if (robot.alarmTimedMowMinute < 10) lcd.print("0");
+        lcd.print(robot.alarmTimedMowMinute);
+        //Mow_Time_Set = 1;
     }
 }
 
 void Print_LCD_Compass_Mowing() {
-    if (Compass_Heading_Locked == 1) {
+    if (robot.compassHeadingLocked == 1) {
         lcd.setCursor(0, 1);
-        if (PWM_Right > PWM_Left) lcd.print("<H-Lock Mow ");
-        if (PWM_Left > PWM_Right) lcd.print(" H-Lock Mow>");
-        if (PWM_Left == PWM_Right) lcd.print("|H-Lock Mow|");
+        if (robot.pwmRight > robot.pwmLeft) lcd.print("<H-Lock Mow ");
+        if (robot.pwmLeft > robot.pwmRight) lcd.print(" H-Lock Mow>");
+        if (robot.pwmLeft == robot.pwmRight) lcd.print("|H-Lock Mow|");
     }
-    if (Compass_Heading_Locked == 0) {
+    if (robot.compassHeadingLocked == 0) {
         lcd.setCursor(0, 1);
         lcd.print("            ");
     }
@@ -110,28 +107,28 @@ void Print_LCD_Info_Manuel() {
 }
 
 void Print_LCD_NO_Wire() {
-    if ((Mower_Docked == 1) || (Mower_Parked == 1)) {
+    if ((robot.mowerDocked == 1) || (robot.mowerParked == 1)) {
         lcd.setCursor(7, 1);
         lcd.print(":WIRE OFF");
-        Wire_ON_Printed = 0;
+        robot.wireOnPrinted = 0;
     }
-    if ((Mower_Docked == 0) && (Mower_Parked == 0)) {
+    if ((robot.mowerDocked == 0) && (robot.mowerParked == 0)) {
         lcd.setCursor(0, 1);
         lcd.print(":WIRE OFF        ");
-        Wire_ON_Printed = 0;
+        robot.wireOnPrinted = 0;
     }
 }
 
 void Print_LCD_Wire_ON() {
-    if ((Mower_Docked == 1) || (Mower_Parked == 1) && (Wire_ON_Printed = 0)) {
+    if ((robot.mowerDocked == 1) || (robot.mowerParked == 1) && (robot.wireOnPrinted = 0)) {
         lcd.setCursor(7, 1);
         lcd.print(":               ");
-        Wire_ON_Printed = 1;
+        robot.wireOnPrinted = 1;
     }
-    if ((Mower_Docked == 0) && (Mower_Parked == 0) && (Wire_ON_Printed = 0)) {
+    if ((robot.mowerDocked == 0) && (robot.mowerParked == 0) && (robot.wireOnPrinted = 0)) {
         lcd.setCursor(0, 1);
         lcd.print(":               ");
-        Wire_ON_Printed = 1;
+        robot.wireOnPrinted = 1;
     }
 }
 
@@ -144,7 +141,7 @@ void Print_LCD_Compass_Home() {
     lcd.clear();
     lcd.setCursor(0, 0);
     lcd.print("Compass Home");
-    if (Rain_Detected == 1) {
+    if (robot.rainDetected == 1) {
         lcd.setCursor(0, 1);
         lcd.print("RAINING");
     }
@@ -153,5 +150,27 @@ void Print_LCD_Compass_Home() {
 void Print_LCD_Heading_for_Home() {
     lcd.setCursor(0, 1);
     lcd.print("Target:");
-    lcd.print(((Heading_Lower_Limit_Compass - Heading_Lower_Limit_Compass) / 2) + Heading_Lower_Limit_Compass);
+    lcd.print(((robot.headingLowerLimitCompass - robot.headingLowerLimitCompass) / 2) + robot.headingLowerLimitCompass);
+}
+
+void Print_LCD_Menu_Timing(char LCD_Menu_Timing) {
+    if (LCD_Menu_Timing == 1) lcd.print("Max Mow Time");
+    if (LCD_Menu_Timing == 2) lcd.print("1hr Mow Time");
+    if (LCD_Menu_Timing == 3) lcd.print("2hr Mow Time");
+    if (LCD_Menu_Timing == 4) lcd.print("  ");  //leave blank
+}
+
+void printLoop(byte lCount) {
+    lcd.setCursor(13, 1);
+    lcd.print(robot.loopCycleMowing);
+}
+
+void printFindFire() {
+    lcd.clear();
+    lcd.print(TRS_FIND_WIRE);
+}
+
+void printMessage(char* msg){
+     lcd.clear();
+    lcd.print(msg);
 }
