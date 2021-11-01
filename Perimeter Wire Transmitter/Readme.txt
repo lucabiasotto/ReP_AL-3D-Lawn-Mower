@@ -1,1 +1,0 @@
-Upload this code to the Arduino in the perimeter wire transmitter station. 

@@ -1,5 +1,0 @@
-{
-    "configuration": "cpu=atmega2560",
-    "board": "arduino:avr:mega",
-    "sketch": "MEGA_V6.31.ino"
-}
