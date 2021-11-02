@@ -63,29 +63,35 @@ void Mower::loop() {
 
     lcdUpdateScreen();  //Update LCD Info
 
-    if (robot.mowerDocked == 1) {          // Mower is docked waiting for a command to leave and mow.
+    if (robot.mowerDocked == 1) {
+        /*********************************************************
+         * Mower is docked waiting for a command to leave and mow.
+         *********************************************************/
         checkMembraneSwitchInputDocked();  // Check the membrane buttons for any input
-        manouverDockTheMower();            //set robot in dock status
-    }
 
-    if (robot.mowerParked == 1            // Mower is Parked ready to be started / re-started.
-        || robot.mowerParkedLowBatt == 1  // Mower is Parked with Low Battery needing manuel charging
-        || robot.mowerError == 1) {       // Lost mower is put into standby mode
-
+    } else if (robot.mowerParked == 1 || robot.mowerParkedLowBatt == 1 || robot.mowerError == 1) {
+        /*********************************************************
+         *  Mower is Parked ready to be started / re-started.
+         * Mower is Parked with Low Battery needing manuel charging.
+         * Lost mower is put into standby mode.
+         *********************************************************/
         checkMembraneSwitchInputParked();  // Check the membrane buttons for any input
-    }
 
-    if (robot.mowerParked == 1) {
+    } else if (robot.mowerParked == 1) {
+        /*********************************************************
+         * Mower is parked
+         *********************************************************/
         manouverParkTheMower();
-    }
 
-    // Mower is running cutting the grass.
-    bool wireOn = isWireOn();
+    } else if (robot.mowerRunning == 1) {
+        /*********************************************************
+         * Mower is running cutting the grass.
+         *********************************************************/
+        bool wireOn = isWireOn();
 
-    if (robot.mowerRunning == 1) {
-        //TODO perchè non sempre i volt?
+        //TODO perchè non processare sempre i volt? forse solo quando gira perchè deve fermare
         Process_Volt_Information();     // Take action based on the voltage readings
-        Check_Membrane_Keys_Running();  // Check to see if the mower needs to be stopped via keypad
+        checkMembranSwitchRunning();  // Check to see if the mower needs to be stopped via keypad
         //TODOCheck_Timed_Mow();              // Check to see if the time to go home has come.
 
         if (wireOn) {
@@ -95,19 +101,19 @@ void Mower::loop() {
                 //in inside perimeter
                 readSonarSensor();  // If the mower is  the boundary wire check the sonars for obsticles and prints to the LCD
                 if (robot.sonarHit == 0) {
-                    Manouver_Mow_The_Grass();  // Inputs to the wheel motors / blade motors according to surroundings
+                    robotMoveAroundTheGarden();  // Inputs to the wheel motors / blade motors according to surroundings
                 } else {
                     Manouver_Turn_Around_Sonar();  // If sonar hit is detected and mower is  the wire, manouver around obsticle
                 }
 
             } else {
                 //Is outside!!!
-                Manouver_Turn_Around();  // If outside the wire turn around
+                robotReverseDirection();  // If outside the wire turn around
             }
-        }
-
-        if (robot.rainHitDetected >= RAIN_TOTAL_HITS_GO_HOME) {
-            //it's rain!!
+        } else if (robot.rainHitDetected >= RAIN_TOTAL_HITS_GO_HOME) {
+            /*********************************************************
+             * It's rain!!
+             *********************************************************/
             Serial.println();
             Serial.println("Its raining!");
             Motor_Action_Stop_Motors();
@@ -118,9 +124,10 @@ void Mower::loop() {
             } else {
                 // Parks the mower
             }
-        }
-
-        if (robot.lowBatteryDetectedCount > LOW_BATTERY_INSTANCES_CHG) {
+        }else if (robot.lowBatteryDetectedCount > LOW_BATTERY_INSTANCES_CHG) {
+            /*********************************************************
+             * Low Battery Detected!
+             *********************************************************/
             Serial.println();
             Serial.println("Low Battery Detected!");
             if (USE_CHARGING_STATION == 1) {
@@ -228,9 +235,7 @@ void Mower::Prepare_Mower_from_Settings() {
         robot.mowerDocked = 1;
         robot.mowerParked = 0;
         robot.mowerRunning = 0;
-    }
-
-    if (USE_CHARGING_STATION == 0) {
+    }else{
         robot.mowerDocked = 0;
         robot.mowerParked = 1;
         robot.mowerRunning = 0;

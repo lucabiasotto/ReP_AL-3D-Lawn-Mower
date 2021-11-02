@@ -115,7 +115,6 @@ class Mower {
     double P = 1.2;  //TODO che minchia è? dobule? float?     // 0.08//EEPROM           // Multiplication  factor to the error measured to the wire center.  if   jerky movement when tracking reduce number
     int trackWireItterations;
     bool outsideWire;
-    byte exitZone;
     int magNow;
     byte outsideWireCount = 0;
     int trackingWire = 0;

@@ -10,3 +10,4 @@ Upload this code to the Arduino in the perimeter wire transmitter station.
 
 - usare ifdefine invece di if(variabile) per i setup
 
+- cos è trampoline cut?

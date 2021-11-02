@@ -91,7 +91,7 @@ void Check_if_Charging() {
     }
 }
 
-void Check_if_Docked() {
+void Check_if_Docked() { //TODO rename
     if (robot.chargeDetectedMEGA == 1) {  // if robot.amps are between this there is a charge detected.  robot.amps above 4 are discounted as a miscommunication
         Motor_Action_Stop_Motors();
         Serial.println(F("Charging Current detected"));
@@ -102,7 +102,6 @@ void Check_if_Docked() {
         robot.lcdDisplay.setCursor(0, 1);
         robot.lcdDisplay.print(TRS_CHARGING_STATION);  // Prints info to LCD display
         delay(2000);
-        robot.mowerDocked = 1;
         manouverDockTheMower();  // Shuts down the Mower ready for charging and mowing again.
         robot.lcdDisplay.clear();
     }

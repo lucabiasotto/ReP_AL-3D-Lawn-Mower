@@ -26,7 +26,7 @@ Contains all code you need
 
 #### Libraries
 All the libraries used for the Arduino Code can be found in Libraries folder.
-Note: i improved the "DFRobot_QMC5883-master" library, i replace it with "DFRobot_QMC5883-otto"
+Note: i improved the "DFRobot_QMC5883-master" library, i replace it with "DFRobot_QMC5883-otto".
 
 #### Ottomower_ARDUINO_MEGA
 This folder contains the mower software  
@@ -41,7 +41,7 @@ They are designed to test the indiviual components in your build to see if they 
 Ihe idea is to debug the components indicudually so you are faster in completing the project.
 
 ### STL File
-CAD Data is fouind in the ReP_AL Mower STEP Files Folder
+CAD Data for printing mower.
 
 ## Docs
-Contains circuit overview and other info
+Contains circuit overview and other info.

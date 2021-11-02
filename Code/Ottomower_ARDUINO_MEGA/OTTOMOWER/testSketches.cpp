@@ -391,7 +391,7 @@ void Test_Compass_Turn_Function() {
     SetPins_ToGoForwards();
     Motor_Action_Go_Full_Speed();
     delay(2000);
-    Manouver_Turn_Around();
+    robotReverseDirection();
     Turn_To_Compass_Heading();
     SetPins_ToGoForwards();
     Motor_Action_Go_Full_Speed();

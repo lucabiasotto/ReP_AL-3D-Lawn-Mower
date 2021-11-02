@@ -2,7 +2,7 @@
  *            TRANSLATIONS
  ***************************************/
  
-#define Version "V6.31"
+#define Version "V1.0"
 
 #define ENGLISH 0
 #define ITALIAN 1 
@@ -12,7 +12,7 @@
 #if LANGUAGE == ENGLISH
 
 #define TRS_PARKED "Parked"
-#define TRS_ROBOT_NAME "ReP_AL Robot"
+#define TRS_ROBOT_NAME "Ottomower"
 #define TRS_MANUAL "Manual"
 #define TRS_DOCKED "Docked"
 #define TRS_RAIN "Rain"
@@ -38,8 +38,6 @@
 #define TRS_TRACKING_PID "Tracking PID"
 #define TRS_SET_CLOCK "Set Clock"
 #define TRS_SAVED "Saved"
-#define TRS_EXIT_DOCK_Z_1 "Exit Dock Z-1"
-#define TRS_EXIT_DOCK_Z_2 "Exit Dock Z-2"
 #define TRS_QUICK_START "Quick Start"
 #define TRS_TRAMPOLINE_CUT "Trampoline Cut"
 #define TRS_MOW_THE_LINE "Mow the Line"
@@ -67,6 +65,8 @@
 #define TRS_CHARGING "Charging"
 #define TRS_RECHARG_BAT "Recharge Batt"
 #define TRS_FIND_WIRE "Finding Wire"
+#define TRS_START_CUT "Start"
+#define TRS_START_CUT_NO_WIRE "Start (NO WIRE)"
 
 #endif
 
@@ -99,8 +99,6 @@
 #define TRS_TRACKING_PID "Tracking PID"
 #define TRS_SET_CLOCK "Imposta Ora"
 #define TRS_SAVED "Salvato"
-#define TRS_EXIT_DOCK_Z_1 "Esci Box 1"
-#define TRS_EXIT_DOCK_Z_2 "Esci Box 2"
 #define TRS_QUICK_START "Avvio Rapido"
 #define TRS_TRAMPOLINE_CUT "Taglio preciso"
 #define TRS_MOW_THE_LINE "Segui il cavo"
@@ -128,5 +126,7 @@
 #define TRS_CHARGING "In carica"
 #define TRS_RECHARG_BAT "Ricarica Batt"
 #define TRS_FIND_WIRE "Cerco cavo.."
+#define TRS_START_CUT "Avvia"
+#define TRS_START_CUT_NO_WIRE "Avvia(NO CAVO)"
 
 #endif

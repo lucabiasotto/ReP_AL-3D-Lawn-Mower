@@ -39,7 +39,6 @@ void PrintWirePosition() {
 }
 
 
-
 // Function to follow the wire for a specific amount of time set by the itterations 'I'
 // Robot tracks the wire until the itterations are exhausted.
 void Track_Wire_From_Dock_to_Zone_X() {
@@ -51,8 +50,6 @@ void Track_Wire_From_Dock_to_Zone_X() {
     robot.lcdDisplay.setCursor(0, 0);
     robot.lcdDisplay.print("Exit Docking to");  // into the garden at a good position to start Mowing
     robot.lcdDisplay.setCursor(2, 1);
-    if (robot.exitZone == 1) robot.lcdDisplay.print("Zone 1");
-    if (robot.exitZone == 2) robot.lcdDisplay.print("Zone 2");
     delay(1000);  // Prints info to LCD display
 
     robot.trackingTurnRight = 0;  // resets the tracking errors for LH and RH.

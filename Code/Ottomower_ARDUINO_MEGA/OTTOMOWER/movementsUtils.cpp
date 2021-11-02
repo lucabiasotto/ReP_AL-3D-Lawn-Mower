@@ -1,22 +1,24 @@
 #include "movementsUtils.h"
-#include "motorsController.h"
-#include "lcdDisplay.h"
-#include "compassUtils.h"
-#include "robot.h"
-#include "compassUtils.h"
+
 #include "adcman.h"
-#include "wireDetection.h"
+#include "compassUtils.h"
+#include "lcdDisplay.h"
+#include "motorsController.h"
 #include "perimeter.h"
-#include "wireTracking.h"
+#include "robot.h"
 #include "sonar.h"
+#include "wireDetection.h"
+#include "wireTracking.h"
 
 /**
  * Manouvers are a set of motion functions or motor actions that are regulary called
  * e.g. Turn the mower around
  */
 
-// Moves the Mower Forwards in the garden and activates compass features if enabled
-void Manouver_Mow_The_Grass() {
+/**
+ *  Moves the Mower Forwards in the garden and activates compass features if enabled
+ */
+void robotMoveAroundTheGarden() {
     Motor_Action_Spin_Blades();
     SetPins_ToGoForwards();
 
@@ -68,216 +70,16 @@ void Manouver_Mow_The_Grass() {
         Console.println("Loop Cycle at Max");
         Console.println("");
         Motor_Action_Stop_Spin_Blades();  // Stop the blades from spinning
-        Manouver_Turn_Around();           // Turn around the mower
+        robotReverseDirection();           // Turn around the mower
         robot.loopCycleMowing = 0;        // Restes the loop cycle to start again.
         robot.lcdDisplay.clear();
     }
 }
 
 /**
- * Search the wire
- * The logic change if mover is cutting o leaving base
+ * Reverse robot direction when loopCycleMowing reach max or if robot is outside the perimeter
  */
-void findWire() {
-    Console.println(F("Find Wire Track Function Activated"));
-    printFindFire();
-    Motor_Action_Stop_Spin_Blades();
-    delay(5); //TODO perchè^
-    robot.abortWireFind = 0;
-    robot.noWireFound = 0;
-    bool wireOn = isWireOn();  // Check to see that the wire is on.
-
-    for (int i = 0; i <= 1; i++) {  //che cazzo è sta merda??? deve fare 2 volte la stessa cosa
-
-        if (robot.mowerParked == 0) {
-            Console.print(F("Position Try = "));
-            Console.println(i);
-            ADCMan.run();
-            UpdateWireSensor();
-            delay(20);
-            ADCMan.run();
-            UpdateWireSensor();
-            delay(20);
-            Console.println(F("before if loops start"));
-            PrintBoundaryWireStatus();
-
-            // First go backwards if the mower is outside the wire
-            if ((robot.inside == false) && (robot.abortWireFind == 0)) {
-                //Sono fuori dal perimetro, provo a tornare dentro
-
-                ADCMan.run();
-                UpdateWireSensor();
-                PrintBoundaryWireStatus();
-
-                Motor_Action_Stop_Motors();  // Stop all wheel motion
-                delay(1000);
-                SetPins_ToGoBackwards();  // va in retromarcia...
-
-                delay(100);
-                robot.lcdDisplay.clear();
-                robot.lcdDisplay.print("Backwards Try...  ");
-                robot.lcdDisplay.setCursor(0, 1);
-                robot.lcdDisplay.print("Finding Wire  ");
-                delay(100);
-
-                // While the mower is still outside the fence run this code
-                while ((robot.inside != true) && (robot.abortWireFind == 0)) {
-                    Motor_Action_Go_Full_Speed();  // Go full speed (in this case backwards)
-                    UpdateWireSensor();            // Read the wire sensor and see of the mower is now  or outside the wire
-
-                    ADCMan.run();
-                    PrintBoundaryWireStatus();  // Prints of the status of the wire sensor readings.
-                    Console.println("");
-
-                    if (robot.mowerParked == 1) {
-                        Console.println("Abort Wire Find");
-                        robot.abortWireFind = 1;
-                    }
-
-                    //TODO dopo un po' è il caso di fermare tutto
-                }
-
-                Motor_Action_Stop_Motors();
-                delay(5);
-            }
-
-            if (robot.inside == true && robot.abortWireFind == 0 && robot.noWireFound == 0) {
-                // If the Mower is situated  the wire then run the following code.
-                // Code to go forwards until the mower is outside/ON the wire
-
-                ADCMan.run();
-                UpdateWireSensor();
-                Console.println(F("CODE POSITION - MOTOR FORWARDS LOOP:  If statements"));
-                PrintBoundaryWireStatus();
-
-                Motor_Action_Stop_Motors();
-                delay(1000);
-                SetPins_ToGoForwards();  //va avanti
-
-                delay(100);
-                robot.lcdDisplay.clear();
-                robot.lcdDisplay.print("Forward Try...  ");
-                robot.lcdDisplay.setCursor(0, 1);
-                robot.lcdDisplay.print("Finding Wire  ");
-                delay(100);
-
-                int cycle = 0;                                                                 // resets the cycles
-                while (robot.inside != false && robot.noWireFound == 0 && robot.mowerParked == 0) {  // Move the mower forward until mower is outisde/ON the wire fence or 500 cycles have passed
-                    cycle = cycle + 1;
-
-                    robot.lcdDisplay.setCursor(0, 1);
-                    robot.lcdDisplay.print("Track -> Charge");
-
-                    Motor_Action_Go_Full_Speed();  // Go full speed (in this case forwards)
-                    UpdateWireSensor();            // Read the wire sensor and see of the mower is now  or outside the wire
-
-                    ADCMan.run();
-                    PrintBoundaryWireStatus();  // Prints of the status of the wire sensor readings.
-                    Console.println("");
-
-                    if (robot.mowerParked == 1) {
-                        Console.println("Abort Wire Find");
-                        robot.abortWireFind = 1;
-                    }
-                    if (cycle > MAX_CYCLE_WIRE_FIND) {  // Track forwards for 500 cycles
-                        robot.noWireFound = 1;          // if mower is still tracking after 500 cycles then cancel the find.
-                        Console.println("Max Forward Cycles reached");
-                    }
-                }
-                Motor_Action_Stop_Motors();
-                delay(5);
-            }
-
-            Motor_Action_Stop_Motors();
-            delay(1000);
-        }
-    }
-
-    // Position the mower further over the wire so it has space to turn 90° onto the wire.
-    if ((robot.abortWireFind == 0) && (robot.noWireFound == 0) && (robot.mowerParked == 0)) {
-        SetPins_ToGoForwards();
-        delay(100);
-        Motor_Action_Go_Full_Speed();
-        delay(500);
-        Motor_Action_Stop_Motors();
-    }
-
-    // Sets the firection of spin depensing on if the mower is eciting or tracking home
-
-    // Set pins to track home to charge.
-    if ((robot.mowerTrackToCharge == 1) && (robot.mowerParked == 0)) {
-        robot.lcdDisplay.setCursor(0, 1);
-        robot.lcdDisplay.print("Track -> Charge");
-        delay(1000);
-
-        if (CW_TRACKING_SEARCHING_CHARGE == 1) {
-            SetPins_ToTurnRight();  // Track perimeter wire in a Clockwise Direction to the charging station
-            Console.println(F("CW Tracking to Charger"));
-        } else {
-            SetPins_ToTurnLeft();
-            Console.println(F("CCW Tracking toCharger"));
-        }
-    }
-
-    // Set pins to track to exit.
-    if ((robot.mowerTrackToExit == 1) && (robot.mowerParked == 0)) {
-        robot.lcdDisplay.setCursor(0, 1);
-        robot.lcdDisplay.print("Track -> Exit");
-        delay(1000);
-        if (CW_TRACKING_EXITING_CHARGE == 1) {
-            SetPins_ToTurnRight();  // Track perimeter wire in a Clockwise Direction to the charging station
-            Console.println(F("CW Tracking to Exit"));
-        } else {
-            SetPins_ToTurnLeft();
-            Console.println(F("CCW Tracking to Exit"));
-        }
-    }
-
-    delay(20);
-    // Pins are now set to turn from the above logic which way to turn onto the wire
-
-    // Update the mowers position to the wire.
-    ADCMan.run();
-    UpdateWireSensor();
-    ADCMan.run();
-    PrintBoundaryWireStatus();  // Prints of the status of the wire sensor readings
-    delay(20);
-
-    // Spins the mower over the wire in the driection of tracking
-    while ((robot.inside == false) && (robot.abortWireFind == 0) && (robot.noWireFound == 0) && (robot.mowerParked == 0)) {
-        while (robot.inside != true) {           // Do this loop until mower is back  the wire fence
-            Motor_Action_Go_Full_Speed();  // Go full speed (in the case turning as set by the previous logic)
-            UpdateWireSensor();            // Read the wire sensor and see of the mower is now  or outside the wire
-            ADCMan.run();
-            PrintBoundaryWireStatus();  // Prints of the status of the wire sensor readings.
-        }
-        Motor_Action_Stop_Motors();  // Stop the mower on the wire facing the correct direction.
-    }
-
-    Motor_Action_Stop_Motors();
-    if (robot.abortWireFind == 0) {
-        Console.println(F("Track Wire Function Complete - ON WIRE??"));
-        robot.lcdDisplay.clear();
-        robot.lcdDisplay.print("Wire Found...");
-        delay(2000);  // 2 second pause to check result
-        SetPins_ToGoForwards();
-        delay(100);
-    }
-
-    if (robot.abortWireFind == 1) {
-        Console.println("Wire Find Aborted");
-        robot.abortWireFind = 0;
-        SetPins_ToGoForwards();
-        manouverParkTheMower();
-    }
-
-    if (robot.noWireFound == 1) {
-        Console.println("Re-starting wire find");
-        SetPins_ToGoForwards();
-    }
-}
-
-void Manouver_Turn_Around() {
+void robotReverseDirection() {
     if (COMPASS_ACTIVATE == 1) {
         Motor_Action_Stop_Motors();
         Motor_Action_Stop_Spin_Blades();
@@ -388,6 +190,210 @@ void Manouver_Turn_Around() {
     robot.lcdDisplay.clear();
 }
 
+
+/**
+ * Search the wire
+ * The logic change if mover is cutting o leaving base
+ */
+void findWire() {
+    Console.println(F("Find Wire Track Function Activated"));
+    printFindFire();
+    Motor_Action_Stop_Spin_Blades();
+    delay(5);  //TODO perchè^
+    robot.abortWireFind = 0;
+    robot.noWireFound = 0;
+    bool wireOn = isWireOn();  // Check to see that the wire is on.
+
+    for (int i = 0; i <= 1; i++) {  //che cazzo è sta merda??? deve fare 2 volte la stessa cosa
+
+        if (robot.mowerParked == 0) {
+            Console.print(F("Position Try = "));
+            Console.println(i);
+            ADCMan.run();
+            UpdateWireSensor();
+            delay(20);
+            ADCMan.run();
+            UpdateWireSensor();
+            delay(20);
+            Console.println(F("before if loops start"));
+            PrintBoundaryWireStatus();
+
+            // First go backwards if the mower is outside the wire
+            if ((robot.inside == false) && (robot.abortWireFind == 0)) {
+                //Sono fuori dal perimetro, provo a tornare dentro
+
+                ADCMan.run();
+                UpdateWireSensor();
+                PrintBoundaryWireStatus();
+
+                Motor_Action_Stop_Motors();  // Stop all wheel motion
+                delay(1000);
+                SetPins_ToGoBackwards();  // va in retromarcia...
+
+                delay(100);
+                robot.lcdDisplay.clear();
+                robot.lcdDisplay.print("Backwards Try...  ");
+                robot.lcdDisplay.setCursor(0, 1);
+                robot.lcdDisplay.print("Finding Wire  ");
+                delay(100);
+
+                // While the mower is still outside the fence run this code
+                while ((robot.inside != true) && (robot.abortWireFind == 0)) {
+                    Motor_Action_Go_Full_Speed();  // Go full speed (in this case backwards)
+                    UpdateWireSensor();            // Read the wire sensor and see of the mower is now  or outside the wire
+
+                    ADCMan.run();
+                    PrintBoundaryWireStatus();  // Prints of the status of the wire sensor readings.
+                    Console.println("");
+
+                    if (robot.mowerParked == 1) {
+                        Console.println("Abort Wire Find");
+                        robot.abortWireFind = 1;
+                    }
+
+                    //TODO dopo un po' è il caso di fermare tutto
+                }
+
+                Motor_Action_Stop_Motors();
+                delay(5);
+            }
+
+            if (robot.inside == true && robot.abortWireFind == 0 && robot.noWireFound == 0) {
+                // If the Mower is situated  the wire then run the following code.
+                // Code to go forwards until the mower is outside/ON the wire
+
+                ADCMan.run();
+                UpdateWireSensor();
+                Console.println(F("CODE POSITION - MOTOR FORWARDS LOOP:  If statements"));
+                PrintBoundaryWireStatus();
+
+                Motor_Action_Stop_Motors();
+                delay(1000);
+                SetPins_ToGoForwards();  //va avanti
+
+                delay(100);
+                robot.lcdDisplay.clear();
+                robot.lcdDisplay.print("Forward Try...  ");
+                robot.lcdDisplay.setCursor(0, 1);
+                robot.lcdDisplay.print("Finding Wire  ");
+                delay(100);
+
+                int cycle = 0;                                                                       // resets the cycles
+                while (robot.inside != false && robot.noWireFound == 0 && robot.mowerParked == 0) {  // Move the mower forward until mower is outisde/ON the wire fence or 500 cycles have passed
+                    cycle = cycle + 1;
+
+                    robot.lcdDisplay.setCursor(0, 1);
+                    robot.lcdDisplay.print("Track -> Charge");
+
+                    Motor_Action_Go_Full_Speed();  // Go full speed (in this case forwards)
+                    UpdateWireSensor();            // Read the wire sensor and see of the mower is now  or outside the wire
+
+                    ADCMan.run();
+                    PrintBoundaryWireStatus();  // Prints of the status of the wire sensor readings.
+                    Console.println("");
+
+                    if (robot.mowerParked == 1) {
+                        Console.println("Abort Wire Find");
+                        robot.abortWireFind = 1;
+                    }
+                    if (cycle > MAX_CYCLE_WIRE_FIND) {  // Track forwards for 500 cycles
+                        robot.noWireFound = 1;          // if mower is still tracking after 500 cycles then cancel the find.
+                        Console.println("Max Forward Cycles reached");
+                    }
+                }
+                Motor_Action_Stop_Motors();
+                delay(5);
+            }
+
+            Motor_Action_Stop_Motors();
+            delay(1000);
+        }
+    }
+
+    // Position the mower further over the wire so it has space to turn 90° onto the wire.
+    if ((robot.abortWireFind == 0) && (robot.noWireFound == 0) && (robot.mowerParked == 0)) {
+        SetPins_ToGoForwards();
+        delay(100);
+        Motor_Action_Go_Full_Speed();
+        delay(500);
+        Motor_Action_Stop_Motors();
+    }
+
+    // Sets the firection of spin depensing on if the mower is eciting or tracking home
+
+    // Set pins to track home to charge.
+    if ((robot.mowerTrackToCharge == 1) && (robot.mowerParked == 0)) {
+        robot.lcdDisplay.setCursor(0, 1);
+        robot.lcdDisplay.print("Track -> Charge");
+        delay(1000);
+
+        if (CW_TRACKING_SEARCHING_CHARGE == 1) {
+            SetPins_ToTurnRight();  // Track perimeter wire in a Clockwise Direction to the charging station
+            Console.println(F("CW Tracking to Charger"));
+        } else {
+            SetPins_ToTurnLeft();
+            Console.println(F("CCW Tracking toCharger"));
+        }
+    }
+
+    // Set pins to track to exit.
+    if ((robot.mowerTrackToExit == 1) && (robot.mowerParked == 0)) {
+        robot.lcdDisplay.setCursor(0, 1);
+        robot.lcdDisplay.print("Track -> Exit");
+        delay(1000);
+        if (CW_TRACKING_EXITING_CHARGE == 1) {
+            SetPins_ToTurnRight();  // Track perimeter wire in a Clockwise Direction to the charging station
+            Console.println(F("CW Tracking to Exit"));
+        } else {
+            SetPins_ToTurnLeft();
+            Console.println(F("CCW Tracking to Exit"));
+        }
+    }
+
+    delay(20);
+    // Pins are now set to turn from the above logic which way to turn onto the wire
+
+    // Update the mowers position to the wire.
+    ADCMan.run();
+    UpdateWireSensor();
+    ADCMan.run();
+    PrintBoundaryWireStatus();  // Prints of the status of the wire sensor readings
+    delay(20);
+
+    // Spins the mower over the wire in the driection of tracking
+    while ((robot.inside == false) && (robot.abortWireFind == 0) && (robot.noWireFound == 0) && (robot.mowerParked == 0)) {
+        while (robot.inside != true) {     // Do this loop until mower is back  the wire fence
+            Motor_Action_Go_Full_Speed();  // Go full speed (in the case turning as set by the previous logic)
+            UpdateWireSensor();            // Read the wire sensor and see of the mower is now  or outside the wire
+            ADCMan.run();
+            PrintBoundaryWireStatus();  // Prints of the status of the wire sensor readings.
+        }
+        Motor_Action_Stop_Motors();  // Stop the mower on the wire facing the correct direction.
+    }
+
+    Motor_Action_Stop_Motors();
+    if (robot.abortWireFind == 0) {
+        Console.println(F("Track Wire Function Complete - ON WIRE??"));
+        robot.lcdDisplay.clear();
+        robot.lcdDisplay.print("Wire Found...");
+        delay(2000);  // 2 second pause to check result
+        SetPins_ToGoForwards();
+        delay(100);
+    }
+
+    if (robot.abortWireFind == 1) {
+        Console.println("Wire Find Aborted");
+        robot.abortWireFind = 0;
+        SetPins_ToGoForwards();
+        manouverParkTheMower();
+    }
+
+    if (robot.noWireFound == 1) {
+        Console.println("Re-starting wire find");
+        SetPins_ToGoForwards();
+    }
+}
+
 void Manouver_Turn_Around_Sonar() {
     Motor_Action_Stop_Motors();
     delay(500);
@@ -416,20 +422,6 @@ void Manouver_Turn_Around_Sonar() {
     robot.compassHeadingLocked = 0;
     robot.sonarHit = 0;
     robot.loopCycleMowing = 0;
-}
-
-void Manouver_manuelMode() {
-    robot.mowerDocked = 0;
-    robot.mowerParked = 0;
-    robot.mowerRunning = 0;
-    robot.mowerParkedLowBatt = 0;
-    robot.mowerTrackToExit = 0;
-    robot.mowerTrackToCharge = 0;
-    robot.mowerError = 0;
-    robot.manuelMode = 1;
-    robot.loopCycleMowing = 0;
-    Motor_Action_Stop_Motors();
-    Motor_Action_Stop_Spin_Blades();
 }
 
 void Manouver_Start_Mower() {
@@ -549,7 +541,6 @@ void goToChargingStation() {
     robot.manuelMode = 0;
     robot.noWireFound = 0;
 
-
     delay(5);
     Motor_Action_Stop_Spin_Blades();
     Motor_Action_Stop_Motors();
@@ -580,13 +571,13 @@ void goToChargingStation() {
     }
 }
 
-void leaveChargingStation() {
+void leaveChargingStationAndStartCut() {
     // Zone 1 or Zone 2 and the Wire itterations are set on the Membrane Buttons.
     // These values are then crried into the following functions.
     robot.Turn_On_Relay();
     delay(1000);
 
-    Manouver_Mower_Exit_Dock();
+    Manouver_Mower_Exit_Dock();  //TODO settata tutot a 0
 
     Special_Exit_From_Docking_Station();  // Move the Mower into position backing out of the docking station
     if (PERIMETER_WIRE_ENABLED == 1) {
@@ -596,6 +587,7 @@ void leaveChargingStation() {
         if (isWireOn()) {
             findWire();  //TODO...perchè? Located the boundary wire
 
+            //TODO dai una sistemate a ste if...serve tutto?
             if (robot.mowerParked == 0) {
                 Track_Wire_From_Dock_to_Zone_X();
             }
@@ -697,143 +689,134 @@ void Manouver_Outside_Wire_ReFind_Function() {
     //FindWireTrack();
 }
 
-
-
-
 /*****************
  * SPECIAL....mmm TODO
  */
 void Special_Cut_Under_Trampoline_Function() {
-  //Enter Code Here
+    //Enter Code Here
 }
-
-
 
 // after wire tracking the code to bering the mower to a sensible position away from the wire
 // This poart of the code should eb modified to fit your garden needs
 void Special_Move_Into_Garden_Zone_X() {
     Serial.println("start mower code here");
-    Motor_Action_Stop_Motors();                                     // Stop the wheel motors
-    SetPins_ToTurnLeft();                                           // Turn left
-    Motor_Action_Go_Full_Speed();                                       
-    delay(1400);                                                     // Turn left for 0.7seconds
-    Motor_Action_Stop_Motors();                                     // Stop the wheel motors.
-    SetPins_ToGoForwards();                                         // Get ready to move off
-    }
+    Motor_Action_Stop_Motors();  // Stop the wheel motors
+    SetPins_ToTurnLeft();        // Turn left
+    Motor_Action_Go_Full_Speed();
+    delay(1400);                 // Turn left for 0.7seconds
+    Motor_Action_Stop_Motors();  // Stop the wheel motors.
+    SetPins_ToGoForwards();      // Get ready to move off
+}
 
 void Special_Exit_From_Docking_Station() {
     robot.lcdDisplay.clear();
     robot.lcdDisplay.print("Exiting Garage");
     delay(2000);
-    SetPins_ToGoBackwards();                                        // Prepare motors pins to go Backwards
-    Motor_Action_GoFullSpeed_Out_Garage();                          // Turn the wheels
+    SetPins_ToGoBackwards();                // Prepare motors pins to go Backwards
+    Motor_Action_GoFullSpeed_Out_Garage();  // Turn the wheels
     Serial.print("Left Wheel PWM:");
     Serial.print(PWM_MAX_SPEED_LH);
     Serial.print("|");
     Serial.print("Right Wheel PWM:");
-    Serial.println(PWM_MAX_SPEED_RH);   
-    delay (4000);                                                   // Backwards time
-    Motor_Action_Stop_Motors;                                       // Stop
-    SetPins_ToTurnLeft();                                           // Prepare motors to turn left
-    Motor_Action_Turn_Speed();                                      // Turn the wheels
-    delay(500);                                                    // Turn time
-    Motor_Action_Stop_Motors;                                       // Stop
-    SetPins_ToGoBackwards();                                        // Set again to go backwards
-    Motor_Action_Go_Full_Speed();                                   // Turn the wheels
-    delay (500);                                                    // Backwards Time
-    SetPins_ToTurnLeft();                                           // Set to go left             
-    Motor_Action_Turn_Speed();                                      // Turn the wheels
-    delay(200);                                                     // Turning time
-    Motor_Action_Stop_Motors();                                     // Stop
-    SetPins_ToGoForwards();                                         // Set to go wheel motor pins to go forwards
-    Motor_Action_Stop_Motors();                                     // Stop / Park the mower here
-    robot.lcdDisplay.clear();                                                    // Clears the LCD display
-    robot.lcdDisplay.print("Garage Clear");                                      // Prints to the LCD screen       
+    Serial.println(PWM_MAX_SPEED_RH);
+    delay(4000);                             // Backwards time
+    Motor_Action_Stop_Motors;                // Stop
+    SetPins_ToTurnLeft();                    // Prepare motors to turn left
+    Motor_Action_Turn_Speed();               // Turn the wheels
+    delay(500);                              // Turn time
+    Motor_Action_Stop_Motors;                // Stop
+    SetPins_ToGoBackwards();                 // Set again to go backwards
+    Motor_Action_Go_Full_Speed();            // Turn the wheels
+    delay(500);                              // Backwards Time
+    SetPins_ToTurnLeft();                    // Set to go left
+    Motor_Action_Turn_Speed();               // Turn the wheels
+    delay(200);                              // Turning time
+    Motor_Action_Stop_Motors();              // Stop
+    SetPins_ToGoForwards();                  // Set to go wheel motor pins to go forwards
+    Motor_Action_Stop_Motors();              // Stop / Park the mower here
+    robot.lcdDisplay.clear();                // Clears the LCD display
+    robot.lcdDisplay.print("Garage Clear");  // Prints to the LCD screen
     delay(500);
     robot.lcdDisplay.clear();
+}
+
+void Specials_Find_Wire_Track() {
+    Serial.println(F("Lost Mower - find wire Track"));
+    robot.lcdDisplay.clear();
+    robot.lcdDisplay.print("Finding Wire...  ");
+    Motor_Action_Stop_Spin_Blades();
+    delay(5);
+    robot.abortWireFind = 0;
+    robot.noWireFound = 0;
+    bool wireOn = isWireOn();  // TODO, non viene mai usato...
+
+    for (int i = 0; i <= 1; i++) {
+        Serial.print(F("Position Try = "));
+        Serial.println(i);
+        ADCMan.run();
+        UpdateWireSensor();
+        delay(20);
+        ADCMan.run();
+        UpdateWireSensor();
+        delay(20);
+        Serial.println(F("before if loops start"));
+        PrintBoundaryWireStatus();
+
+        // First go backwards if the mower is outside the wire
+        if (robot.inside == false) {  // If the mower is outside the wire then run the following code.
+            ADCMan.run();
+            UpdateWireSensor();
+            PrintBoundaryWireStatus();
+            Motor_Action_Stop_Motors();  // Stop all wheel motion
+            delay(1000);
+            SetPins_ToGoBackwards();  // Set the mower to back up
+            delay(100);
+            robot.lcdDisplay.clear();
+            robot.lcdDisplay.print("Backwards Try...  ");
+            robot.lcdDisplay.setCursor(0, 1);
+            robot.lcdDisplay.print("Finding Wire  ");
+            delay(100);
+            while ((robot.inside != true) && (robot.abortWireFind == 0)) {  // While the mower is still outside the fence run this code
+                Motor_Action_Go_Full_Speed();                               // Go full speed (in this case backwards)
+                UpdateWireSensor();                                         // Read the wire sensor and see of the mower is now  or outside the wire
+                ADCMan.run();
+                PrintBoundaryWireStatus();  // Prints of the status of the wire sensor readings.
+                Serial.println("");
+            }
+        }
+
+        Motor_Action_Stop_Motors();
+        delay(5);
     }
 
-
-
-void Specials_Find_Wire_Track()  {
-
-  Serial.println(F("Lost Mower - find wire Track"));
-  robot.lcdDisplay.clear();
-  robot.lcdDisplay.print("Finding Wire...  ");
-  Motor_Action_Stop_Spin_Blades();
-  delay(5);
-  robot.abortWireFind = 0;
-  robot.noWireFound = 0;
-  bool wireOn = isWireOn();// TODO, non viene mai usato...
-
-  for (int i = 0; i <= 1; i++) {
-    Serial.print(F("Position Try = "));
-    Serial.println(i);
-    ADCMan.run();
-    UpdateWireSensor();
-    delay(20);
-    ADCMan.run();
-    UpdateWireSensor();
-    delay(20);
-    Serial.println(F("before if loops start"));
-    PrintBoundaryWireStatus();
-
-    // First go backwards if the mower is outside the wire
-    if ( robot.inside == false) {                                    // If the mower is outside the wire then run the following code.
-      ADCMan.run();
-      UpdateWireSensor();
-      PrintBoundaryWireStatus();
-      Motor_Action_Stop_Motors();                                                           // Stop all wheel motion
-      delay(1000);
-      SetPins_ToGoBackwards();                                                              // Set the mower to back up
-      delay(100);
-      robot.lcdDisplay.clear();
-      robot.lcdDisplay.print("Backwards Try...  ");
-      robot.lcdDisplay.setCursor(0,1);
-      robot.lcdDisplay.print("Finding Wire  ");
-      delay(100);
-      while (( robot.inside != true) && (robot.abortWireFind == 0) ){                                 // While the mower is still outside the fence run this code
-        Motor_Action_Go_Full_Speed();                                                       // Go full speed (in this case backwards)
-        UpdateWireSensor();                                                                 // Read the wire sensor and see of the mower is now  or outside the wire
-        ADCMan.run();
-        PrintBoundaryWireStatus();                                                          // Prints of the status of the wire sensor readings.
-        Serial.println("");
-        }
-      }
-      
-      Motor_Action_Stop_Motors();
-      delay(5);
-      }
-
     // Code to go forwards until the mower is outside/ON the wire
-    if ( robot.inside == true) {             // If the Mower is situated  the wire then run the following code.
+    if (robot.inside == true) {  // If the Mower is situated  the wire then run the following code.
         ADCMan.run();
         UpdateWireSensor();
         Serial.println(F("CODE POSITION - MOTOR FORWARDS LOOP:  If statements"));
         PrintBoundaryWireStatus();
         Motor_Action_Stop_Motors();
-        delay(1000);  
-        SetPins_ToGoForwards();                                                             // Set the motors to move the mower forwards
+        delay(1000);
+        SetPins_ToGoForwards();  // Set the motors to move the mower forwards
         delay(100);
         robot.lcdDisplay.clear();
         robot.lcdDisplay.print("Forward Try...  ");
-        robot.lcdDisplay.setCursor(0,1);
+        robot.lcdDisplay.setCursor(0, 1);
         robot.lcdDisplay.print("Finding Wire  ");
         delay(100);
-        int cycle = 0;                                                                      // resets the cycles
-        while ( robot.inside != false) {                               // Move the mower forward until mower is outisde/ON the wire fence or 500 cycles have passed
-          cycle = cycle + 1;
-          Motor_Action_Go_Full_Speed();                                                     // Go full speed (in this case forwards)
-          UpdateWireSensor();                                                               // Read the wire sensor and see of the mower is now  or outside the wire
-          ADCMan.run();
-          PrintBoundaryWireStatus();                                                        // Prints of the status of the wire sensor readings.
-          }
-          if (cycle > MAX_CYCLE_WIRE_FIND) {                                                                // Track forwards for 500 cycles
-            robot.noWireFound = 1;                                                              // if mower is still tracking after 500 cycles then cancel the find.
-            Serial.println("Max Forward Cycles reached");
-          }
+        int cycle = 0;                   // resets the cycles
+        while (robot.inside != false) {  // Move the mower forward until mower is outisde/ON the wire fence or 500 cycles have passed
+            cycle = cycle + 1;
+            Motor_Action_Go_Full_Speed();  // Go full speed (in this case forwards)
+            UpdateWireSensor();            // Read the wire sensor and see of the mower is now  or outside the wire
+            ADCMan.run();
+            PrintBoundaryWireStatus();  // Prints of the status of the wire sensor readings.
         }
-      Motor_Action_Stop_Motors();
-      delay(5);
+        if (cycle > MAX_CYCLE_WIRE_FIND) {  // Track forwards for 500 cycles
+            robot.noWireFound = 1;          // if mower is still tracking after 500 cycles then cancel the find.
+            Serial.println("Max Forward Cycles reached");
+        }
     }
-  
+    Motor_Action_Stop_Motors();
+    delay(5);
+}

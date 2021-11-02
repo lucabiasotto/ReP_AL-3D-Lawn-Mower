@@ -24,8 +24,8 @@
 #define CW_TRACKING_SEARCHING_CHARGE 1  // 1-Clock-Wise 0-Counter-Clock-Wise tracking around the boundary wire to the charging station
 #define CW_TRACKING_EXITING_CHARGE 0    // 1-Clock-Wise 0-Counter-Clock-Wisetracking around the boundary wire when tracking to the start position
 
-#define TRACK_WIRE_ZONE_1_CYCLES 600   // Zone 1 - Number of Itterations the PID function does before the mower exits the wire track
-#define TRACK_WIRE_ZONE_2_CYCLES 1000  // Zone 2 - Therefore how long the mower is tracking the wire can be set = distance tracked.
+//TODO tara
+#define TRACK_WIRE_ZONE_CYCLES 600   // Zone 1 - Number of Itterations the PID function does before the mower exits the wire track
 
 #define MAX_TRACKING_TURN_RIGHT 270  // The maximum number of turn right commands during wire tracking before a renewed wire find function is called
 #define MAX_TRACKING_TURN_LEFT 270   // This helps to re-find the wire should the mower loose the wire for any reason.

@@ -21,7 +21,7 @@
 //#include "ardumower.h"
 #include <Wire.h>  
 
-char *dayOfWeek[] = {"Sun","Mon","Tue","Wed","Thu","Fri","Sat"};
+const char *dayOfWeek[7] = {"Sun","Mon","Tue","Wed","Thu","Fri","Sat"};
 
 // ---- print helpers ------------------------------------------------------------
 
