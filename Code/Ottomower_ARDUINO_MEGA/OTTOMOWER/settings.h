@@ -15,7 +15,8 @@
 #define CUTTING_BLADES_ACTIVATE 1  // Activates the cutting blades and disc in the code
 
 //Wire params
-#define PERIMETER_WIRE_ENABLED 0
+#define PERIMETER_WIRE_ENABLED 1
+#define FOLLOW_WIRE_WHEN_LEAVE_DOCK false
 #define MIN_WIRE_MAG 3    // default 20
 #define MAX_WIRE_FAIL 15  // how many time wire must fail before stop mover
 

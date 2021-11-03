@@ -1,4 +1,5 @@
 #include "batteryUtils.h"
+
 #include "adcman.h"
 #include "motorsController.h"
 #include "movementsUtils.h"
@@ -28,13 +29,14 @@ void readVoltAmp() {
     //TODO double robot.amps = 0;
     robot.voltageAmp = (robot.rawValueAmp / 1024.0) * 5000;  // Gets you mV
     robot.amps = ((robot.voltageAmp - ACSoffset) / mVperAmp);
+    if (robot.amps < 0.4) {
+        robot.chargeDetectedMEGA = 0;
+    }
+    if (robot.amps > 0.4) {
+        robot.chargeDetectedMEGA = 1;
+    }
 
-    Serial.print(F("A:"));
-    Serial.print(robot.amps);
-    Serial.print(F("|"));
-
-    // Calculate Voltage from NANO RX Data
-
+    // Calculate Voltage
     if (robot.rawValueVolt > 100) {
         float vout = 0.0;
         float R1 = 30000;                            // 30000 Mower 2    Mower 1 30000
@@ -50,31 +52,9 @@ void readVoltAmp() {
             robot.volts = 0;
         }
     }
-
-    Serial.print(F("V:"));
-    Serial.print(robot.volts);
-    Serial.print(F("|"));
-
-    if (robot.amps < 0.4) {
-        robot.chargeDetectedMEGA = 0;
-    }
-    if (robot.amps > 0.4) {
-        robot.chargeDetectedMEGA = 1;
-    }
-}
-
-void Process_Volt_Information() {
-    //  Logic for how the battery readings should be handled
-
     if (robot.volts < BATTERY_MIN) {
         //potrebbe essere un momento sottosforzo, lo mando in carica  solo dopo che ho rilevato un po' di sottosforzo
-
-        //fermo un attimo
-        //Motor_Action_Stop_Motors();
-        //delay(2000);
-
         robot.lowBatteryDetectedCount = (robot.lowBatteryDetectedCount + 1);
-
     } else {
         //la batteria è sana
         robot.lowBatteryDetectedCount = 0;
@@ -86,14 +66,14 @@ void Check_if_Charging() {
     //TODO sistema sto if
     if (robot.charging == 4) {  // If the value recieved is equal to 1 or 0 as expected then print the value to the serial monitor
         robot.chargeDetectedMEGA = 1;
-    }else{
-         robot.chargeDetectedMEGA = 0;// If the value recieved is equal to 1 or 0 as expected then print the value to the serial monitor
+    } else {
+        robot.chargeDetectedMEGA = 0;  // If the value recieved is equal to 1 or 0 as expected then print the value to the serial monitor
     }
 }
 
-void Check_if_Docked() { //TODO rename
+void Check_if_Docked() {                  //TODO rename
     if (robot.chargeDetectedMEGA == 1) {  // if robot.amps are between this there is a charge detected.  robot.amps above 4 are discounted as a miscommunication
-        Motor_Action_Stop_Motors();
+        motorsStopWheelMotors();
         Serial.println(F("Charging Current detected"));
         Serial.println(F("Mower Docked"));
         robot.lcdDisplay.clear();
@@ -137,13 +117,13 @@ void Calculate_Volt_Amp_Charge() {
 
     if (robot.rawValueVolt > 100) {
         float vout = 0.0;
-        float R1 = 30000;                      // 30000 Mower 2    Mower 1 30000
-        float R2 = 7000;                       // 7300 Mower 2     Mower 1 7500
+        float R1 = 30000;                            // 30000 Mower 2    Mower 1 30000
+        float R2 = 7000;                             // 7300 Mower 2     Mower 1 7500
         vout = (robot.rawValueVolt * 5.0) / 1024.0;  // see text
         robot.volts = vout / (R2 / (R1 + R2));
         robot.voltsLast = robot.volts;
         robot.zeroVolts = 0;
-    }else {
+    } else {
         robot.volts = robot.voltsLast;
         robot.zeroVolts = robot.zeroVolts + 1;
         if (robot.zeroVolts > 5) robot.volts = 0;

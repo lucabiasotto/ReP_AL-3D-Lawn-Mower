@@ -22,7 +22,7 @@ void Check_Wire_In_Out() {
         // OUTSIDE the wire
         if ((robot.perimeter.isInside(0)) == 0) {                      // Mower is OUTSIDE the wire
             robot.outsideWire = 1;                                    // Outside wire variable is tuend on.
-            if (robot.mowerRunning == 1) Motor_Action_Stop_Motors();  // Stop immediatley the wheel motors
+            if (robot.mowerRunning == 1) motorsStopWheelMotors();  // Stop immediatley the wheel motors
             Print_LCD_Wire();                                    // Update the LCD screem
             robot.outsideWireCount = robot.outsideWireCount + 1;         // Count the number of times the mower is consecutiley outside the wire
                                                                  // If a certain number is reached its assumed thw mower is lost outside the wire.
@@ -55,10 +55,10 @@ void Check_Wire_In_Out() {
             delay(2000);
             robot.outsideWireCount = 0;
             Specials_Find_Wire_Track();
-            SetPins_ToGoBackwards();  // Set the mower to back up
-            Motor_Action_Go_Full_Speed();
+            motorsSetPinsToGoBackwards();  // Set the mower to back up
+            motorsSetFullSpeed();
             delay(1000);
-            Motor_Action_Stop_Motors();
+            motorsStopWheelMotors();
             UpdateWireSensor();  // Read the wire sensor and see of the mower is now  or outside the wire
             ADCMan.run();
             PrintBoundaryWireStatus();
@@ -74,7 +74,7 @@ void Check_Wire_In_Out() {
             Serial.print("|");
             Serial.println("");
             if (robot.wireRefindTries > 4) {
-                Motor_Action_Stop_Motors();
+                motorsStopWheelMotors();
                 robot.lcdDisplay.clear();
                 robot.mowerError = 1;
                 Serial.println("");

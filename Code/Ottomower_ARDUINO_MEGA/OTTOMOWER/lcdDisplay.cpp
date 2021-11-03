@@ -65,7 +65,7 @@ void Setup_Run_LCD_Intro() {
     Serial.println("Setup LCD");
     robot.lcdDisplay.begin(16, 2);
     robot.lcdDisplay.clear();
-    robot.lcdDisplay.print("ReP_AL Robot");
+    robot.lcdDisplay.print("Ottomower");
     robot.lcdDisplay.setCursor(0, 1);
     robot.lcdDisplay.print(Version);
     delay(1000);

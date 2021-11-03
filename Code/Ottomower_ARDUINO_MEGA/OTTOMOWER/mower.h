@@ -83,7 +83,6 @@ class Mower {
     bool mowerRunning;
     bool mowerParkedLowBatt;
     bool mowerError;
-    bool manuelMode;
 
     //Serial Communication
     float volts;
@@ -138,7 +137,7 @@ class Mower {
 
     //Compass Variables
     float compassHeadingDegrees;
-    float heading;
+    //float heading;
     bool compassHeadingLocked = 0;
     float headingLock;
     int headingUpperLimitCompass;
