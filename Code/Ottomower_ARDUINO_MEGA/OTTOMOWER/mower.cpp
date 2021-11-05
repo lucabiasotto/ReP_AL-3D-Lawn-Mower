@@ -28,26 +28,11 @@ void Mower::setup() {
     Console.println("");
     Console.println("Starting Mower Setup");
     Console.println("===================");
-
-    //TODO carica dati da eepronm Load_EEPROM_Saved_Data();
-    /*
-    TODO ora non gestita
-    if (SET_TIME) {
-        Console.print("Setting Time");
-        Set_Time_On_RTC();
-    }
-    DisplayTime();
-    Console.println("");
-    */
-
-    //Logia per gestione cavo manuale
-    //pinMode(USE_CABLE_PIN, INPUT);
-    //settings.isPerimeterWireEnabled = digitalRead(USE_CABLE_PIN);
     Console.print("Use cable: ");
-    Console.println(PERIMETER_WIRE_ENABLED);
+    Console.println(robot.isPerimeterWireEnable);
 
     Prepare_Mower_from_Settings();
-    Setup_Run_LCD_Intro();
+    lcdInit();
     Setup_Relays();
     Setup_Membrane_Buttons();
     Setup_Motor_Pins();
@@ -56,8 +41,15 @@ void Mower::setup() {
 }
 
 void Mower::loop() {
-    readVoltAmp();     //update volt and amp info
-    readRainSensor();  // Checks if the water sensor detects Rain
+    readVoltAmp();  //update volt and amp info
+
+    if (robot.mowerRunning == 1) {
+        readRainSensor();    // Checks if the water sensor detects Rain
+        readSonarSensors();  // If the mower is  the boundary wire check the sonars for obsticles and prints to the LCD
+    }
+    if (COMPASS_ACTIVATE == 1) {
+        readRobotCompassDegrees();  // Gets the latest compass reading
+    }
 
     robot.logMowerStatus();  // Update the Serial monitor with the current mower status.
 
@@ -116,19 +108,21 @@ void Mower::loop() {
             } else {
                 // Parks the mower with a low battery warning
                 Manouver_Park_The_Mower_Low_Batt();
+
+                motorsStopWheelMotors();
+                motorsStopSpinBlades();
             }
+        } else if (robot.SonarHit1Total >= SONAR_MAX_HIT || robot.SonarHit2Total >= SONAR_MAX_HIT || robot.SonarHit3Total >= SONAR_MAX_HIT) {
+            /*********************************************************
+             * Sonar obstacle
+             **********************************************************/
+            // If sonar hit is detected and mower is the wire, manouver around obsticle
+            avoidSonarObstacle();  //TODO prima lo faceva solo se era dentro al perimetro....
         } else if (wireOn) {
             Check_Wire_In_Out();  // Test if the mower is in or out of the wire fence.
-
             if (robot.outsideWire == 0) {
                 //in inside perimeter
-                readSonarSensor();  // If the mower is  the boundary wire check the sonars for obsticles and prints to the LCD
-                if (robot.sonarHit == 0) {
-                    robotMoveAroundTheGarden();  // Inputs to the wheel motors / blade motors according to surroundings
-                } else {
-                    Manouver_Turn_Around_Sonar();  // If sonar hit is detected and mower is  the wire, manouver around obsticle
-                }
-
+                robotMoveAroundTheGarden();  // Inputs to the wheel motors / blade motors according to surroundings
             } else {
                 //Is outside!!!
                 robotReverseDirection();  // If outside the wire turn around
@@ -176,52 +170,7 @@ void Mower::logMowerStatus() {
     Serial.print("|");
 
     if (robot.mowerDocked == 1) {
-        //TODO RTC
-        /*
-        Serial.print("Time:");
-        Time t = rtc.time();
-        Serial.print(t.hr);
-        Serial.print(":");
-        if (t.min < 10) Serial.print("0");
-        Serial.print(t.min);
-        Serial.print(".");
-        if (t.sec < 10) Serial.print("0");
-        Serial.print(t.sec);
-
-        //log alarm data
-        if (Alarm_1_ON == 1) {
-            Serial.print("|Alarm 1:");
-            Serial.print(Alarm_1_Hour);
-            Serial.print(F(":"));
-            if (Alarm_1_Minute < 10) Serial.print("0");
-            Serial.print(Alarm_1_Minute);
-            Serial.print("|");
-        } else {
-            Serial.print("|Alarm 1 OFF");
-        }
-
-        if (Alarm_2_ON == 1) {
-            Serial.print("|Alarm 2:");
-            Serial.print(Alarm_2_Hour);
-            Serial.print(F(":"));
-            if (Alarm_2_Minute < 10) Serial.print("0");
-            Serial.print(Alarm_2_Minute);
-            Serial.print("|");
-        } else {
-            Serial.print("|Alarm 2 OFF");
-        }
-
-        if (Alarm_3_ON == 1) {
-            Serial.print("|Alarm 3:");
-            Serial.print(Alarm_3_Hour);
-            Serial.print(F(":"));
-            if (Alarm_3_Minute < 10) Serial.print("0");
-            Serial.print(Alarm_3_Minute);
-            Serial.print("|");
-        } else {
-            Serial.print("|Alarm 3 OFF");
-        }
-        */
+        //TODO logga qua lo schedulatore
     }
 }
 

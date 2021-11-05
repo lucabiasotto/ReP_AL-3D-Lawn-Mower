@@ -23,56 +23,33 @@ void robotMoveAroundTheGarden() {
     motorsSetPinsToGoForwards();
 
     robot.loopCycleMowing = (robot.loopCycleMowing + 1);
-    printLoop(robot.loopCycleMowing);
-    delay(1);  //TODO xk?
 
     if (COMPASS_ACTIVATE == 1) {
-        Get_Compass_Reading();  // Gets the latest compass reading
+        readRobotCompassDegrees();  // Gets the latest compass reading
     }
 
-    if (robot.loopCycleMowing < 5) {
+    if (robot.loopCycleMowing < CYCLE_FOR_STABILEZE || COMPASS_HEADING_HOLD_ENABLED == 0 || COMPASS_ACTIVATE == 0) {
         //da al robot 5 cicli per stabilizzarsi
-        Console.print(F("C-Lock:OFF"));
-        Console.print("|");
-        Print_LCD_Mowing();
+        Console.print(F("Compass-Lock:OFF|"));
         motorsSetFullSpeed();
-        robot.compassHeadingLocked = 0;  // Turn off the compass heading lock for the new cycles
-    } else if (robot.loopCycleMowing == 5) {
+    } else if (robot.loopCycleMowing == CYCLE_FOR_STABILEZE) {
         //al 5 ciclo si salva i gradi da mantenere
-        if (COMPASS_HEADING_HOLD_ENABLED == 1 && COMPASS_ACTIVATE == 1) {
-            robot.headingLock = robot.compassHeadingDegrees;  //  use the current heading as the lock
-            robot.compassHeadingLocked = 1;                   // One more cycle of normal movement
-        } else {
-            Console.print(F("C-Lock:OFF"));
-            Console.print("|");
-            Print_LCD_Compass_Mowing();
-            motorsSetFullSpeed();
-            robot.compassHeadingLocked = 0;
-        }
-    } else if (robot.loopCycleMowing > 5) {
+        robot.headingLock = robot.compassHeadingDegrees;  //  use the current heading as the lock
+    } else if (robot.loopCycleMowing > CYCLE_FOR_STABILEZE) {
         //dal 5 ciclo in poi cerca di mantenere i gradi
-        if (COMPASS_HEADING_HOLD_ENABLED == 1 && COMPASS_ACTIVATE == 1) {  // if the Mower is tracking using the compass steer here
-            Calculate_Compass_Wheel_Compensation();
-            motorsSetDynamicSteeringSpeed();  // Removes the full speed function if the mower is trying to hold to the compass heading.
-            Print_LCD_Compass_Mowing();
-            Console.print(F("C-Lock:ON_"));
-            Console.print("|");
-        } else {
-            //non usa la bussola per mantere la posizione
-            Console.print(F("C-Lock:OFF"));
-            Console.print("|");
-            motorsSetFullSpeed();
-        }
+        // if the Mower is tracking using the compass steer here
+        Calculate_Compass_Wheel_Compensation();
+        motorsSetDynamicSteeringSpeed();  // Removes the full speed function if the mower is trying to hold to the compass heading.
+        Console.print(F("Compass-Lock:ON|"));
     }
 
-    if (robot.loopCycleMowing > MAX_CYCLES) {  // 150 the max length for my garden. Adjust accordingly
+    if (robot.loopCycleMowing > MAX_CYCLES) {
+        // MAX_CYCLES the max length for my garden. Adjust accordingly
         Console.println("");
         Console.println("Loop Cycle at Max");
         Console.println("");
-        motorsStopSpinBlades();     // Stop the blades from spinning
         robotReverseDirection();    // Turn around the mower
         robot.loopCycleMowing = 0;  // Restes the loop cycle to start again.
-        robot.lcdDisplay.clear();
     }
 }
 
@@ -81,113 +58,59 @@ void robotMoveAroundTheGarden() {
  */
 void robotReverseDirection() {
     if (COMPASS_ACTIVATE == 1) {
+        robot.lcdDisplay.setCursor(0, 1);
+        robot.lcdDisplay.write(robot.CHAR_BACK_ARROW);
+        robot.lcdDisplay.setCursor(2, 1);
+        robot.lcdDisplay.write(robot.CHAR_BACK_ARROW);
+
         motorsStopWheelMotors();
-        motorsStopSpinBlades();
+        motorsStopSpinBlades();  // Stop the blades from spinning
         delay(500);
+
         motorsSetPinsToGoBackwards();
         motorsSetFullSpeed();
         delay(1000);
+
         motorsStopWheelMotors();
         delay(500);
 
-        if (robot.compassLeg == 0) {
-            motorsSetPinsToTurnRight();
-            motorsSetFullSpeed();
-            delay(200);
-            Get_Compass_Reading();
-            delay(200);
-            Get_Compass_Reading();
-            // Turn the Mower 90° to the corner
-            Console.println("");
-            Console.print("Compas_Leg = 0 | ");
-            Console.print("Turning 90°|");
-            robot.compassTarget = COMPASS_MOW_DIRECTION + 90;
-            if (robot.compassTarget > 360)
-                (robot.compassTarget = robot.compassTarget - 360);
-            Console.print("|Target Degree robot.heading = ");
-            Console.print(robot.compassTarget);
-            Console.print("|");
-            Turn_To_Compass_Heading();
+        Console.println("");
+        Console.print("Compas_Leg:");
+        Console.print(robot.endCycleCompassDirection);
+        Console.print("|Turning 90°|");
 
-            // Move Forwards at 90° and stop
-            motorsSetPinsToGoForwards();
-            motorsSetFullSpeed();
-            delay(1500);
-            motorsStopWheelMotors();
-            motorsSetPinsToTurnRight();
-            motorsSetFullSpeed();
-            delay(200);
-            Get_Compass_Reading();
-            delay(200);
-            Get_Compass_Reading();
+        //TODO valutare se fare il codice di seguito 2 votle per fare 2 turnToCompassTarget
 
-            // Turn 180° to the initial mowing direction.
-            Console.println("");
-            Console.print("|Return Leg 1°");
-            robot.compassTarget = COMPASS_MOW_DIRECTION;
-            if (robot.compassTarget > 360)
-                (robot.compassTarget = robot.compassTarget - 360);
-            Console.print("|Target Degree robot.heading = ");
-            Console.print(robot.compassTarget);
-            Console.println("|");
-            Turn_To_Compass_Heading();
+        //read robot degree
+        resetCompassOffset();
+        readRobotCompassDegrees();
+        float compassTarget = robot.compassHeadingDegrees;
+        if (robot.endCycleCompassDirection == 0) {
+            compassTarget += COMPASS_MOW_DIRECTION;
+        } else {
+            compassTarget -= COMPASS_MOW_DIRECTION;
+        }
+        if (compassTarget > 360) {
+            compassTarget = compassTarget - 360;
+        } else if (compassTarget < 0) {
+            compassTarget = compassTarget + 360;
         }
 
-        if (robot.compassLeg == 1) {
-            // Turn the Mower 90° to the corner
-            Console.println("");
-            Console.print("robot.compassLeg = 1|");
-            Console.print("Turning 90°");
-            motorsSetPinsToTurnLeft();
-            motorsSetFullSpeed();
-            delay(200);
-            Get_Compass_Reading();
-            delay(200);
-            Get_Compass_Reading();
-            robot.compassTarget = COMPASS_MOW_DIRECTION + 90;
-            if (robot.compassTarget < 0)
-                (robot.compassTarget = 360 + robot.compassTarget);
-            Console.print("|Target Degree robot.heading = ");
-            Console.print(robot.compassTarget);
-            Turn_To_Compass_Heading();
-
-            // Move Forwards at 90° and stop
-            motorsSetPinsToGoForwards();
-            motorsSetFullSpeed();
-            delay(1500);
-            motorsStopWheelMotors();
-            motorsSetPinsToTurnLeft;
-            motorsSetFullSpeed();
-            delay(200);
-            Get_Compass_Reading();
-            delay(200);
-            Get_Compass_Reading();
-
-            // Turn 180° to the initial mowing direction.
-            Console.println("");
-            Console.print("|Return Leg 0°");
-            robot.compassTarget = COMPASS_MOW_DIRECTION + 180;
-            if (robot.compassTarget > 360)
-                (robot.compassTarget = robot.compassTarget - 360);
-            Console.print("|Target Degree robot.heading = ");
-            Console.print(robot.compassTarget);
-            Console.println("|");
-            Turn_To_Compass_Heading();
-        }
+        turnToCompassTarget(compassTarget);
 
         //Set the compass leg to the next stage.
-        robot.compassLeg = robot.compassLeg + 1;
-        if (robot.compassLeg > 1)
-            robot.compassLeg = 0;
+        robot.endCycleCompassDirection = !robot.endCycleCompassDirection;
     }
+
     motorsStopWheelMotors();
     Check_Wire_In_Out();
     delay(200);  //TODO sicuro?
     Check_Wire_In_Out();
     robot.loopCycleMowing = 1;
-    robot.sonarHit = 0;
-    robot.compassHeadingLocked = 0;
-    robot.lcdDisplay.clear();
+    robot.SonarHit1Total = 0;
+    robot.SonarHit2Total = 0;
+    robot.SonarHit3Total = 0;
+    robot.lcdDisplay.clear();  //TODO perch qua e non nel metodo comune?
 }
 
 /**
@@ -393,45 +316,35 @@ void findWire() {
     }
 }
 
-void Manouver_Turn_Around_Sonar() {
+/**
+ * Avoid sonar obstacle
+ */
+void avoidSonarObstacle() {
     motorsStopWheelMotors();
     delay(500);
+
     motorsSetPinsToGoBackwards();
     motorsSetFullSpeed();
     delay(SONAR_REVERSE_DELAY);
+
     motorsStopWheelMotors();
 
     if (robot.distance1 < SONAR_MAX_DISTANCE || robot.distance2 < SONAR_MAX_DISTANCE) {
-        robot.lcdDisplay.setCursor(0, 8);
-        robot.lcdDisplay.print("Go Right -->       ");
         motorsSetPinsToTurnRight();
-        motorsetTurnSpeed();
+        motorsetTurnSpeed(0);
         delay(SONAR_TURN_OBSTACLE_DELAY_TIME);
-    }
-
-    if (robot.distance3 < SONAR_MAX_DISTANCE) {
-        robot.lcdDisplay.setCursor(0, 8);
-        robot.lcdDisplay.print("<-- Go Left      ");
+    } else if (robot.distance3 < SONAR_MAX_DISTANCE) {
         motorsSetPinsToTurnLeft();
-        motorsetTurnSpeed();
+        motorsetTurnSpeed(0);
         delay(SONAR_TURN_OBSTACLE_DELAY_TIME);
     }
 
     motorsStopWheelMotors();
-    robot.compassHeadingLocked = 0;
-    robot.sonarHit = 0;
+
+    robot.SonarHit1Total = 0;
+    robot.SonarHit2Total = 0;
+    robot.SonarHit3Total = 0;
     robot.loopCycleMowing = 0;
-}
-
-
-void Manouver_Mower_Exit_Dock() {
-    robot.mowerDocked = 0;
-    robot.mowerParked = 0;
-    robot.mowerRunning = 0;
-    robot.mowerParkedLowBatt = 0;
-    robot.rainHitDetected = 0;
-    robot.mowerError = 0;
-    robot.trackingWire = 0;
 }
 
 /**
@@ -451,9 +364,6 @@ void manouverDockTheMower() {
     robot.Turn_Off_Relay();
     //TODO serve? lcdUpdateScreen();
     robot.chargeDetectedMEGA = 0;
-
-    //Setup Alarms
-    robot.alarmTimedMowON = 0;  // Turns off the 1 hr Alarm
 }
 
 // Mower is a parked position and needs manual charging
@@ -465,14 +375,13 @@ void Manouver_Park_The_Mower_Low_Batt() {
     robot.mowerTrackToCharge = 0;
     robot.mowerError = 0;
     robot.loopCycleMowing = 0;
-    motorsStopWheelMotors();
-    motorsStopSpinBlades();
 }
 
 // Mower is in a parked or paused potion ready to restart
 void manouverParkTheMower() {
-    if (robot.mowerParked == 0)
+    if (robot.mowerParked == 0) {
         robot.lcdDisplay.clear();
+    }
     robot.mowerDocked = 0;
     robot.mowerParked = 1;
     robot.mowerRunning = 0;
@@ -485,11 +394,6 @@ void manouverParkTheMower() {
     motorsStopWheelMotors();
     motorsStopSpinBlades();
     robot.Turn_Off_Relay();
-
-    robot.alarmTimedMowON = 0;  // Turns off the 1 hr Alarm
-                                //if (Alarm_1_Repeat == 0) Alarm_1_ON = 0;
-                                //if (Alarm_2_Repeat == 0) Alarm_2_ON = 0;
-                                //if (Alarm_3_Repeat == 0) Alarm_3_ON = 0;
 }
 
 void Manouver_Hibernate_Mower() {
@@ -549,6 +453,7 @@ void goToChargingStation() {
     if (robot.noWireFound == 1) {
         //ricorsivo
         goToChargingStation();
+        //TODO quando si arrende?
     }
 }
 
@@ -558,7 +463,13 @@ void leaveChargingStation(bool followWireWhenExit) {
     robot.Turn_On_Relay();
     delay(1000);
 
-    Manouver_Mower_Exit_Dock();
+    robot.mowerDocked = 0;
+    robot.mowerParked = 0;
+    robot.mowerRunning = 0;
+    robot.mowerParkedLowBatt = 0;
+    robot.rainHitDetected = 0;
+    robot.mowerError = 0;
+    robot.trackingWire = 0;
 
     // Move the Mower into position backing out of the docking station
     robot.lcdDisplay.clear();
@@ -571,25 +482,25 @@ void leaveChargingStation(bool followWireWhenExit) {
 
     motorsStopWheelMotors();     // Stop
     motorsSetPinsToTurnRight();  // Prepare motors to turn left
-    motorsetTurnSpeed();         // Turn the wheels
-    delay(500);                  // Turn time
+    motorsetTurnSpeed(0);        // Turn the wheels
+    delay(1000);                 // Turn time
 
     motorsStopWheelMotors();       // Stop
     motorsSetPinsToGoBackwards();  // Set again to go backwards
     motorsSetFullSpeed();          // Turn the wheels
-    delay(500);                    // Backwards Time
+    delay(1000);                   // Backwards Time
 
     motorsSetPinsToTurnRight();  // Set to go left
-    motorsetTurnSpeed();         // Turn the wheels
-    delay(200);                  // Turning time
+    motorsetTurnSpeed(0);        // Turn the wheels
+    delay(500);                  // Turning time
 
     motorsStopWheelMotors();      // Stop
     motorsSetPinsToGoForwards();  // Set to go wheel motor pins to go forwards
     motorsStopWheelMotors();      // Stop / Park the mower here
 
-    robot.lcdDisplay.clear();                // Clears the LCD display
+    robot.lcdDisplay.clear();  // Clears the LCD display
 
-    if (PERIMETER_WIRE_ENABLED == 1) {
+    if (robot.isPerimeterWireEnable == 1) {
         if (isWireOn()) {
             //Function to follow the wire for a specific amount of time set by the itterations 'I'
             if (followWireWhenExit) {
@@ -604,6 +515,11 @@ void leaveChargingStation(bool followWireWhenExit) {
 
     //stop the mower ready to go
     manouverParkTheMower();
+
+    if (COMPASS_ACTIVATE == 1) {
+        delay(500);
+        resetCompassOffset();
+    }
 }
 
 // Function to re-find the wire if the mower looses the wire while mowing
@@ -628,7 +544,7 @@ void Manouver_Outside_Wire_ReFind_Function() {
         PrintBoundaryWireStatus();
         //Check_Wire_In_Out();
         delay(500);
-        robot.distanceBlockage = PingSonarX(trigPin1, echoPin1, 1, 1, 1, 4, 0);
+        robot.distanceBlockage = getSonarDistance(trigPin1, echoPin1, 1);
         delay(500);
         Console.print("Distance measured from sonar :");
         Console.println(robot.distanceBlockage);
@@ -642,7 +558,7 @@ void Manouver_Outside_Wire_ReFind_Function() {
                 ADCMan.run();
                 UpdateWireSensor();
                 PrintBoundaryWireStatus();
-                robot.distanceBlockage = PingSonarX(trigPin1, echoPin1, 1, 1, 1, 4, 0);
+                robot.distanceBlockage = getSonarDistance(trigPin1, echoPin1, 1);
                 delay(10);
                 //Check_Wire_In_Out();
             }
@@ -657,9 +573,9 @@ void Manouver_Outside_Wire_ReFind_Function() {
         while (robot.distanceBlockage < 300) {
             motorsSetPinsToTurnLeft();
             delay(200);
-            motorsetTurnSpeed();
+            motorsetTurnSpeed(0);
             delay(100);
-            robot.distanceBlockage = PingSonarX(trigPin1, echoPin1, 1, 1, 1, 4, 0);
+            robot.distanceBlockage = getSonarDistance(trigPin1, echoPin1, 1);
             delay(10);
         }
         motorsStopWheelMotors;

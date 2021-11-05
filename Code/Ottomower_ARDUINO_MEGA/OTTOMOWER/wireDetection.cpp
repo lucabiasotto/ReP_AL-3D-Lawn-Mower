@@ -9,12 +9,9 @@
 
 // Check the mower is inside (0) or outside (1) the perimeter wire
 void Check_Wire_In_Out() {
-    // If the perimeter wire sensor is de-activated
-    if (PERIMETER_WIRE_ENABLED == 0) {
-    }
 
     // If the perimeter wire sensor is activated
-    if (PERIMETER_WIRE_ENABLED == 1) {
+    if (robot.isPerimeterWireEnable == 1) {
         UpdateWireSensor();  // Read the wire sensor and see of the mower is now  or outside the wire
         ADCMan.run();
         PrintBoundaryWireStatus();
@@ -23,7 +20,7 @@ void Check_Wire_In_Out() {
         if ((robot.perimeter.isInside(0)) == 0) {                      // Mower is OUTSIDE the wire
             robot.outsideWire = 1;                                    // Outside wire variable is tuend on.
             if (robot.mowerRunning == 1) motorsStopWheelMotors();  // Stop immediatley the wheel motors
-            Print_LCD_Wire();                                    // Update the LCD screem
+            lcdPrintWireDetected();                                    // Update the LCD screem
             robot.outsideWireCount = robot.outsideWireCount + 1;         // Count the number of times the mower is consecutiley outside the wire
                                                                  // If a certain number is reached its assumed thw mower is lost outside the wire.
         } else {
@@ -94,7 +91,7 @@ bool isWireOn() {
     ADCMan.run();
     UpdateWireSensor();
 
-    if (PERIMETER_WIRE_ENABLED == 1) {  // Perimeter use is ON - Perimter_USE can be turned on or off in the setup.
+    if (robot.isPerimeterWireEnable == 1) {  // Perimeter use is ON - Perimter_USE can be turned on or off in the setup.
 
         // Checks the MAG field of the boundary wire
         robot.magNow = robot.perimeter.getMagnitude(0);
@@ -102,7 +99,7 @@ bool isWireOn() {
         // If the MAG field is very low between these values we can assume the wire is off
         if (robot.magNow > -MIN_WIRE_MAG && robot.magNow < MIN_WIRE_MAG) {
             wireDetected = false;  // Wire not detected
-            Print_LCD_NO_Wire();
+            lcdPrintWireLost();
             robot.wireOffCounter = robot.wireOffCounter + 1;
 
             if (robot.wireOffCounter > MAX_WIRE_FAIL && !robot.mowerDocked && !robot.mowerParked) {
@@ -113,7 +110,6 @@ bool isWireOn() {
         } else {
             wireDetected = true;  // Wire is detected
             robot.wireOffCounter = 0;   // Resets the fail counter
-            Print_LCD_Wire_ON();
         }
 
         Serial.print(F("|Wire"));

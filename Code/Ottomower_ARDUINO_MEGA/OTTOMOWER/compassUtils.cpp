@@ -1,20 +1,32 @@
 #include "compassUtils.h"
 
-#include "DFRobot_QMC5883.h"
+#include "MPU6050_light.h"
+MPU6050 mpu(Wire);
+//#include "DFRobot_QMC5883.h"
+//DFRobot_QMC5883 compass;
+#include "lcdDisplay.h"
 #include "motorsController.h"
 #include "robot.h"
-DFRobot_QMC5883 compass;
-#include "lcdDisplay.h"
 
 void compassInit() {
     if (COMPASS_ACTIVATE == 1) {
         robot.lcdDisplay.clear();
         robot.lcdDisplay.print("Compass  ");
         robot.lcdDisplay.setCursor(0, 1);
-        robot.lcdDisplay.print("Setup");
+        robot.lcdDisplay.print("Setup..");
         Serial.println("Setup Compass");
-        while (!compass.begin()) {
-            Serial.println(F("Could not find a valid QMC5883 sensor, check wiring!"));
+        while (mpu.begin() != 0) {
+            Serial.println(F("Could not find a valid MPU6050 sensor, check wiring!"));
+            robot.lcdDisplay.setCursor(0, 1);
+            robot.lcdDisplay.print("Error..");
+            delay(500);
+        }
+
+        /*
+        TODO vecchia logica con QMC5883
+
+        while (!mpu.begin()) {
+            Serial.println(F("Could not find a valid MPU6050 sensor, check wiring!"));
             delay(500);
         }
 
@@ -41,6 +53,10 @@ void compassInit() {
         float declinationAngle = (3.55 + (26.0 / 60.0)) / (180 / PI);
         compass.setDeclinationAngle(declinationAngle);
 
+        */
+
+        delay(500);
+        mpu.calcOffsets();
 
         robot.lcdDisplay.clear();
         robot.lcdDisplay.print("Compass Setup ");
@@ -53,35 +69,26 @@ void compassInit() {
     }
 }
 
+void resetCompassOffset() {
+    delay(500);
+    mpu.calcOffsets();
+}
+
 /* Calculates the compass heading as heading & degrees of the onboard compass */
-void Get_Compass_Reading() {
+void readRobotCompassDegrees() {
+    mpu.update();
+
+    robot.compassHeadingDegrees = mpu.getAngleX();
+    if (robot.compassHeadingDegrees < 0) {
+        robot.compassHeadingDegrees = robot.compassHeadingDegrees + 360;
+    }
+    /*
     Vector norm = compass.readRaw();
-    //TODO serve veramente ? delay(5);
-
-    /* 
-    OLD METHOD
-    // Calculate heading
-    robot.heading = atan2(norm.YAxis, norm.XAxis);
-    // Set declination angle. Find your location declination on: http://magnetic-declination.com/
-    // (+) Positive or (-) for negative,
-    float Declination_Angle = (2.0 + (19.0 / 60.0)) / (180 / PI);   // Bad Krozingen is 2° 19'
-    robot.heading += Declination_Angle;
-
-    if (robot.heading < 0) {                                              // Correct for heading < 0deg and heading > 360deg
-      robot.heading += 2 * PI;
-    }
-    if (robot.heading > 2 * PI) {
-      robot.heading -= 2 * PI;
-    }
-    robot.compassHeadingDegrees = robot.heading * 180 / M_PI;  // Convert to degrees
-    */
 
     Vector mag = compass.readRaw();
     compass.getHeadingDegrees();
     robot.compassHeadingDegrees = mag.HeadingDegress;
-
-    //Serial.print(F("Comp H:"));
-    //Serial.print(robot.heading);
+    */
     Serial.print(F("Comp°:"));
     Serial.print(robot.compassHeadingDegrees);
     Serial.print("|");
@@ -91,107 +98,130 @@ void Get_Compass_Reading() {
 // Turns the Mower to the correct orientation for the optimum home wire track
 // Avoiding tracking around the whole wire to get back to the docking station
 void Compass_Turn_Mower_To_Home_Direction() {
-    motorsStopWheelMotors;
+    motorsStopWheelMotors();
     delay(1000);
-    Print_LCD_Compass_Home();
+
+    lcdPrintSearchBoxDirectionWithCompass();
     delay(2000);
-    robot.compassTarget = HOME_WIRE_COMPASS_HEADING;
-    Print_LCD_Heading_for_Home();
+    //TODO serve? Print_LCD_Heading_for_Home();
     delay(2000);
+
     robot.lcdDisplay.clear();
-    Get_Compass_Reading();
+    readRobotCompassDegrees();
     motorsSetPinsToTurnLeft();
-    Serial.print(F("Compass robot.heading Now : "));
+    Serial.print(F("Compass heading Now : "));
     Serial.println(robot.compassHeadingDegrees);
     Serial.println(F("********************************"));
     delay(100);
+
     robot.lcdDisplay.print(robot.compassHeadingDegrees);
     // This spins the mower a little to ensure a true compass reading is being read (calibration).
     motorsSetPinsToTurnLeft();  // Calls the motor function turn Left
-    motorsetTurnSpeed();        // Sets the speed of the turning motion
+    motorsetTurnSpeed(0);       // Sets the speed of the turning motion
     delay(500);
+
     motorsStopWheelMotors();
-    Get_Compass_Reading();
+    readRobotCompassDegrees();
     robot.lcdDisplay.clear();
     robot.lcdDisplay.print(robot.compassHeadingDegrees);
     motorsSetPinsToTurnLeft();  // Calls the motor function turn Left
+
     delay(100);
-    motorsetTurnSpeed();  // Sets the speed of the turning motion
+    motorsetTurnSpeed(0);  // Sets the speed of the turning motion
+
     delay(2000);
     motorsStopWheelMotors();
-    Get_Compass_Reading();
+    readRobotCompassDegrees();
     delay(500);
+
     robot.lcdDisplay.clear();
     robot.lcdDisplay.print("Compass Set");
     motorsStopWheelMotors();
     delay(2000);
-    Turn_To_Compass_Heading();
+
+    turnToCompassTarget(HOME_WIRE_COMPASS_HEADING);
 }
 
-void Turn_To_Compass_Heading() {
+void turnToCompassTarget(float compassTarget) {
     // Step turns the mower to the left while the heading is outside the home tolerance
     // Once the heading is found. the mower stops and can then activate the find wire function
 
-    robot.lcdDisplay.setCursor(0, 0);
-    robot.lcdDisplay.print("Target: ");
-    robot.lcdDisplay.print(robot.compassTarget);
-    robot.lcdDisplay.setCursor(0, 1);
-    robot.lcdDisplay.print("Now:");
-    robot.lcdDisplay.setCursor(0, 4);
-    robot.headingLowerLimitCompass = robot.compassTarget - 5;
-    robot.headingUpperLimitCompass = robot.compassTarget + 5;
-    delay(500);
-    int Cancel = 0;
-    while ((robot.compassHeadingDegrees < robot.headingLowerLimitCompass) || (robot.compassHeadingDegrees > robot.headingUpperLimitCompass) && (Cancel < 40)) {
-        Serial.print(F("Turning to Target:"));
-        Serial.print(robot.compassTarget);
-        Serial.print(F("|"));
-        Get_Compass_Reading();
-        delay(50);
-        robot.lcdDisplay.setCursor(0, 0);
-        robot.lcdDisplay.print("Degrees: ");
-        robot.lcdDisplay.print(robot.compassHeadingDegrees);
-        Serial.println("");
-        float Compass_Error;
-        Compass_Error = robot.compassHeadingDegrees - robot.compassTarget;
-        robot.lcdDisplay.setCursor(0, 1);
-        robot.lcdDisplay.print("Error:");
-        robot.lcdDisplay.print(Compass_Error);
-        Serial.print("Er:");
-        Serial.print(Compass_Error);
-        Serial.print(F("|"));
-        if (Compass_Error < 0) {
-            motorsSetPinsToTurnRight();
-            Serial.print("Spin Right");
-            Serial.print(F("|"));
-            delay(100);
-        }
-        if (Compass_Error > 0) {
-            motorsSetPinsToTurnLeft();
-            Serial.print("Spin Left");
-            Serial.print(F("|"));
-            delay(100);
-        }
-        if (Compass_Error < 10) robot.turnAdjust = 120;
-        if (Compass_Error < 20) robot.turnAdjust = 100;
-        if (Compass_Error < 50) robot.turnAdjust = 80;
-        if (Compass_Error < 180) robot.turnAdjust = 20;
+    /*
+    es lcd
+    GYRO
+    120°->230°
+    */
 
-        motorsetTurnSpeed();  // Sets the speed of the turning motion
+    robot.lcdDisplay.clear();
+    robot.lcdDisplay.setCursor(0, 0);
+    robot.lcdDisplay.setCursor(0, 1);
+    robot.lcdDisplay.print("GYRO    ->    ");
+    robot.lcdDisplay.setCursor(10, 1);
+    robot.lcdDisplay.print((int)compassTarget);
+
+    float minTarget = compassTarget - 5;  //TODO rinomina in min e max
+    float maxTarget = compassTarget + 5;
+
+    //todo >0 e <360
+
+    char cycleCount = 0;
+    char MAX_TURN_CYCLE = 80; //each cycle in 300ms
+    float compassDiff = 0;
+    char turnSpeed = 0;
+
+    while (cycleCount < MAX_TURN_CYCLE  //max attempt
+           && (robot.compassHeadingDegrees < minTarget || robot.compassHeadingDegrees > maxTarget)) {
+        readRobotCompassDegrees();
+
+        robot.lcdDisplay.setCursor(5, 1);
+        robot.lcdDisplay.print((int)robot.compassHeadingDegrees);
+        compassDiff = robot.compassHeadingDegrees - compassTarget;
+
+        Console.print("|Compass_Target:");
+        Console.print(compassTarget);
+        Console.print("|Compass_Current:");
+        Console.print(robot.compassHeadingDegrees);
+        Console.print("|");
+
+        readRobotCompassDegrees();
+        if (compassDiff < 0) {
+            Console.print("Turn_right|");
+            motorsSetPinsToTurnRight();
+            delay(100);
+        } else {
+            Console.print("Turn_left|");
+            motorsSetPinsToTurnLeft();
+            delay(100);
+        }
+
+        if (compassDiff < 10) turnSpeed = 120;
+        if (compassDiff < 20) turnSpeed = 100;
+        if (compassDiff < 50) turnSpeed = 80;
+        if (compassDiff < 180) turnSpeed = 20;
+
+        readRobotCompassDegrees();
+        motorsetTurnSpeed(turnSpeed);  // Sets the speed of the turning motion
         delay(100);
-        Cancel = Cancel + 1;
-        robot.lcdDisplay.setCursor(12, 1);
-        robot.lcdDisplay.print(Cancel);
+        cycleCount++;
+
+        Console.println(" ");
     }
-    Get_Compass_Reading();
-    delay(5);
-    Get_Compass_Reading();
+
+    if (cycleCount >= MAX_TURN_CYCLE) {
+        //robot can't turn
+        robot.lcdDisplay.clear();
+        robot.lcdDisplay.setCursor(0, 0);
+        robot.lcdDisplay.print("GYRO ERROR");
+        robot.lcdDisplay.setCursor(0, 1);
+        robot.lcdDisplay.print(TRS_ROBOT_LOCK);
+        while (true) {
+            //lock robot
+        }
+    }
 
     // Once the while loop is satisfied (compass measures a degree between Lower and Upper, stop the mower
     motorsStopWheelMotors();
-    robot.turnAdjust = 0;
     motorsSetPinsToGoForwards();
-    robot.lcdDisplay.print("Found");
     delay(1000);
     robot.lcdDisplay.clear();
 }
@@ -206,8 +236,9 @@ void Display_Compass_Current_Heading_on_LCD() {
 void Calculate_Compass_Wheel_Compensation() {
     float Compass_Error = robot.compassHeadingDegrees - robot.headingLock;  // Calculates the error in compass heading from the saved lock heading
 
-    if (Compass_Error > 180) Compass_Error = Compass_Error * -1;
-    if (Compass_Error < -180) Compass_Error = Compass_Error * -1;
+    if (Compass_Error > 180 || Compass_Error < -180) {
+        Compass_Error = Compass_Error * -1;
+    }
 
     Serial.print(F("C_Err:"));
     Serial.print(Compass_Error);
@@ -218,8 +249,7 @@ void Calculate_Compass_Wheel_Compensation() {
         robot.pwmRight = PWM_MAX_SPEED_RH + (COMPASS_CORRECTION_POWER * Compass_Error);  // Multiply the difference by D to increase the power then subtract from the PWM
         if (robot.pwmRight < 0) robot.pwmRight = PWM_MAX_SPEED_RH - 50;
         robot.pwmLeft = PWM_MAX_SPEED_LH;  // Keep the Right wheel at full power calibrated to go straight
-    }
-    if (Compass_Error >= 0) {
+    }else{
         Serial.print("Steer_Left|");
         robot.pwmRight = PWM_MAX_SPEED_RH;                                              // Keep the Left wheel at full power calibrated to go straight
         robot.pwmLeft = PWM_MAX_SPEED_LH - (COMPASS_CORRECTION_POWER * Compass_Error);  // Multiply the difference by D to increase the power then subtract from the PWM

@@ -4,9 +4,10 @@
  
 #define Version "V1.0"
 
+//custom i2c lcd char
+
 #define ENGLISH 0
 #define ITALIAN 1 
-
 #define LANGUAGE ITALIAN
 
 #if LANGUAGE == ENGLISH
@@ -67,6 +68,9 @@
 #define TRS_FIND_WIRE "Finding Wire"
 #define TRS_START_CUT "Start"
 #define TRS_START_CUT_NO_WIRE "Start (NO WIRE)"
+#define TRS_NO_WIRE "WIRE OFF"
+#define TRS__WIRE " WIRE"
+#define TRS_ROBOT_LOCK "ROBOT LOCK"
 
 #endif
 
@@ -128,5 +132,8 @@
 #define TRS_FIND_WIRE "Cerco cavo.."
 #define TRS_START_CUT "Avvia"
 #define TRS_START_CUT_NO_WIRE "Avvia(NO CAVO)"
+#define TRS_NO_WIRE "CAVO OFF"
+#define TRS__WIRE "    CAVO"
+#define TRS_ROBOT_LOCK "ROBOT BLOCCATO"
 
 #endif

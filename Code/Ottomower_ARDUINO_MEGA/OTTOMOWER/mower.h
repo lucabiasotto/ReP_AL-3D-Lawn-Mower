@@ -3,10 +3,11 @@
  */
 #include <Arduino.h>
 #include <DS1302.h>
-#include "perimeter.h"
-#include "translations.h"
-#include "settings.h"
 #include <LiquidCrystal_I2C.h>
+
+#include "perimeter.h"
+#include "settings.h"
+#include "translations.h"
 
 #define Console Serial
 
@@ -67,7 +68,7 @@ class Mower {
     int loopCycleMowing = 0;
     Perimeter perimeter;
     LiquidCrystal_I2C lcdDisplay = LiquidCrystal_I2C(0x27, 2, 1, 0, 4, 5, 6, 7, 3, POSITIVE);
-    
+
     //Sonar Variables
     int distance1 = 999;  // Distance caculated  by the Sonar
     int distance2 = 999;
@@ -96,28 +97,23 @@ class Mower {
     int rainHitDetected = 0;
     bool chargeDetectedMEGA = 0;
 
-    //Sonar
-    byte sonarHit = 0;
-
     //Battery variable
     byte lowBatteryDetectedCount = 0;
     char charging;
 
     //Mow Calendar Variables
-    bool alarmTimedMowON = 0;
     byte alarmTimedMowHour;    // Mowing Hour Number 3
     byte alarmTimedMowMinute;  // Alarm minute 3
     //char Mow_Time_Set; //TODO forse si può togliere
 
     //Perimeter Wire Tracking
-    int I;           //TODO che minchia è?
-    double P = 1.2;  //TODO che minchia è? dobule? float?     // 0.08//EEPROM           // Multiplication  factor to the error measured to the wire center.  if   jerky movement when tracking reduce number
+    bool isPerimeterWireEnable = PERIMETER_WIRE_ENABLED;  //user can disable it
+    double P = 1.2;                                       //TODO che minchia è? dobule? float?     // 0.08//EEPROM           // Multiplication  factor to the error measured to the wire center.  if   jerky movement when tracking reduce number
     int trackWireItterations;
     bool outsideWire;
     int magNow;
     byte outsideWireCount = 0;
     int trackingWire = 0;
-    bool wireOnPrinted;  //TODO perchè?
     int wireOffCounter;  //count how many time wire is OFF
 
     int trackingTurnLeft;
@@ -137,14 +133,8 @@ class Mower {
 
     //Compass Variables
     float compassHeadingDegrees;
-    //float heading;
-    bool compassHeadingLocked = 0;
     float headingLock;
-    int headingUpperLimitCompass;
-    int headingLowerLimitCompass;
-    int compassTarget;
-    int compassLeg = 0;
-    int turnAdjust = 0;
+    bool endCycleCompassDirection = 0;  //direction when cutting cycle end
 
     //Wire Track Printer
     int printInMax;
@@ -154,6 +144,12 @@ class Mower {
     int printOutMid;
     int printOutMax;
     int printMAG_Now;
+
+    const char CHAR_ROBOT = 0;
+    const char CHAR_FORWARD = 1;
+    const char CHAR_LEFT_ARROW = 2;
+    const char CHAR_RIGHT_ARROW = 3;
+    const char CHAR_BACK_ARROW = 4;
 
     Mower();
     virtual void setup();

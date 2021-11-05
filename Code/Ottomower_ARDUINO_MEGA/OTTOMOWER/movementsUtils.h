@@ -3,8 +3,7 @@
 void robotMoveAroundTheGarden();
 void findWire();
 void robotReverseDirection();
-void Manouver_Turn_Around_Sonar();
-void Manouver_Mower_Exit_Dock();
+void avoidSonarObstacle();
 void manouverDockTheMower();
 void Manouver_Park_The_Mower_Low_Batt();
 void manouverParkTheMower();

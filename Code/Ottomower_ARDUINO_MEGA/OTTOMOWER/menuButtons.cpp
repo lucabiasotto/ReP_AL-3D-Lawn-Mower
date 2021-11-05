@@ -132,7 +132,10 @@ void processCallback(Callbacks callback) {
 
             robot.trackWireItterations = TRACK_WIRE_ZONE_CYCLES;
             if (callback == START_CUT_NO_WIRE) {
-                //TODO disattiva cavo
+                //user disable cable
+                robot.isPerimeterWireEnable = false;
+            }else{
+                robot.isPerimeterWireEnable = true;
             }
             leaveChargingStation(FOLLOW_WIRE_WHEN_LEAVE_DOCK);
 
@@ -167,8 +170,9 @@ void processCallback(Callbacks callback) {
             //TODO BUZZ!!!
             robot.lcdDisplay.clear();
 
+            robot.isPerimeterWireEnable = true;
             robot.bladeOverride = 1;
-            robot.trackWireItterations = 6000;  //TODO perchè ?
+            robot.trackWireItterations = 6000;  //TODO per quante iterazioni segue il cavo...mmmm 
             leaveChargingStation(true);
             break;
         case TEST_MENU:
@@ -272,7 +276,7 @@ void processCallback(Callbacks callback) {
              * Turn test
              ****************************/
             robot.lcdDisplay.clear();
-            robot.lcdDisplay.print("Pattern Mow");
+            robot.lcdDisplay.print("Turn test");
             delay(3000);
             robot.lcdDisplay.clear();
             Test_Compass_Turn_Function();
@@ -321,11 +325,13 @@ void processCallback(Callbacks callback) {
             menuInteractionsCompleted = false;
             while (menuInteractionsCompleted == false) {
                 // insert Test Code Here
-                Get_Compass_Reading();
+                readRobotCompassDegrees();
                 robot.lcdDisplay.setCursor(9, 0);
                 //robot.lcdDisplay.print(robot.heading);
                 robot.lcdDisplay.setCursor(9, 1);
                 robot.lcdDisplay.print(robot.compassHeadingDegrees);
+
+                delay(50);
 
                 readMembraneKeys();
                 if (keyBackPressed) {

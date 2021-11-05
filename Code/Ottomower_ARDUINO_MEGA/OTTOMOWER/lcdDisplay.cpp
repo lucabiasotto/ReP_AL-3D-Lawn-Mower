@@ -2,35 +2,104 @@
  *  Print mower status on LCD screen
  */
 #include "lcdDisplay.h"
+
 #include "robot.h"
 
-void Print_LCD_Menu_Timing(char LCD_Menu_Timing) {
-    if (LCD_Menu_Timing == 1) robot.lcdDisplay.print("Max Mow Time");
-    if (LCD_Menu_Timing == 2) robot.lcdDisplay.print("1hr Mow Time");
-    if (LCD_Menu_Timing == 3) robot.lcdDisplay.print("2hr Mow Time");
-    if (LCD_Menu_Timing == 4) robot.lcdDisplay.print("  ");  //leave blank
+// make some custom characters:
+byte robotIcon[8] = {
+    0b00000,
+    0b00100,
+    0b01110,
+    0b11111,
+    0b11111,
+    0b11111,
+    0b00000,
+    0b00000};
+byte forwardIcon[8] = {
+    0b00000,
+    0b00100,
+    0b01110,
+    0b10101,
+    0b00100,
+    0b00100,
+    0b00100,
+    0b00000};
+
+byte leftIcon[8] = {
+    0b00000,
+    0b00010,
+    0b00100,
+    0b01000,
+    0b11111,
+    0b01000,
+    0b00100,
+    0b00010};
+
+byte rightIcon[8] = {
+    0b00000,
+    0b01000,
+    0b00100,
+    0b00010,
+    0b11111,
+    0b00010,
+    0b00100,
+    0b01000};
+
+byte backwarddIcon[8] = {
+    0b00000,
+    0b00100,
+    0b00100,
+    0b00100,
+    0b10101,
+    0b01110,
+    0b00100,
+    0b00000};
+
+void lcdInit() {
+    Serial.println("Setup LCD");
+    robot.lcdDisplay.begin(16, 2);
+
+    robot.lcdDisplay.createChar(robot.CHAR_ROBOT, robotIcon);
+    robot.lcdDisplay.createChar(robot.CHAR_FORWARD, forwardIcon);
+    robot.lcdDisplay.createChar(robot.CHAR_LEFT_ARROW, leftIcon);
+    robot.lcdDisplay.createChar(robot.CHAR_RIGHT_ARROW, rightIcon);
+    robot.lcdDisplay.createChar(robot.CHAR_BACK_ARROW, backwarddIcon);
+
+    robot.lcdDisplay.clear();
+    robot.lcdDisplay.print("Ottomower");
+    robot.lcdDisplay.setCursor(0, 1);
+    robot.lcdDisplay.print(Version);
+    delay(1000);
+    robot.lcdDisplay.clear();
+    Serial.println("LCD Setup OK");
 }
 
 void lcdUpdateScreen() {
     /**********************
      * RIGA 1
+     * 
+     * ┌────────────────┐
+     * │0123456789012345│
+     * │xxx        v12.2│
+     * │^o^             │
+     * └────────────────┘
+     * 
      **********************/
+
     robot.lcdDisplay.setCursor(0, 0);
     if (robot.mowerDocked == 1 && robot.chargeDetectedMEGA == 1) {
+        robot.lcdDisplay.print("                ");
         robot.lcdDisplay.print(TRS_CHARGING);  //is charging
     } else if (robot.rainDetected == 1) {
+        robot.lcdDisplay.print("                ");
         robot.lcdDisplay.print(TRS_RAIN);
+    } else if (robot.mowerError == 1) {
+        robot.lcdDisplay.clear();
+        robot.lcdDisplay.setCursor(0, 0);
+        robot.lcdDisplay.print("ERROR");
     } else {
-        robot.lcdDisplay.print("        ");
-        //stampa l'orario
-        //TODO RTC
-        /*
-        Time t = rtc.time();
-        robot.lcdDisplay.print(t.hr);
-        robot.lcdDisplay.print(":");
-        if (t.min < 10) robot.lcdDisplay.print("0");
-        robot.lcdDisplay.print(t.min);
-        */
+        //first 3 char are for sonar obstacle, write in readSonarSensors methods
+        //robot.lcdDisplay.print("   ");
     }
     //stampa voltaggio
     robot.lcdDisplay.setCursor(10, 0);
@@ -49,127 +118,97 @@ void lcdUpdateScreen() {
     } else if (robot.mowerParkedLowBatt == 1) {
         robot.lcdDisplay.print(TRS_RECHARG_BAT);
     } else if (robot.mowerError == 1) {
-        robot.lcdDisplay.clear();
-        robot.lcdDisplay.setCursor(0, 0);
-        robot.lcdDisplay.print("ERROR");
-        if (robot.wireOffCounter > MAX_WIRE_FAIL) {  //TODO migliorare questo iff?
-            robot.lcdDisplay.setCursor(0, 1);
-            robot.lcdDisplay.print(TRS_WIRE_OFF);
+        if (robot.wireOffCounter > MAX_WIRE_FAIL) {
+            //TODO
+            //robot.lcdDisplay.setCursor(0, 1);
+            //robot.lcdDisplay.print(TRS_WIRE_OFF); CAVO KO
         }
     } else if (robot.mowerRunning == 1) {
-        robot.lcdDisplay.print(TRS_MOVING__);
+        //log robot direction
+        if (robot.SonarHit1Total >= SONAR_MAX_HIT || robot.SonarHit2Total >= SONAR_MAX_HIT || robot.SonarHit3Total >= SONAR_MAX_HIT) {
+            //sonar hit
+            if (robot.distance1 < SONAR_MAX_DISTANCE || robot.distance2 < SONAR_MAX_DISTANCE) {
+                //-->
+                robot.lcdDisplay.setCursor(0, 1);
+                robot.lcdDisplay.print(" -         SONAR");
+                robot.lcdDisplay.setCursor(2, 1);
+                robot.lcdDisplay.write(robot.CHAR_RIGHT_ARROW);
+            } else if (robot.distance3 < SONAR_MAX_DISTANCE) {
+                //<--
+                robot.lcdDisplay.setCursor(0, 1);
+                robot.lcdDisplay.print(" -         SONAR");
+                robot.lcdDisplay.setCursor(0, 1);
+                robot.lcdDisplay.write(robot.CHAR_LEFT_ARROW);
+            }
+        } else if (robot.loopCycleMowing < CYCLE_FOR_STABILEZE || COMPASS_HEADING_HOLD_ENABLED == 0 || COMPASS_ACTIVATE == 0) {
+            //^-^
+            robot.lcdDisplay.setCursor(0, 1);
+            robot.lcdDisplay.print(" -              ");
+            robot.lcdDisplay.setCursor(0, 1);
+            robot.lcdDisplay.write(robot.CHAR_FORWARD);
+            robot.lcdDisplay.setCursor(2, 1);
+            robot.lcdDisplay.write(robot.CHAR_FORWARD);
+        } else {
+            //compass stabilization
+            robot.lcdDisplay.setCursor(0, 1);
+            if (robot.pwmRight > robot.pwmLeft) {
+                //<--
+                robot.lcdDisplay.print(" -          GYRO");
+                robot.lcdDisplay.setCursor(0, 1);
+                robot.lcdDisplay.write(robot.CHAR_FORWARD);
+            } else if (robot.pwmLeft > robot.pwmRight) {
+                //-->
+                robot.lcdDisplay.print(" -          GYRO");
+                robot.lcdDisplay.setCursor(2, 1);
+                robot.lcdDisplay.write(robot.CHAR_FORWARD);
+            } else {
+                //^-^
+                robot.lcdDisplay.print(" -          GYRO");
+                robot.lcdDisplay.setCursor(0, 1);
+                robot.lcdDisplay.write(robot.CHAR_FORWARD);
+                robot.lcdDisplay.setCursor(2, 1);
+                robot.lcdDisplay.write(robot.CHAR_FORWARD);
+            }
+        }
+
+        robot.lcdDisplay.setCursor(1, 1);
+        robot.lcdDisplay.write(robot.CHAR_ROBOT);
+    }
+
+    //TODO stampare il loop?robot.loopCycleMowing
+}
+
+void lcdPrintWireDetected() {
+    robot.lcdDisplay.setCursor(0, 11);
+    robot.lcdDisplay.print(TRS__WIRE);
+}
+
+void lcdPrintWireLost() {
+    if (robot.mowerDocked == 1 || robot.mowerParked == 1) {
+        robot.lcdDisplay.setCursor(8, 1);
+        robot.lcdDisplay.print(TRS_NO_WIRE);
+    }
+    if (robot.mowerDocked == 0 && robot.mowerParked == 0) {
+        robot.lcdDisplay.setCursor(0, 0);
+        robot.lcdDisplay.print(TRS_NO_WIRE);
     }
 }
 
-void Setup_Run_LCD_Intro() {
-    Serial.println("Setup LCD");
-    robot.lcdDisplay.begin(16, 2);
-    robot.lcdDisplay.clear();
-    robot.lcdDisplay.print("Ottomower");
-    robot.lcdDisplay.setCursor(0, 1);
-    robot.lcdDisplay.print(Version);
-    delay(1000);
-    robot.lcdDisplay.clear();
-    Serial.println("LCD Setup OK");
-}
-
-void Print_LCD_Wire() {
-    robot.lcdDisplay.setCursor(0, 1);
-    robot.lcdDisplay.print("WIRE Detect ");
-}
-
-void Print_LCD_Mowing() {
-    if (robot.alarmTimedMowON == 0) {
-        robot.lcdDisplay.setCursor(0, 1);
-        robot.lcdDisplay.print("Mowing..    ");
-    }
-    if (robot.alarmTimedMowON == 1) {
-        robot.lcdDisplay.setCursor(0, 1);
-        robot.lcdDisplay.print("Timer:");
-        robot.lcdDisplay.print(robot.alarmTimedMowHour);
-        robot.lcdDisplay.print(":");
-        if (robot.alarmTimedMowMinute < 10) robot.lcdDisplay.print("0");
-        robot.lcdDisplay.print(robot.alarmTimedMowMinute);
-        //Mow_Time_Set = 1;
-    }
-}
-
-void Print_LCD_Compass_Mowing() {
-    if (robot.compassHeadingLocked == 1) {
-        robot.lcdDisplay.setCursor(0, 1);
-        if (robot.pwmRight > robot.pwmLeft) robot.lcdDisplay.print("<H-Lock Mow ");
-        if (robot.pwmLeft > robot.pwmRight) robot.lcdDisplay.print(" H-Lock Mow>");
-        if (robot.pwmLeft == robot.pwmRight) robot.lcdDisplay.print("|H-Lock Mow|");
-    }
-    if (robot.compassHeadingLocked == 0) {
-        robot.lcdDisplay.setCursor(0, 1);
-        robot.lcdDisplay.print("            ");
-    }
-}
-
-void Print_LCD_Info_Manuel() {
-    robot.lcdDisplay.setCursor(0, 1);
-    robot.lcdDisplay.print("Manuel");
-}
-
-void Print_LCD_NO_Wire() {
-    if ((robot.mowerDocked == 1) || (robot.mowerParked == 1)) {
-        robot.lcdDisplay.setCursor(7, 1);
-        robot.lcdDisplay.print(":WIRE OFF");
-        robot.wireOnPrinted = 0;
-    }
-    if ((robot.mowerDocked == 0) && (robot.mowerParked == 0)) {
-        robot.lcdDisplay.setCursor(0, 1);
-        robot.lcdDisplay.print(":WIRE OFF        ");
-        robot.wireOnPrinted = 0;
-    }
-}
-
-void Print_LCD_Wire_ON() {
-    if ((robot.mowerDocked == 1) || (robot.mowerParked == 1) && (robot.wireOnPrinted = 0)) {
-        robot.lcdDisplay.setCursor(7, 1);
-        robot.lcdDisplay.print(":               ");
-        robot.wireOnPrinted = 1;
-    }
-    if ((robot.mowerDocked == 0) && (robot.mowerParked == 0) && (robot.wireOnPrinted = 0)) {
-        robot.lcdDisplay.setCursor(0, 1);
-        robot.lcdDisplay.print(":               ");
-        robot.wireOnPrinted = 1;
-    }
-}
-
-void Print_Sonar_Hit() {
-    robot.lcdDisplay.setCursor(0, 1);
-    robot.lcdDisplay.print("Sonar Object ");
-}
-
-void Print_LCD_Compass_Home() {
+void lcdPrintSearchBoxDirectionWithCompass() {
     robot.lcdDisplay.clear();
     robot.lcdDisplay.setCursor(0, 0);
-    robot.lcdDisplay.print("Compass Home");
+    robot.lcdDisplay.print(TRS_COMPASS_HOME);
     if (robot.rainDetected == 1) {
         robot.lcdDisplay.setCursor(0, 1);
-        robot.lcdDisplay.print("RAINING");
+        robot.lcdDisplay.print(TRS_RAINING);
     }
 }
-
-void Print_LCD_Heading_for_Home() {
-    robot.lcdDisplay.setCursor(0, 1);
-    robot.lcdDisplay.print("Target:");
-    robot.lcdDisplay.print(((robot.headingLowerLimitCompass - robot.headingLowerLimitCompass) / 2) + robot.headingLowerLimitCompass);
-}
-
-void printLoop(byte lCount) {
-    robot.lcdDisplay.setCursor(13, 1);
-    robot.lcdDisplay.print(robot.loopCycleMowing);
-}
-
 void printFindFire() {
     robot.lcdDisplay.clear();
     robot.lcdDisplay.print(TRS_FIND_WIRE);
 }
 
-void printMessage(char* msg){
-     robot.lcdDisplay.clear();
+void printMessage(char* msg) {
+    robot.lcdDisplay.clear();
     robot.lcdDisplay.print(msg);
 }

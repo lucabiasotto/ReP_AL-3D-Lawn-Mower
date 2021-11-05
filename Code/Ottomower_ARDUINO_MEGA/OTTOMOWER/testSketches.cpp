@@ -1,11 +1,11 @@
 
 #include "testSketches.h"
-
 #include "adcman.h"
 #include "compassUtils.h"
 #include "motorsController.h"
 #include "movementsUtils.h"
 #include "robot.h"
+#include "sonar.h"
 
 /* Perimieter Wire Collision Motion
   ************************************************************************************/
@@ -280,78 +280,12 @@ void Test_Sonar_Array() {
    * Sonars are not fired in order to avoid reflections of sonar in the next sensor.
      distance# reurned (trigpin#, echopin#, distance#, duration#, Sonar#, LCDColumn#, LCD Row#)
    *********************************************************************************************/
-    if (SONAR_1_ACTIVATE) robot.distance1 = PingSonarY(trigPin1, echoPin1, 1, 1, 1, 5, 0);  //SONAR1
+    if (SONAR_1_ACTIVATE) robot.distance1 = getSonarDistance(trigPin1, echoPin1, 1);  //SONAR1
     delay(15);
-    if (SONAR_2_ACTIVATE) robot.distance2 = PingSonarY(trigPin2, echoPin2, 2, 2, 2, 0, 0);  //SONAR2
+    if (SONAR_2_ACTIVATE) robot.distance2 = getSonarDistance(trigPin2, echoPin2, 2);  //SONAR2
     delay(15);
-    if (SONAR_3_ACTIVATE) robot.distance3 = PingSonarY(trigPin3, echoPin3, 3, 3, 3, 10, 0);  //SONAR3
+    if (SONAR_3_ACTIVATE) robot.distance3 = getSonarDistance(trigPin3, echoPin3, 3);  //SONAR3
     delay(15);
-}
-
-/* SONAR Function
-************************************************************************************/
-// Function to Ping the Sonar calculate the distance from Object to the Sonars.
-// Distance calculated is printed to serial printer and displays X or _ on the LCD Screen
-// Distance calculated is then used for the object avoidance logic
-// Sonars used can be activated in the settings.
-
-int PingSonarY(int trigPinY, int echoPinY, int distanceY, long durationY, int sonarY, int LCDRow, int LCDColumn) {
-    pinMode(trigPinY, OUTPUT);
-    pinMode(echoPinY, INPUT);
-    //Sets the trigPin at High state for 10 micro secs sending a sound wave
-    digitalWrite(trigPinY, HIGH);
-    digitalWrite(trigPinY, LOW);
-    delayMicroseconds(10);
-
-    /*Reads the echoPin for the bounced wave and records the time in microseconds*/
-    durationY = pulseIn(echoPinY, HIGH);
-
-    /*Calculates the distance in cm based on the measured time*/
-    distanceY = durationY * 0.034 / 2;
-    delay(5);
-
-    /* If a 0 distance is measured normally the Sonar ping has not been received.
-    distance is then set to 999cm so the missed ping is not seen as an object detected.*/
-    if (distanceY == 0) {
-        distanceY = 999;
-        Serial.print("SONAR ");
-        Serial.print(sonarY);
-        Serial.print(": ");
-        Serial.println("NO PING ERROR REMOVED");
-    }
-
-    /*Prints the Sonar letter and distance measured on the serial Monitor*/
-    Serial.print("SONAR ");
-    Serial.print(sonarY);
-    Serial.print(": ");
-    Serial.print(distanceY);
-    Serial.println(" cm");
-    //Serial.println(SONAR_MAX_DISTANCE);
-
-    /*If sonar distance is less than maximum distance then an object is registered to avoid*/
-    if (distanceY <= SONAR_MAX_DISTANCE) {
-        //Prints that Sonar X has detected an object to the Mower LCD.
-        robot.lcdDisplay.setCursor(LCDRow, LCDColumn);  //sets location for text to be written
-        robot.lcdDisplay.print("X");
-        LCDColumn = LCDColumn + 1;
-        robot.lcdDisplay.setCursor(LCDRow, LCDColumn);  //sets location for text to be written
-        robot.lcdDisplay.print("   ");
-        robot.lcdDisplay.setCursor(LCDRow, LCDColumn);
-        robot.lcdDisplay.print(distanceY);
-        delay(10);
-    }
-
-    /*If sonar distance is greater than maximum distance then no object is registered to avoid*/
-    if (distanceY > 100) {
-        //Prints that the path of Sonar X is open.
-        LCDColumn = LCDColumn - 1;
-        robot.lcdDisplay.setCursor(LCDRow, LCDColumn);  //sets location for text to be written
-        robot.lcdDisplay.print("_");
-        delay(10);
-    }
-
-    return distanceY;
-    return sonarY;
 }
 
 void Test_Compass_Turn_Function() {
@@ -361,7 +295,7 @@ void Test_Compass_Turn_Function() {
     motorsSetFullSpeed();
     delay(2000);
     robotReverseDirection();
-    Turn_To_Compass_Heading();
+    turnToCompassTarget(180);
     motorsSetPinsToGoForwards();
     motorsSetFullSpeed();
     delay(2000);
