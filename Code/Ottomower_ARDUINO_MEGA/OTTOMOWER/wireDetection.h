@@ -1,4 +1,4 @@
 void Check_Wire_In_Out();
-void UpdateWireSensor();
-void PrintBoundaryWireStatus();
+void readWireSensor();
+void logBoundaryWireStatus();
 bool isWireOn();

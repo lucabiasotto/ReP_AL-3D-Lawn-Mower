@@ -176,9 +176,9 @@ void Mower::logMowerStatus() {
 
 void Mower::Setup_Relays() {
     Console.println("Setup Relays");
-    pinMode(Relay_Motors, OUTPUT);
+    pinMode(RELAY_MOTORS_PIN, OUTPUT);
     delay(5);
-    robot.Turn_Off_Relay();
+    robot.turnOffMotorsRelay();
     delay(5);
 }
 
@@ -209,22 +209,28 @@ void Mower::Setup_Motor_Pins() {
     pinMode(IN4Pin, OUTPUT);
 }
 
-void Mower::Turn_On_Relay() {
+/**
+ * Turn of the relay for the main battery power
+ */
+void Mower::turnOnMotorsRelay() {
     Serial.print("Relay:ON|");
-    digitalWrite(Relay_Motors, LOW);  // Turn of the relay for the main battery power
+    digitalWrite(RELAY_MOTORS_PIN, LOW);  
 }
 
-void Mower::Turn_Off_Relay() {
+/**
+ * Turn of the relay for the main battery power
+ */
+void Mower::turnOffMotorsRelay() {
     Serial.print("Relay:Off|");
-    digitalWrite(Relay_Motors, HIGH);  // Turn of the relay for the main battery power
+    digitalWrite(RELAY_MOTORS_PIN, HIGH); 
 }
 
 void Mower::Setup_Membrane_Buttons() {
     Serial.println("Setup Membrane Keys");
-    pinMode(Start_Key, INPUT_PULLUP);  // set pin as input
-    pinMode(Plus_Key, INPUT_PULLUP);   // set pin as input
-    pinMode(Minus_Key, INPUT_PULLUP);  // set pin as input
-    pinMode(Stop_Key, INPUT_PULLUP);   // set pin as input
+    pinMode(SWITCH_OK_KEY_PIN, INPUT_PULLUP);  // set pin as input
+    pinMode(SWITCH_PLUS_KEY_PIN, INPUT_PULLUP);   // set pin as input
+    pinMode(SWITCH_MINUS_KEY_PIN, INPUT_PULLUP);  // set pin as input
+    pinMode(SWITCH_STOP_KEY_PIN, INPUT_PULLUP);   // set pin as input
 }
 
 void Mower::Setup_ADCMan() {

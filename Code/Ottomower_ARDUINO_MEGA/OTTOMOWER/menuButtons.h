@@ -9,7 +9,8 @@ enum Callbacks { START_CUT,
                  SONAR_TEST,
                  TURN_TEST,
                  VOLT_AMP_TEST,
-                 COMPASS_TEST };
+                 COMPASS_TEST,
+                 GO_HOME };
 
 //Membrane Key Variables
 static bool keyOKPressed;

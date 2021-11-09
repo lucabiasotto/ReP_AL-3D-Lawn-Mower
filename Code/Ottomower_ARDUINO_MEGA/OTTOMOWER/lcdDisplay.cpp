@@ -123,7 +123,7 @@ void lcdUpdateScreen() {
             //robot.lcdDisplay.setCursor(0, 1);
             //robot.lcdDisplay.print(TRS_WIRE_OFF); CAVO KO
         }
-    } else if (robot.mowerRunning == 1) {
+    } else if (robot.mowerRunning == 1 || robot.trackingWire == 1 || robot.searchingWire == 1) {
         //log robot direction
         if (robot.SonarHit1Total >= SONAR_MAX_HIT || robot.SonarHit2Total >= SONAR_MAX_HIT || robot.SonarHit3Total >= SONAR_MAX_HIT) {
             //sonar hit
@@ -171,6 +171,14 @@ void lcdUpdateScreen() {
             }
         }
 
+        if(robot.searchingWire){
+            //is searching wire, pring ->WIRE
+            robot.lcdDisplay.setCursor(12, 1);
+            robot.lcdDisplay.print(TRS_WIRE);
+            robot.lcdDisplay.setCursor(11, 1);
+            robot.lcdDisplay.write(robot.CHAR_RIGHT_ARROW);
+        }
+
         robot.lcdDisplay.setCursor(1, 1);
         robot.lcdDisplay.write(robot.CHAR_ROBOT);
     }
@@ -179,8 +187,9 @@ void lcdUpdateScreen() {
 }
 
 void lcdPrintWireDetected() {
+    //TODO tira via fai tutto nello stampa lcd info
     robot.lcdDisplay.setCursor(0, 11);
-    robot.lcdDisplay.print(TRS__WIRE);
+    robot.lcdDisplay.print(TRS_WIRE);
 }
 
 void lcdPrintWireLost() {
@@ -202,10 +211,6 @@ void lcdPrintSearchBoxDirectionWithCompass() {
         robot.lcdDisplay.setCursor(0, 1);
         robot.lcdDisplay.print(TRS_RAINING);
     }
-}
-void printFindFire() {
-    robot.lcdDisplay.clear();
-    robot.lcdDisplay.print(TRS_FIND_WIRE);
 }
 
 void printMessage(char* msg) {

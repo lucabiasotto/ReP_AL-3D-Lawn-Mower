@@ -1,11 +1,13 @@
 
 #include "testSketches.h"
+
 #include "adcman.h"
 #include "compassUtils.h"
 #include "motorsController.h"
 #include "movementsUtils.h"
 #include "robot.h"
 #include "sonar.h"
+#include "wireDetection.h"
 
 /* Perimieter Wire Collision Motion
   ************************************************************************************/
@@ -13,13 +15,7 @@ void Test_Mower_Check_Wire() {
     ADCMan.run();
     // ADCMan.setCapture(pinPerimeterLeft, 1, 0);
 
-    if (millis() >= robot.nextTime) {
-        robot.nextTime = millis() + 50;
-        if (robot.perimeter.isInside(0) != robot.inside) {
-            robot.inside = robot.perimeter.isInside(0);
-            robot.counter++;
-        }
-    }
+    readWireSensor();  // Read the wire sensor and see of the mower is now  or outside the wire
 
     /* Prints Values to the Serial Monitor of mag, smag and signal quality.  */
     Serial.print("Inside (1) or Outside (0):  ");
@@ -42,12 +38,12 @@ void Test_Mower_Check_Wire() {
 }
 
 void Test_Relay() {
-    digitalWrite(Relay_Motors, HIGH);
+    digitalWrite(RELAY_MOTORS_PIN, HIGH);
     Serial.println("Relay OFF");
     robot.lcdDisplay.print("Relay OFF");
     delay(1000);
     robot.lcdDisplay.clear();
-    digitalWrite(Relay_Motors, LOW);
+    digitalWrite(RELAY_MOTORS_PIN, LOW);
     Serial.println("Relay ON");
     robot.lcdDisplay.print("Relay ON");
     delay(1000);
@@ -55,7 +51,7 @@ void Test_Relay() {
 }
 
 void Test_Wheel_Motors() {
-    digitalWrite(Relay_Motors, LOW);
+    digitalWrite(RELAY_MOTORS_PIN, LOW);
     delay(200);
 
     robot.lcdDisplay.clear();
@@ -224,13 +220,13 @@ void Test_Wheel_Motors() {
     delay(1000);
     robot.lcdDisplay.clear();
 
-    digitalWrite(Relay_Motors, HIGH);
+    digitalWrite(RELAY_MOTORS_PIN, HIGH);
     delay(200);
 }
 
 void Test_Mower_Blade_Motor() {
     // Spin the blade motor for 7 seconds
-    digitalWrite(Relay_Motors, LOW);
+    digitalWrite(RELAY_MOTORS_PIN, LOW);
     delay(200);
     robot.lcdDisplay.print("Blade Motor");
     robot.lcdDisplay.setCursor(0, 1);
@@ -264,7 +260,7 @@ void Test_Mower_Blade_Motor() {
     robot.lcdDisplay.clear();
     delay(500);
 
-    digitalWrite(Relay_Motors, HIGH);
+    digitalWrite(RELAY_MOTORS_PIN, HIGH);
     delay(200);
 }
 
@@ -289,7 +285,7 @@ void Test_Sonar_Array() {
 }
 
 void Test_Compass_Turn_Function() {
-    digitalWrite(Relay_Motors, LOW);
+    digitalWrite(RELAY_MOTORS_PIN, LOW);
     delay(200);
     motorsSetPinsToGoForwards();
     motorsSetFullSpeed();
@@ -299,5 +295,5 @@ void Test_Compass_Turn_Function() {
     motorsSetPinsToGoForwards();
     motorsSetFullSpeed();
     delay(2000);
-    digitalWrite(Relay_Motors, HIGH);
+    digitalWrite(RELAY_MOTORS_PIN, HIGH);
 }

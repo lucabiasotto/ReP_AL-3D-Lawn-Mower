@@ -69,8 +69,9 @@
 #define TRS_START_CUT "Start"
 #define TRS_START_CUT_NO_WIRE "Start (NO WIRE)"
 #define TRS_NO_WIRE "WIRE OFF"
-#define TRS__WIRE " WIRE"
+#define TRS_WIRE "WIRE"
 #define TRS_ROBOT_LOCK "ROBOT LOCK"
+#define TRS_GO_HOME "Go home"
 
 #endif
 
@@ -133,7 +134,8 @@
 #define TRS_START_CUT "Avvia"
 #define TRS_START_CUT_NO_WIRE "Avvia(NO CAVO)"
 #define TRS_NO_WIRE "CAVO OFF"
-#define TRS__WIRE "    CAVO"
+#define TRS_WIRE "CAVO"
 #define TRS_ROBOT_LOCK "ROBOT BLOCCATO"
+#define TRS_GO_HOME "Vai in base"
 
 #endif

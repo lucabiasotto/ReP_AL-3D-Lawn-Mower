@@ -12,9 +12,8 @@ void Check_Wire_In_Out() {
 
     // If the perimeter wire sensor is activated
     if (robot.isPerimeterWireEnable == 1) {
-        UpdateWireSensor();  // Read the wire sensor and see of the mower is now  or outside the wire
-        ADCMan.run();
-        PrintBoundaryWireStatus();
+        readWireSensor();  // Read the wire sensor and see of the mower is now  or outside the wire
+        logBoundaryWireStatus();
 
         // OUTSIDE the wire
         if ((robot.perimeter.isInside(0)) == 0) {                      // Mower is OUTSIDE the wire
@@ -56,13 +55,11 @@ void Check_Wire_In_Out() {
             motorsSetFullSpeed();
             delay(1000);
             motorsStopWheelMotors();
-            UpdateWireSensor();  // Read the wire sensor and see of the mower is now  or outside the wire
-            ADCMan.run();
-            PrintBoundaryWireStatus();
+            readWireSensor();  // Read the wire sensor and see of the mower is now  or outside the wire
+            logBoundaryWireStatus();
             delay(1000);
-            UpdateWireSensor();  // Read the wire sensor and see of the mower is now  or outside the wire
-            ADCMan.run();
-            PrintBoundaryWireStatus();
+            readWireSensor();  // Read the wire sensor and see of the mower is now  or outside the wire
+            logBoundaryWireStatus();
             robot.wireRefindTries = robot.wireRefindTries + 1;
             robot.loopCycleMowing = 0;
             Serial.println("");
@@ -88,8 +85,7 @@ void Check_Wire_In_Out() {
 bool isWireOn() {
     bool wireDetected = false;
 
-    ADCMan.run();
-    UpdateWireSensor();
+    readWireSensor();
 
     if (robot.isPerimeterWireEnable == 1) {  // Perimeter use is ON - Perimter_USE can be turned on or off in the setup.
 
@@ -132,9 +128,10 @@ bool isWireOn() {
     return wireDetected;
 }
 
-void UpdateWireSensor() {
+void readWireSensor() {
     if (millis() >= robot.nextTime) {
         robot.nextTime = millis() + 50;
+        ADCMan.run();
         if (robot.perimeter.isInside(0) != robot.inside) {
             robot.inside = robot.perimeter.isInside(0);
             robot.counter++;
@@ -142,7 +139,7 @@ void UpdateWireSensor() {
     }
 }
 
-void PrintBoundaryWireStatus() {
+void logBoundaryWireStatus() {
     Serial.print(F("|IN/OUT:"));
     Serial.print((robot.perimeter.isInside(0)));
     Serial.print(F("|Mag:"));

@@ -10,9 +10,9 @@
 #include "robot.h"
 #include "testSketches.h"
 
-const char dockMenuCount = 4;
-const char *dockedMenu[dockMenuCount] = {TRS_START_CUT, TRS_START_CUT_NO_WIRE, TRS_MOW_THE_LINE, TRS_TEST_MENU};
-const Callbacks dockedMenuCallbacks[4] = {START_CUT, START_CUT_NO_WIRE, MOW_THE_LINE, TEST_MENU};
+const char dockMenuCount = 5;
+const char *dockedMenu[dockMenuCount] = {TRS_START_CUT, TRS_START_CUT_NO_WIRE, TRS_MOW_THE_LINE, TRS_GO_HOME, TRS_TEST_MENU};
+const Callbacks dockedMenuCallbacks[5] = {START_CUT, START_CUT_NO_WIRE, MOW_THE_LINE, GO_HOME, TEST_MENU};
 const char testMenuCount = 8;
 const char *testdMenu[8] = {"Wire Test", "Relay Test", "Wheel Test", "Blade Test", "Sonar Test", "Turn Test", "Volt Amp Test", "Compass Test"};
 const Callbacks testdMenuCallbacks[8] = {WIRE_TEST, RELAY_TEST, WHEEL_TEST, BLADE_TEST, SONAR_TEST, TURN_TEST, VOLT_AMP_TEST, COMPASS_TEST};
@@ -21,10 +21,10 @@ const Callbacks testdMenuCallbacks[8] = {WIRE_TEST, RELAY_TEST, WHEEL_TEST, BLAD
  *  Reads each of the membrane keys and detects if a key is pressed.
  */
 void readMembraneKeys() {
-    keyOKPressed = !digitalRead(Start_Key);
-    keyUpPressed = !digitalRead(Plus_Key);
-    keyDownPressed = !digitalRead(Minus_Key);
-    keyBackPressed = !digitalRead(Stop_Key);
+    keyOKPressed = !digitalRead(SWITCH_OK_KEY_PIN);
+    keyUpPressed = !digitalRead(SWITCH_PLUS_KEY_PIN);
+    keyDownPressed = !digitalRead(SWITCH_MINUS_KEY_PIN);
+    keyBackPressed = !digitalRead(SWITCH_STOP_KEY_PIN);
     //non mettere delay perchè questo viene chiamato anche mentre è in running
 }
 
@@ -51,9 +51,13 @@ void openMenu(const char *menuItems[], const Callbacks menuCallbacks[], const ch
             }
             robot.lcdDisplay.setCursor(2, 0);
             robot.lcdDisplay.print(menuItems[firstRow]);
-            robot.lcdDisplay.setCursor(2, 1);
-            robot.lcdDisplay.print(menuItems[firstRow + 1]);
-
+            if (firstRow + 1 < leaveCount) {
+                robot.lcdDisplay.setCursor(2, 1);
+                robot.lcdDisplay.print(menuItems[firstRow + 1]);
+            } else {
+                robot.lcdDisplay.setCursor(2, 1);
+                robot.lcdDisplay.print("                ");
+            }
             //print cursor position
             robot.lcdDisplay.setCursor(0, menuCursorPosition % 2);
             robot.lcdDisplay.print(">");
@@ -104,6 +108,8 @@ void closeMenu() {
 void processCallback(Callbacks callback) {
     bool menuInteractionsCompleted = false;
 
+    long tmpTimer = 0;
+
     switch (callback) {
         case START_CUT:
         case START_CUT_NO_WIRE:
@@ -134,7 +140,7 @@ void processCallback(Callbacks callback) {
             if (callback == START_CUT_NO_WIRE) {
                 //user disable cable
                 robot.isPerimeterWireEnable = false;
-            }else{
+            } else {
                 robot.isPerimeterWireEnable = true;
             }
             leaveChargingStation(FOLLOW_WIRE_WHEN_LEAVE_DOCK);
@@ -148,7 +154,7 @@ void processCallback(Callbacks callback) {
             robot.rainHitDetected = 0;
             robot.mowerError = 0;
             robot.loopCycleMowing = 0;
-            robot.Turn_On_Relay();
+            robot.turnOnMotorsRelay();
 
             break;
         case MOW_THE_LINE:
@@ -172,8 +178,16 @@ void processCallback(Callbacks callback) {
 
             robot.isPerimeterWireEnable = true;
             robot.bladeOverride = 1;
-            robot.trackWireItterations = 6000;  //TODO per quante iterazioni segue il cavo...mmmm 
+            robot.trackWireItterations = 6000;  //TODO per quante iterazioni segue il cavo...mmmm
             leaveChargingStation(true);
+            break;
+        case GO_HOME:
+            robot.lcdDisplay.clear();
+            robot.lcdDisplay.print(TRS_GO_HOME);
+            Serial.println(F("Go home Selected"));
+            delay(1000);
+            robot.lcdDisplay.clear();
+            goToChargingStation();
             break;
         case TEST_MENU:
             /***************************
@@ -323,16 +337,16 @@ void processCallback(Callbacks callback) {
             robot.lcdDisplay.setCursor(0, 1);
             robot.lcdDisplay.print("Degrees:");
             menuInteractionsCompleted = false;
+            
             while (menuInteractionsCompleted == false) {
                 // insert Test Code Here
                 readRobotCompassDegrees();
-                robot.lcdDisplay.setCursor(9, 0);
-                //robot.lcdDisplay.print(robot.heading);
-                robot.lcdDisplay.setCursor(9, 1);
-                robot.lcdDisplay.print(robot.compassHeadingDegrees);
 
-                delay(50);
-
+                if (millis() - tmpTimer > 500) {
+                    robot.lcdDisplay.setCursor(9, 1);
+                    robot.lcdDisplay.print((int)robot.compassHeadingDegrees);
+                    tmpTimer = millis();
+                }
                 readMembraneKeys();
                 if (keyBackPressed) {
                     menuInteractionsCompleted = true;

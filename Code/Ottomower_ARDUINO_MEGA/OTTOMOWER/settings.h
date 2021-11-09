@@ -30,7 +30,7 @@
 
 #define MAX_TRACKING_TURN_RIGHT 270  // The maximum number of turn right commands during wire tracking before a renewed wire find function is called
 #define MAX_TRACKING_TURN_LEFT 270   // This helps to re-find the wire should the mower loose the wire for any reason.
-#define MAX_CYCLE_WIRE_FIND 320      // Maximum number of forward tracking cycles in finding wire before the mower restarts a compass turn and wire find.
+#define MAX_CYCLE_WIRE_FIND 500      // Maximum number of forward tracking cycles in finding wire before the mower restarts a compass turn and wire find.
 
 // Compass Settings
 #define COMPASS_ACTIVATE 1              // Turns on the Compass (needs to be 1 to activate further compass features)

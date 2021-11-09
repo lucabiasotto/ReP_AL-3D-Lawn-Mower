@@ -28,10 +28,10 @@
 #define trigPin3 39
 
 // Membrane Switch
-#define Start_Key 50  // connect wire 1 to pin 2
-#define Plus_Key 51   // connect wire 2 to pin 3
-#define Minus_Key 52  // connect wire 3 to pin 4
-#define Stop_Key 53   // connect wire 4 to pin 5
+#define SWITCH_OK_KEY_PIN 50  // connect wire 1 to pin 2
+#define SWITCH_PLUS_KEY_PIN 51   // connect wire 2 to pin 3
+#define SWITCH_MINUS_KEY_PIN 52  // connect wire 3 to pin 4
+#define SWITCH_STOP_KEY_PIN 53   // connect wire 4 to pin 5
 
 // Pin Setup for the wheel Motor Bridge Controller
 // Motor A
@@ -49,14 +49,8 @@
 #define R_EN 10
 
 // Relay Switch
-#define Relay_Motors \
-    24  // be careful that you really use PIN24. The order is sometimes labelled \
-        // so it looks like 24 is actually 22.
+#define RELAY_MOTORS_PIN 24  // be careful that you really use PIN24. The order is sometimes labelled so it looks like 24 is actually 22.
 
-// Pin per controllare se usare o no il cavo
-#define USE_CABLE_PIN 11
-
-//LiquidCrystal_I2C lcd(0x27, 2, 1, 0, 4, 5, 6, 7, 3, POSITIVE);
 
 class Mower {
    public:
@@ -79,11 +73,13 @@ class Mower {
     int SonarHit3Total;
 
     //Mower Status Variables
-    bool mowerDocked;
-    bool mowerParked;
-    bool mowerRunning;
-    bool mowerParkedLowBatt;
-    bool mowerError;
+    bool mowerDocked = false;
+    bool mowerParked = false;
+    bool mowerRunning = false;
+    bool mowerParkedLowBatt = false;
+    bool mowerError = false;
+    bool trackingWire = false;
+    bool searchingWire = false;
 
     //Serial Communication
     float volts;
@@ -113,7 +109,6 @@ class Mower {
     bool outsideWire;
     int magNow;
     byte outsideWireCount = 0;
-    int trackingWire = 0;
     int wireOffCounter;  //count how many time wire is OFF
 
     int trackingTurnLeft;
@@ -121,8 +116,7 @@ class Mower {
     bool mowerTrackToCharge;
     bool mowerTrackToExit;
 
-    bool abortWireFind;
-    bool noWireFound;
+    bool wireFound;
 
     int pwmRight;
     int pwmLeft;
@@ -155,8 +149,8 @@ class Mower {
     virtual void setup();
     virtual void loop();
     virtual void Setup_Relays();
-    virtual void Turn_Off_Relay();
-    virtual void Turn_On_Relay();
+    virtual void turnOffMotorsRelay();
+    virtual void turnOnMotorsRelay();
     virtual void logMowerStatus();
 
    private:

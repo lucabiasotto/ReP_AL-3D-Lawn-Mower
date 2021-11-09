@@ -1,63 +1,112 @@
 #include "compassUtils.h"
 
-#include "MPU6050_light.h"
-MPU6050 mpu(Wire);
+//#include "MPU6050_light.h"
+//MPU6050 mpu(Wire);
 //#include "DFRobot_QMC5883.h"
 //DFRobot_QMC5883 compass;
+#include <Wire.h>
+
+#include "MPU6050.h"
 #include "lcdDisplay.h"
 #include "motorsController.h"
 #include "robot.h"
+MPU6050 mpu;
 
+int pitch = 0;
+int roll = 0;
+float yaw = 0;
+static unsigned long mpu6050LastReadMS = 0;
+
+//DOCS: https://github.com/ElectronicCats/mpu6050/blob/master/examples/MPU6050_DMP6/MPU6050_DMP6.ino
+//DOCS2: https://www.giuseppecaccavale.it/arduino/roll-pitch-e-yaw-con-mpu6050-arduino/
+
+/**
+ * Setup compass
+ */
 void compassInit() {
+
     if (COMPASS_ACTIVATE == 1) {
         robot.lcdDisplay.clear();
         robot.lcdDisplay.print("Compass  ");
         robot.lcdDisplay.setCursor(0, 1);
         robot.lcdDisplay.print("Setup..");
         Serial.println("Setup Compass");
-        while (mpu.begin() != 0) {
-            Serial.println(F("Could not find a valid MPU6050 sensor, check wiring!"));
-            robot.lcdDisplay.setCursor(0, 1);
-            robot.lcdDisplay.print("Error..");
+
+        while (!mpu.begin(MPU6050_SCALE_2000DPS, MPU6050_RANGE_2G)) {
+            Serial.println("Could not find a valid MPU6050 sensor, check wiring!");
             delay(500);
         }
 
-        /*
-        TODO vecchia logica con QMC5883
+        // Calibrate gyroscope. The calibration must be at rest.
+        // If you don't want calibrate, comment this line.
+        mpu.calibrateGyro();
 
-        while (!mpu.begin()) {
-            Serial.println(F("Could not find a valid MPU6050 sensor, check wiring!"));
-            delay(500);
+        // Set threshold sensivty. Default 3.
+        // If you don't want use threshold, comment this line or set 0.
+        mpu.setThreshold(1);
+
+        robot.lcdDisplay.setCursor(0, 1);
+        robot.lcdDisplay.print("Setup...");
+
+        // Check settings
+        Serial.print(" * Sleep Mode:        ");
+        Serial.println(mpu.getSleepEnabled() ? "Enabled" : "Disabled");
+
+        Serial.print(" * Clock Source:      ");
+        switch (mpu.getClockSource()) {
+            case MPU6050_CLOCK_KEEP_RESET:
+                Serial.println("Stops the clock and keeps the timing generator in reset");
+                break;
+            case MPU6050_CLOCK_EXTERNAL_19MHZ:
+                Serial.println("PLL with external 19.2MHz reference");
+                break;
+            case MPU6050_CLOCK_EXTERNAL_32KHZ:
+                Serial.println("PLL with external 32.768kHz reference");
+                break;
+            case MPU6050_CLOCK_PLL_ZGYRO:
+                Serial.println("PLL with Z axis gyroscope reference");
+                break;
+            case MPU6050_CLOCK_PLL_YGYRO:
+                Serial.println("PLL with Y axis gyroscope reference");
+                break;
+            case MPU6050_CLOCK_PLL_XGYRO:
+                Serial.println("PLL with X axis gyroscope reference");
+                break;
+            case MPU6050_CLOCK_INTERNAL_8MHZ:
+                Serial.println("Internal 8MHz oscillator");
+                break;
         }
 
-        if (compass.isHMC()) {
-            Serial.println(F("Initialize HMC5883"));
-            compass.setRange(HMC5883L_RANGE_1_3GA);
-            compass.setMeasurementMode(HMC5883L_CONTINOUS);
-            compass.setDataRate(HMC5883L_DATARATE_15HZ);
-            compass.setSamples(HMC5883L_SAMPLES_8);
-        } else if (compass.isQMC()) {
-            Serial.println(F("Initialize QMC5883"));
-            compass.setRange(QMC5883_RANGE_2GA);
-            compass.setMeasurementMode(QMC5883_CONTINOUS);
-            compass.setDataRate(QMC5883_DATARATE_50HZ);
-            compass.setSamples(QMC5883_SAMPLES_8);
+        Serial.print(" * Gyroscope:         ");
+        switch (mpu.getScale()) {
+            case MPU6050_SCALE_2000DPS:
+                Serial.println("2000 dps");
+                break;
+            case MPU6050_SCALE_1000DPS:
+                Serial.println("1000 dps");
+                break;
+            case MPU6050_SCALE_500DPS:
+                Serial.println("500 dps");
+                break;
+            case MPU6050_SCALE_250DPS:
+                Serial.println("250 dps");
+                break;
         }
 
-        // Set declination angle on your location and fix heading
-        // You can find your declination on: http://magnetic-declination.com/
-        // (+) Positive or (-) for negative
-        // For Bytom / Poland declination angle is 4'26E (positive)
-        // Formula: (deg + (min / 60.0)) / (180 / PI);
-        //Italy is 3.55
-        float declinationAngle = (3.55 + (26.0 / 60.0)) / (180 / PI);
-        compass.setDeclinationAngle(declinationAngle);
+        mpu6050LastReadMS = millis();
 
-        */
+        Serial.print(" * Gyroscope offsets: ");
+        Serial.print(mpu.getGyroOffsetX());
+        Serial.print(" / ");
+        Serial.print(mpu.getGyroOffsetY());
+        Serial.print(" / ");
+        Serial.println(mpu.getGyroOffsetZ());
+        Serial.println();
 
+        robot.lcdDisplay.setCursor(0, 1);
+        robot.lcdDisplay.print("Setup....");
         delay(500);
-        mpu.calcOffsets();
-
+        
         robot.lcdDisplay.clear();
         robot.lcdDisplay.print("Compass Setup ");
         robot.lcdDisplay.setCursor(0, 1);
@@ -69,30 +118,51 @@ void compassInit() {
     }
 }
 
-void resetCompassOffset() {
-    delay(500);
-    mpu.calcOffsets();
-}
-
-/* Calculates the compass heading as heading & degrees of the onboard compass */
+/**
+ *  Calculates the compass heading as heading & degrees of the onboard compass 
+ * */
 void readRobotCompassDegrees() {
-    mpu.update();
+   
+    long currenttMS = millis();
 
-    robot.compassHeadingDegrees = mpu.getAngleX();
-    if (robot.compassHeadingDegrees < 0) {
-        robot.compassHeadingDegrees = robot.compassHeadingDegrees + 360;
+    Vector normAccel = mpu.readNormalizeAccel();
+    Vector normGyro = mpu.readNormalizeGyro();
+
+    // Calculate Pitch & Roll
+    pitch = -(atan2(normAccel.XAxis, sqrt(normAccel.YAxis * normAccel.YAxis + normAccel.ZAxis * normAccel.ZAxis)) * 180.0) / M_PI;
+    roll = (atan2(normAccel.YAxis, normAccel.ZAxis) * 180.0) / M_PI;
+
+    //Ignore the gyro if our angular velocity does not meet our threshold
+    if (normGyro.ZAxis > 1 || normGyro.ZAxis < -1) {
+        normGyro.ZAxis /= (1000 / (currenttMS - mpu6050LastReadMS));  //è 1000/delay_da_ultima_lettura
+        yaw += normGyro.ZAxis;
     }
-    /*
-    Vector norm = compass.readRaw();
 
-    Vector mag = compass.readRaw();
-    compass.getHeadingDegrees();
-    robot.compassHeadingDegrees = mag.HeadingDegress;
+    //Keep our angle between 0-359 degrees
+    if (yaw < 0){
+        yaw += 360;
+    }else if (yaw > 359){
+        yaw -= 360;
+    }
+
+    mpu6050LastReadMS = currenttMS;
+
+    /* 
+    //log output
+    Serial.print("Pitch = ");
+    Serial.print(pitch);
+    Serial.print("\tRoll = ");
+    Serial.print(roll);
+    Serial.print("\tYaw = ");
+    Serial.print(yaw);
+    Serial.println();
     */
+
+    robot.compassHeadingDegrees = yaw;
+    
     Serial.print(F("Comp°:"));
     Serial.print(robot.compassHeadingDegrees);
     Serial.print("|");
-    //TODO serve veramente ? delay(5);
 }
 
 // Turns the Mower to the correct orientation for the optimum home wire track
@@ -151,9 +221,7 @@ void turnToCompassTarget(float compassTarget) {
     GYRO
     120°->230°
     */
-
     robot.lcdDisplay.clear();
-    robot.lcdDisplay.setCursor(0, 0);
     robot.lcdDisplay.setCursor(0, 1);
     robot.lcdDisplay.print("GYRO    ->    ");
     robot.lcdDisplay.setCursor(10, 1);
@@ -162,14 +230,13 @@ void turnToCompassTarget(float compassTarget) {
     float minTarget = compassTarget - 5;  //TODO rinomina in min e max
     float maxTarget = compassTarget + 5;
 
-    //todo >0 e <360
-
-    char cycleCount = 0;
-    char MAX_TURN_CYCLE = 80; //each cycle in 300ms
+    const long MAX_TURN_TIME_MS = 30000;  //each cycle in 300ms
     float compassDiff = 0;
     char turnSpeed = 0;
 
-    while (cycleCount < MAX_TURN_CYCLE  //max attempt
+    unsigned long endTime = millis() + MAX_TURN_TIME_MS;
+
+    while (millis() < endTime   //max attempt
            && (robot.compassHeadingDegrees < minTarget || robot.compassHeadingDegrees > maxTarget)) {
         readRobotCompassDegrees();
 
@@ -183,15 +250,14 @@ void turnToCompassTarget(float compassTarget) {
         Console.print(robot.compassHeadingDegrees);
         Console.print("|");
 
-        readRobotCompassDegrees();
         if (compassDiff < 0) {
             Console.print("Turn_right|");
             motorsSetPinsToTurnRight();
-            delay(100);
+            //delay(100); //TODO serviva
         } else {
             Console.print("Turn_left|");
             motorsSetPinsToTurnLeft();
-            delay(100);
+            //delay(100); //TODO serviva
         }
 
         if (compassDiff < 10) turnSpeed = 120;
@@ -199,16 +265,17 @@ void turnToCompassTarget(float compassTarget) {
         if (compassDiff < 50) turnSpeed = 80;
         if (compassDiff < 180) turnSpeed = 20;
 
-        readRobotCompassDegrees();
         motorsetTurnSpeed(turnSpeed);  // Sets the speed of the turning motion
-        delay(100);
-        cycleCount++;
+        delay(100); //TODO serve o no?
 
         Console.println(" ");
     }
 
-    if (cycleCount >= MAX_TURN_CYCLE) {
+    if (millis() > endTime ) {
         //robot can't turn
+        robot.turnOffMotorsRelay();
+        motorsStopWheelMotors();
+        motorsStopSpinBlades();
         robot.lcdDisplay.clear();
         robot.lcdDisplay.setCursor(0, 0);
         robot.lcdDisplay.print("GYRO ERROR");
@@ -249,7 +316,7 @@ void Calculate_Compass_Wheel_Compensation() {
         robot.pwmRight = PWM_MAX_SPEED_RH + (COMPASS_CORRECTION_POWER * Compass_Error);  // Multiply the difference by D to increase the power then subtract from the PWM
         if (robot.pwmRight < 0) robot.pwmRight = PWM_MAX_SPEED_RH - 50;
         robot.pwmLeft = PWM_MAX_SPEED_LH;  // Keep the Right wheel at full power calibrated to go straight
-    }else{
+    } else {
         Serial.print("Steer_Left|");
         robot.pwmRight = PWM_MAX_SPEED_RH;                                              // Keep the Left wheel at full power calibrated to go straight
         robot.pwmLeft = PWM_MAX_SPEED_LH - (COMPASS_CORRECTION_POWER * Compass_Error);  // Multiply the difference by D to increase the power then subtract from the PWM

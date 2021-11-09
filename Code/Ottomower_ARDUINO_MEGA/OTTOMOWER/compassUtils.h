@@ -1,5 +1,4 @@
 void compassInit();
-void resetCompassOffset();
 void readRobotCompassDegrees();
 void Compass_Turn_Mower_To_Home_Direction();
 void turnToCompassTarget(float compassTarget);
