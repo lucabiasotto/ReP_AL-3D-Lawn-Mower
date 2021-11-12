@@ -1,5 +1,3 @@
-#define Console Serial
-
 void robotMoveAroundTheGarden();
 void findWire();
 void robotReverseDirection();

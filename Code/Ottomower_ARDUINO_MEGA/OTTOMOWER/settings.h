@@ -34,7 +34,7 @@
 
 // Compass Settings
 #define COMPASS_ACTIVATE 1              // Turns on the Compass (needs to be 1 to activate further compass features)
-#define CYCLE_FOR_STABILEZE 5           // number of cycle to ignore when do compass compensation
+#define CYCLE_FOR_STABILEZE 10           // number of cycle to ignore when do compass compensation
 #define COMPASS_HEADING_HOLD_ENABLED 1  // Activates the compass heading hold function to keep the mower straight
 #define HOME_WIRE_COMPASS_HEADING 110   // robot.heading the Mower will search for the wire once the mowing is  completed.
 #define COMPASS_CORRECTION_POWER 2      // Magnification of heading to PWM - How strong the mower  corrects itself in Compass Mowing
@@ -48,7 +48,6 @@
 #define BATTERY_MAX 12.6              // Max battery volts in robot.volts. 3S = 12.6V
 #define BATTERY_MIN 3.5              // 11.0 alzare il limite quando dovrà tornare a casa // Lower Limit of battery charge before re-charge required.
 #define LOW_BATTERY_INSTANCES_CHG 14  // Instances of low battery detected before a re-charge is called..
-#define LOG_BATTERY_DATA 0            // Show the values recieved from the Nano / ModeMCU  in the serial monitor
 
 // Sonar Modules
 #define SONAR_1_ACTIVATE 1                   // Activate (1) Deactivate (0) Sonar 1

@@ -8,19 +8,6 @@
 void readVoltAmp() {
     //robot.rawValueAmp = analogRead(A1);
     robot.rawValueVolt = ADCMan.read(A2) * 4;  //analogRead(A2); TODO, perchè 4?
-    Serial.println(robot.rawValueVolt);        //todo debug log
-
-    if (LOG_BATTERY_DATA == 1) {
-        Serial.print("Amp:");
-        Serial.print(robot.rawValueAmp);
-        Serial.print("|");
-        Serial.print("Volt:");
-        Serial.print(robot.rawValueVolt);
-        Serial.print("|");
-        Serial.print("Rain:");
-        Serial.print(robot.rainDetected);
-        Serial.print("|");
-    }
 
     // Calculate robot.amps from NANO RX Data
     int mVperAmp = 185;
@@ -61,15 +48,6 @@ void readVoltAmp() {
     }
 }
 
-// checks to see if the mower is on the charging station
-void Check_if_Charging() {
-    //TODO sistema sto if
-    if (robot.charging == 4) {  // If the value recieved is equal to 1 or 0 as expected then print the value to the serial monitor
-        robot.chargeDetectedMEGA = 1;
-    } else {
-        robot.chargeDetectedMEGA = 0;  // If the value recieved is equal to 1 or 0 as expected then print the value to the serial monitor
-    }
-}
 
 void Check_if_Docked() {                  //TODO rename
     if (robot.chargeDetectedMEGA == 1) {  // if robot.amps are between this there is a charge detected.  robot.amps above 4 are discounted as a miscommunication
@@ -89,17 +67,6 @@ void Check_if_Docked() {                  //TODO rename
 }
 
 void Calculate_Volt_Amp_Charge() {
-    if (LOG_BATTERY_DATA == 1) {
-        Serial.print("Amp:");
-        Serial.print(robot.rawValueAmp);
-        Serial.print("|");
-        Serial.print("Volt:");
-        Serial.print(robot.rawValueVolt);
-        Serial.print("|");
-        Serial.print("Rain:");
-        Serial.print(robot.rainDetected);
-        Serial.print("|");
-    }
 
     // Calculate Amps from NANO RX Data
     int mVperAmp = 185;
@@ -133,9 +100,9 @@ void Calculate_Volt_Amp_Charge() {
     Serial.print(robot.volts);
     Serial.print(F("|"));
 
-    if (Amps < 0.4) robot.charging = 0;
-    if (Amps > 0.4) robot.charging = 4;
-    //Serial.print("Charging = ");
-    //Serial.print(Charging);
-    //Serial.print("|");
+    if (Amps < 0.4) {
+        robot.chargeDetectedMEGA = false;
+    }else  if (Amps > 0.4) {
+        robot.chargeDetectedMEGA = true;
+    }
 }

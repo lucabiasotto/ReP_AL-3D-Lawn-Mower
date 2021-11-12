@@ -337,13 +337,24 @@ void processCallback(Callbacks callback) {
             robot.lcdDisplay.setCursor(0, 1);
             robot.lcdDisplay.print("Degrees:");
             menuInteractionsCompleted = false;
-            
+
             while (menuInteractionsCompleted == false) {
                 // insert Test Code Here
                 readRobotCompassDegrees();
 
                 if (millis() - tmpTimer > 500) {
                     robot.lcdDisplay.setCursor(9, 1);
+
+                    if (robot.compassHeadingDegrees < 10) {
+                        robot.lcdDisplay.print("  ");
+                        robot.lcdDisplay.setCursor(11, 1);
+                    } else if (robot.compassHeadingDegrees < 100) {
+                        robot.lcdDisplay.print(" ");
+                        robot.lcdDisplay.setCursor(10, 1);
+                    }
+                    robot.lcdDisplay.print((int)robot.compassHeadingDegrees);
+
+                    delay(10);
                     robot.lcdDisplay.print((int)robot.compassHeadingDegrees);
                     tmpTimer = millis();
                 }

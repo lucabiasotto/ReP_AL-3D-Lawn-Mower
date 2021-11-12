@@ -1,5 +1,4 @@
 #include <Arduino.h>
-#define Console Serial
 
 void motorsSetFullSpeed();
 void motorsSetPinsToGoForwards();

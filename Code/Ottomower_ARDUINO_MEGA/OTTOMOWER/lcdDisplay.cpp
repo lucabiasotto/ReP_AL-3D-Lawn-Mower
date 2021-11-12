@@ -148,7 +148,7 @@ void lcdUpdateScreen() {
             robot.lcdDisplay.write(robot.CHAR_FORWARD);
             robot.lcdDisplay.setCursor(2, 1);
             robot.lcdDisplay.write(robot.CHAR_FORWARD);
-        } else {
+        } else if (COMPASS_HEADING_HOLD_ENABLED == 1 || COMPASS_ACTIVATE == 1) {
             //compass stabilization
             robot.lcdDisplay.setCursor(0, 1);
             if (robot.pwmRight > robot.pwmLeft) {
@@ -171,7 +171,7 @@ void lcdUpdateScreen() {
             }
         }
 
-        if(robot.searchingWire){
+        if (robot.searchingWire) {
             //is searching wire, pring ->WIRE
             robot.lcdDisplay.setCursor(12, 1);
             robot.lcdDisplay.print(TRS_WIRE);

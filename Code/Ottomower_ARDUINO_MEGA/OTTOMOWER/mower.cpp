@@ -20,16 +20,16 @@ void Mower::setup() {
     //Open Serial port 1 for the nano communication
     //2021-10-23 disattivato nano Serial1.begin(1200);
 
-    Console.println(" ");
-    Console.println(" ");
-    Console.print("Ottomower Robot :");
-    Console.println(Version);
-    Console.println("===================");
-    Console.println("");
-    Console.println("Starting Mower Setup");
-    Console.println("===================");
-    Console.print("Use cable: ");
-    Console.println(robot.isPerimeterWireEnable);
+    Serial.println(" ");
+    Serial.println(" ");
+    Serial.print("Ottomower Robot :");
+    Serial.println(Version);
+    Serial.println("===================");
+    Serial.println("");
+    Serial.println("Starting Mower Setup");
+    Serial.println("===================");
+    Serial.print("Use cable: ");
+    Serial.println(robot.isPerimeterWireEnable);
 
     Prepare_Mower_from_Settings();
     lcdInit();
@@ -41,6 +41,7 @@ void Mower::setup() {
 }
 
 void Mower::loop() {
+    Serial.println("-->");
     readVoltAmp();  //update volt and amp info
 
     if (robot.mowerRunning == 1) {
@@ -130,44 +131,74 @@ void Mower::loop() {
         }
     }
 
-    Serial.println();
+    Serial.println("|");
 }
 
 void Mower::logMowerStatus() {
-    if (robot.mowerDocked == 1) Serial.print("Docked:1|");
-    if (robot.mowerParked == 1) Serial.print("Parked:1|");
-    if (robot.mowerRunning == 1) Serial.print("Running:1|");
-    if (robot.mowerParkedLowBatt == 1) Serial.print("Park_Low_Batt:1|");
-    if (robot.mowerError == 1) Serial.print("Mower Error:1|");
-    if (RAIN_SENSOR_INSTALLED == 1) {
-        Serial.print("Rain:");
-        Serial.print(robot.rainDetected);
-        Serial.print("|");
-
-        Serial.print("RainHit:");
-        Serial.print(robot.rainHitDetected);
-        Serial.print("|");
+    if (robot.mowerDocked == 1) {
+        Serial.print("Docked:1|");
     }
-
-    Serial.print(F("V:"));
-    Serial.print(robot.volts);
-    Serial.print(F("|"));
-
-    Serial.print("VLow:");
-    Serial.print(robot.lowBatteryDetectedCount);
-    Serial.print("|");
-
-    Serial.print(F("A:"));
-    Serial.print(robot.amps);
-    Serial.print(F("|"));
+    if (robot.mowerParked == 1) {
+        Serial.print("Parked:1|");
+    }
+    if (robot.mowerRunning == 1) {
+        Serial.print("Running:1|");
+    }
+    if (robot.mowerParkedLowBatt == 1) {
+        Serial.print("Park_Low_Batt:1|");
+    }
+    if (robot.mowerError == 1) {
+        Serial.print("Mower Error:1|");
+    }
 
     Serial.print(F("Loop:"));
     Serial.print(robot.loopCycleMowing);
-    Serial.print("|");
 
-    Serial.print("Charging:");
-    Serial.print(robot.charging);
-    Serial.print("|");
+    Serial.print(F("|V:"));
+    Serial.print(robot.volts);
+
+    Serial.print("|VLow:");
+    Serial.print(robot.lowBatteryDetectedCount);
+
+    Serial.print(F("|A:"));
+    Serial.print(robot.amps);
+
+    if (RAIN_SENSOR_INSTALLED == 1) {
+        Serial.print("|Rain:");
+        Serial.print(robot.rainDetected);
+        Serial.print("|RainHit:");
+        Serial.print(robot.rainHitDetected);
+    }
+
+    if (SONAR_1_ACTIVATE == 1) {
+        //CENTER sonar
+        Serial.print(F("|Sonar_1:"));
+        Serial.print(robot.distance1);
+        Serial.print(F("cm-TotalHit:"));
+        Serial.print(robot.SonarHit1Total);
+    }
+
+    if (SONAR_2_ACTIVATE == 1) {
+        //CENTER sonar
+        Serial.print(F("|Sonar_2:"));
+        Serial.print(robot.distance2);
+        Serial.print(F("cm-TotalHit:"));
+        Serial.print(robot.SonarHit2Total);
+    }
+
+    if (SONAR_3_ACTIVATE == 1) {
+        //CENTER sonar
+        Serial.print(F("|Sonar_3:"));
+        Serial.print(robot.distance3);
+        Serial.print(F("cm-TotalHit:"));
+        Serial.print(robot.SonarHit3Total);
+    }
+
+    if (COMPASS_ACTIVATE == 1) {
+        Serial.print(F("|Comp°:"));
+        Serial.print(robot.compassHeadingDegrees);
+        Serial.print("|");
+    }
 
     if (robot.mowerDocked == 1) {
         //TODO logga qua lo schedulatore
@@ -175,7 +206,7 @@ void Mower::logMowerStatus() {
 }
 
 void Mower::Setup_Relays() {
-    Console.println("Setup Relays");
+    Serial.println("Setup Relays");
     pinMode(RELAY_MOTORS_PIN, OUTPUT);
     delay(5);
     robot.turnOffMotorsRelay();
@@ -214,7 +245,7 @@ void Mower::Setup_Motor_Pins() {
  */
 void Mower::turnOnMotorsRelay() {
     Serial.print("Relay:ON|");
-    digitalWrite(RELAY_MOTORS_PIN, LOW);  
+    digitalWrite(RELAY_MOTORS_PIN, LOW);
 }
 
 /**
@@ -222,12 +253,12 @@ void Mower::turnOnMotorsRelay() {
  */
 void Mower::turnOffMotorsRelay() {
     Serial.print("Relay:Off|");
-    digitalWrite(RELAY_MOTORS_PIN, HIGH); 
+    digitalWrite(RELAY_MOTORS_PIN, HIGH);
 }
 
 void Mower::Setup_Membrane_Buttons() {
     Serial.println("Setup Membrane Keys");
-    pinMode(SWITCH_OK_KEY_PIN, INPUT_PULLUP);  // set pin as input
+    pinMode(SWITCH_OK_KEY_PIN, INPUT_PULLUP);     // set pin as input
     pinMode(SWITCH_PLUS_KEY_PIN, INPUT_PULLUP);   // set pin as input
     pinMode(SWITCH_MINUS_KEY_PIN, INPUT_PULLUP);  // set pin as input
     pinMode(SWITCH_STOP_KEY_PIN, INPUT_PULLUP);   // set pin as input

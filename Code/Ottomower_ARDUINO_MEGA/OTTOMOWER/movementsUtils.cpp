@@ -31,27 +31,29 @@ void robotMoveAroundTheGarden() {
 
     if (robot.loopCycleMowing < CYCLE_FOR_STABILEZE || COMPASS_HEADING_HOLD_ENABLED == 0 || COMPASS_ACTIVATE == 0) {
         //da al robot 5 cicli per stabilizzarsi
-        Console.print(F("Compass-Lock:OFF|"));
+        Serial.print(F("Compass-Lock:OFF|"));
         motorsSetFullSpeed();
     } else if (robot.loopCycleMowing == CYCLE_FOR_STABILEZE) {
         //al 5 ciclo si salva i gradi da mantenere
         robot.headingLock = robot.compassHeadingDegrees;  //  use the current heading as the lock
-    } else if (robot.loopCycleMowing > CYCLE_FOR_STABILEZE) {
+    } else if (robot.loopCycleMowing > CYCLE_FOR_STABILEZE && COMPASS_HEADING_HOLD_ENABLED == 1) {
         //dal 5 ciclo in poi cerca di mantenere i gradi
         // if the Mower is tracking using the compass steer here
-        Calculate_Compass_Wheel_Compensation();
+        Serial.print(F("Compass-Lock:ON|"));
+        keepDirectionWithCompassWheelCompensation();
         motorsSetDynamicSteeringSpeed();  // Removes the full speed function if the mower is trying to hold to the compass heading.
-        Console.print(F("Compass-Lock:ON|"));
     }
 
     if (robot.loopCycleMowing > MAX_CYCLES) {
         // MAX_CYCLES the max length for my garden. Adjust accordingly
-        Console.println("");
-        Console.println("Loop Cycle at Max");
-        Console.println("");
+        Serial.println("");
+        Serial.println("Loop Cycle at Max");
+        Serial.println("");
         robotReverseDirection();    // Turn around the mower
         robot.loopCycleMowing = 0;  // Restes the loop cycle to start again.
     }
+
+    
 }
 
 /**
@@ -75,10 +77,10 @@ void robotReverseDirection() {
         motorsStopWheelMotors();
         delay(500);
 
-        Console.println("");
-        Console.print("Compas_Leg:");
-        Console.print(robot.endCycleCompassDirection);
-        Console.print("|Turning 90°|");
+        Serial.println("");
+        Serial.print("Compas_Leg:");
+        Serial.print(robot.endCycleCompassDirection);
+        Serial.print("|Turning 90°|");
 
         //TODO valutare se fare il codice di seguito 2 votle per fare 2 turnToCompassTarget
 
@@ -118,7 +120,7 @@ void robotReverseDirection() {
  * The logic change if mover is cutting o leaving base
  */
 void findWire() {
-    Console.println(F("Find Wire Track Function Activated"));
+    Serial.println(F("Find Wire Track Function Activated"));
     robot.searchingWire = true;
     motorsStopSpinBlades();
     motorsStopWheelMotors();  // Stop all wheel motion
@@ -150,7 +152,7 @@ void findWire() {
                 avoidSonarObstacle();  //TODO prima lo faceva solo se era dentro al perimetro....
                 cycle = 0;
             }
-            Console.println("|");
+            Serial.println("|");
         }  //TODO che sia il caso di mettere un limite?
         robot.wireFound = 1;
     } else {
@@ -163,7 +165,7 @@ void findWire() {
             //stop when enter perimter
             readWireSensor();  //check inside/outside perimeter and update inside
             logBoundaryWireStatus();
-            Console.println("|");
+            Serial.println("|");
         }
 
         if (robot.inside) {
@@ -171,9 +173,9 @@ void findWire() {
         }
     }
 
-    Console.println("|");
-    Console.print("Wire found:");
-    Console.println(robot.wireFound);
+    Serial.println("|");
+    Serial.print("Wire found:");
+    Serial.println(robot.wireFound);
 
     motorsStopWheelMotors();
     delay(1000);
@@ -192,10 +194,10 @@ void findWire() {
             if (CW_TRACKING_SEARCHING_CHARGE == 1) {
                 // Track perimeter wire in a Clockwise Direction to the charging station
                 motorsSetPinsToTurnRight();
-                Console.println(F("CW Tracking to Charger"));
+                Serial.println(F("CW Tracking to Charger"));
             } else {
                 motorsSetPinsToTurnLeft();
-                Console.println(F("CCW Tracking toCharger"));
+                Serial.println(F("CCW Tracking toCharger"));
             }
         } else if (robot.mowerTrackToExit == 1) {
             //mower il leaving home..
@@ -203,10 +205,10 @@ void findWire() {
             if (CW_TRACKING_EXITING_CHARGE == 1) {
                 // Track perimeter wire in a Clockwise Direction to the charging station
                 motorsSetPinsToTurnRight();
-                Console.println(F("CW Tracking to Exit"));
+                Serial.println(F("CW Tracking to Exit"));
             } else {
                 motorsSetPinsToTurnLeft();
-                Console.println(F("CCW Tracking to Exit"));
+                Serial.println(F("CCW Tracking to Exit"));
             }
         }
 
@@ -451,8 +453,8 @@ void Manouver_Outside_Wire_ReFind_Function() {
         delay(500);
         robot.distanceBlockage = getSonarDistance(trigPin1, echoPin1, 1);
         delay(500);
-        Console.print("Distance measured from sonar :");
-        Console.println(robot.distanceBlockage);
+        Serial.print("Distance measured from sonar :");
+        Serial.println(robot.distanceBlockage);
 
         // if the sonar is measuring an opening as the distance is greater than 300cm then move forward in that direction.
         if (robot.distanceBlockage > 400) {
@@ -486,7 +488,7 @@ void Manouver_Outside_Wire_ReFind_Function() {
         logBoundaryWireStatus();
     }
 
-    Console.println("Mower is now back inside the wire......?");
+    Serial.println("Mower is now back inside the wire......?");
     robot.lcdDisplay.clear();
     robot.lcdDisplay.print("Mower now");
     robot.lcdDisplay.setCursor(0, 1);

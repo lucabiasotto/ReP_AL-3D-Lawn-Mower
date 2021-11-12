@@ -79,12 +79,12 @@ void Perimeter::setPins(byte idx0Pin, byte idx1Pin){
  // ADCMan.setCapture(idx0Pin, adcSampleCount*2, true); 
  // ADCMan.setCapture(idx1Pin, adcSampleCount*2, true); 
   
-  Console.print(F("matchSignal size="));
-  Console.println(sizeof sigcode_norm);  
-  Console.print(F("subSample="));  
-  Console.println((int)subSample);    
-  Console.print(F("capture size="));
-  Console.println(ADCMan.getCaptureSize(idx0Pin));  
+  Serial.print(F("matchSignal size="));
+  Serial.println(sizeof sigcode_norm);  
+  Serial.print(F("subSample="));  
+  Serial.println((int)subSample);    
+  Serial.print(F("capture size="));
+  Serial.println(ADCMan.getCaptureSize(idx0Pin));  
 }
 
 void Perimeter::speedTest(){
@@ -94,8 +94,8 @@ void Perimeter::speedTest(){
     matchedFilter(0);
     loops++;
   }
-  Console.print(F("speedTest="));
-  Console.println(loops);
+  Serial.print(F("speedTest="));
+  Serial.println(loops);
 }
 
 const int8_t* Perimeter::getRawSignalSample(byte idx) {
@@ -124,10 +124,10 @@ void Perimeter::printADCMinMax(int8_t *samples){
     vmax = max(vmax, samples[i]);
     vmin = min(vmin, samples[i]);
   }
-  Console.print(F("perimter min,max="));
-  Console.print((int)vmin);
-  Console.print(F(","));
-  Console.println((int)vmax);  
+  Serial.print(F("perimter min,max="));
+  Serial.print((int)vmin);
+  Serial.print(F(","));
+  Serial.println((int)vmax);  
 }
 
 // perimeter V2 uses a digital matched filter

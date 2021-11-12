@@ -9,7 +9,6 @@
 #include "settings.h"
 #include "translations.h"
 
-#define Console Serial
 
 // Perimeter Wire Pins
 #define pinPerimeterLeft A5   // perimeter sensor pin
@@ -95,7 +94,6 @@ class Mower {
 
     //Battery variable
     byte lowBatteryDetectedCount = 0;
-    char charging;
 
     //Mow Calendar Variables
     byte alarmTimedMowHour;    // Mowing Hour Number 3

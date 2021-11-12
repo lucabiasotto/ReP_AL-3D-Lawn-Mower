@@ -1,5 +1,6 @@
 #include "compassUtils.h"
 
+#include <Arduino.h>
 //#include "MPU6050_light.h"
 //MPU6050 mpu(Wire);
 //#include "DFRobot_QMC5883.h"
@@ -20,11 +21,17 @@ static unsigned long mpu6050LastReadMS = 0;
 //DOCS: https://github.com/ElectronicCats/mpu6050/blob/master/examples/MPU6050_DMP6/MPU6050_DMP6.ino
 //DOCS2: https://www.giuseppecaccavale.it/arduino/roll-pitch-e-yaw-con-mpu6050-arduino/
 
+unsigned int resetCount __attribute__((section(".noinit")));
+
+/**
+   Function for reset arduino
+*/
+void (*reset)(void) = 0;
+
 /**
  * Setup compass
  */
 void compassInit() {
-
     if (COMPASS_ACTIVATE == 1) {
         robot.lcdDisplay.clear();
         robot.lcdDisplay.print("Compass  ");
@@ -103,10 +110,25 @@ void compassInit() {
         Serial.println(mpu.getGyroOffsetZ());
         Serial.println();
 
-        robot.lcdDisplay.setCursor(0, 1);
-        robot.lcdDisplay.print("Setup....");
-        delay(500);
-        
+        //reset the mower when powered because some time MPU6050 some time does not work
+        if (resetCount == 1) {
+            // 1 is the magic number used to flag when i'm after a reset
+            Serial.println("AFTER RESET");
+            robot.lcdDisplay.setCursor(0, 1);
+            robot.lcdDisplay.print("Setup....");
+            delay(500);
+        } else {
+            //i need to do a reset because sometimes the MPU6050 not works at first boot
+            Serial.println("FIRST POWER UP");
+            resetCount = 1;
+
+            robot.lcdDisplay.setCursor(0, 1);
+            robot.lcdDisplay.print("Reboot....");
+            delay(500);
+
+            reset();
+        }
+
         robot.lcdDisplay.clear();
         robot.lcdDisplay.print("Compass Setup ");
         robot.lcdDisplay.setCursor(0, 1);
@@ -122,8 +144,12 @@ void compassInit() {
  *  Calculates the compass heading as heading & degrees of the onboard compass 
  * */
 void readRobotCompassDegrees() {
-   
     long currenttMS = millis();
+
+    if (currenttMS - mpu6050LastReadMS == 0) {
+        //to infinity and beyond
+        return;
+    }
 
     Vector normAccel = mpu.readNormalizeAccel();
     Vector normGyro = mpu.readNormalizeGyro();
@@ -139,30 +165,15 @@ void readRobotCompassDegrees() {
     }
 
     //Keep our angle between 0-359 degrees
-    if (yaw < 0){
+    if (yaw < 0) {
         yaw += 360;
-    }else if (yaw > 359){
+    } else if (yaw > 359) {
         yaw -= 360;
     }
 
     mpu6050LastReadMS = currenttMS;
 
-    /* 
-    //log output
-    Serial.print("Pitch = ");
-    Serial.print(pitch);
-    Serial.print("\tRoll = ");
-    Serial.print(roll);
-    Serial.print("\tYaw = ");
-    Serial.print(yaw);
-    Serial.println();
-    */
-
-    robot.compassHeadingDegrees = yaw;
-    
-    Serial.print(F("Comp°:"));
-    Serial.print(robot.compassHeadingDegrees);
-    Serial.print("|");
+    robot.compassHeadingDegrees = 360 - yaw;  //clockside direction
 }
 
 // Turns the Mower to the correct orientation for the optimum home wire track
@@ -236,26 +247,34 @@ void turnToCompassTarget(float compassTarget) {
 
     unsigned long endTime = millis() + MAX_TURN_TIME_MS;
 
-    while (millis() < endTime   //max attempt
+    while (millis() < endTime  //max attempt
            && (robot.compassHeadingDegrees < minTarget || robot.compassHeadingDegrees > maxTarget)) {
         readRobotCompassDegrees();
 
         robot.lcdDisplay.setCursor(5, 1);
+        if (robot.compassHeadingDegrees < 10) {
+            robot.lcdDisplay.print("  ");
+            robot.lcdDisplay.setCursor(7, 1);
+        } else if (robot.compassHeadingDegrees < 100) {
+            robot.lcdDisplay.print(" ");
+            robot.lcdDisplay.setCursor(6, 1);
+        }
         robot.lcdDisplay.print((int)robot.compassHeadingDegrees);
+
         compassDiff = robot.compassHeadingDegrees - compassTarget;
 
-        Console.print("|Compass_Target:");
-        Console.print(compassTarget);
-        Console.print("|Compass_Current:");
-        Console.print(robot.compassHeadingDegrees);
-        Console.print("|");
+        Serial.print("|Compass_Target:");
+        Serial.print(compassTarget);
+        Serial.print("|Compass_Current:");
+        Serial.print(robot.compassHeadingDegrees);
+        Serial.print("|");
 
         if (compassDiff < 0) {
-            Console.print("Turn_right|");
+            Serial.print("Turn_right|");
             motorsSetPinsToTurnRight();
             //delay(100); //TODO serviva
         } else {
-            Console.print("Turn_left|");
+            Serial.print("Turn_left|");
             motorsSetPinsToTurnLeft();
             //delay(100); //TODO serviva
         }
@@ -266,12 +285,12 @@ void turnToCompassTarget(float compassTarget) {
         if (compassDiff < 180) turnSpeed = 20;
 
         motorsetTurnSpeed(turnSpeed);  // Sets the speed of the turning motion
-        delay(100); //TODO serve o no?
+        delay(100);                    //TODO serve o no?
 
-        Console.println(" ");
+        Serial.println(" ");
     }
 
-    if (millis() > endTime ) {
+    if (millis() > endTime) {
         //robot can't turn
         robot.turnOffMotorsRelay();
         motorsStopWheelMotors();
@@ -300,26 +319,29 @@ void Display_Compass_Current_Heading_on_LCD() {
     delay(10);
 }
 
-void Calculate_Compass_Wheel_Compensation() {
-    float Compass_Error = robot.compassHeadingDegrees - robot.headingLock;  // Calculates the error in compass heading from the saved lock heading
+void keepDirectionWithCompassWheelCompensation() {
+    float compassDiff = robot.compassHeadingDegrees - robot.headingLock;  // Calculates the error in compass heading from the saved lock heading
 
-    if (Compass_Error > 180 || Compass_Error < -180) {
-        Compass_Error = Compass_Error * -1;
+    if (compassDiff > 180 || compassDiff < -180) {
+        compassDiff = compassDiff * -1;
     }
 
-    Serial.print(F("C_Err:"));
-    Serial.print(Compass_Error);
-    Serial.print("|");
+    Serial.print(F("Compass_diff:"));
+    Serial.print(compassDiff);
 
-    if (Compass_Error < 0) {  // Steer left
-        Serial.print("Steer_Right|");
-        robot.pwmRight = PWM_MAX_SPEED_RH + (COMPASS_CORRECTION_POWER * Compass_Error);  // Multiply the difference by D to increase the power then subtract from the PWM
-        if (robot.pwmRight < 0) robot.pwmRight = PWM_MAX_SPEED_RH - 50;
+    if (compassDiff < 0) {  // Steer left
+        Serial.print("|Steer_Right|");
+        robot.pwmRight = PWM_MAX_SPEED_RH + (COMPASS_CORRECTION_POWER * compassDiff);  // Multiply the difference by D to increase the power then subtract from the PWM
+        if (robot.pwmRight < 0) {
+            robot.pwmRight = 0;
+        }
         robot.pwmLeft = PWM_MAX_SPEED_LH;  // Keep the Right wheel at full power calibrated to go straight
     } else {
-        Serial.print("Steer_Left|");
-        robot.pwmRight = PWM_MAX_SPEED_RH;                                              // Keep the Left wheel at full power calibrated to go straight
-        robot.pwmLeft = PWM_MAX_SPEED_LH - (COMPASS_CORRECTION_POWER * Compass_Error);  // Multiply the difference by D to increase the power then subtract from the PWM
-        if (robot.pwmLeft < 0) robot.pwmLeft = PWM_MAX_SPEED_LH - 50;
+        Serial.print("|Steer_Left|");
+        robot.pwmRight = PWM_MAX_SPEED_RH;                                            // Keep the Left wheel at full power calibrated to go straight
+        robot.pwmLeft = PWM_MAX_SPEED_LH - (COMPASS_CORRECTION_POWER * compassDiff);  // Multiply the difference by D to increase the power then subtract from the PWM
+        if (robot.pwmLeft < 0) {
+            robot.pwmLeft = 0;
+        }
     }
 }

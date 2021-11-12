@@ -183,7 +183,7 @@ void followingWireToDock() {
 
     motorsStopSpinBlades();
     //TODO ?? Docked_Hits = 0;
-    Check_if_Charging();  // Checks if an amperage is detected on the charge wire
+    //TODO lo fa il read volt amp Check_if_Charging();  // Checks if an amperage is detected on the charge wire
     Check_if_Docked();
 
     Serial.println(F(" Tracking the wire to the Garage: "));  // Prints the PID values used.
@@ -286,7 +286,6 @@ void followingWireToDock() {
             Serial.print(F(" : robot.magError="));
             Serial.print(robot.magError);
             readVoltAmp(); //perchè?? TODO
-            Check_if_Charging();
             Check_if_Docked();
             Dock_Cycles = Dock_Cycles + 1;
             if ((Dock_Cycles % 2) == 0) {
@@ -387,7 +386,6 @@ void followingWireToDock() {
             Serial.print(F(" : robot.magError="));
             Serial.print(robot.magError);
             readVoltAmp(); //TODO perchè?
-            Check_if_Charging();
             Check_if_Docked();
             Dock_Cycles = Dock_Cycles + 1;
 

@@ -102,7 +102,7 @@ void ADCManager::setCapture(byte pin, byte samplecount, boolean autoCalibrateOfs
 }
 
 void ADCManager::calibrate(){
-  Console.println("ADC calibration...");
+  Serial.println("ADC calibration...");
   for (int ch=0; ch < CHANNELS; ch++){        
     ofs[ch] = 0;    
     if (autoCalibrate[ch]){
@@ -131,41 +131,41 @@ void ADCManager::calibrateOfs(byte pin){
   int16_t center = ADCMin[ch] + (ADCMax[ch] - ADCMin[ch]) / 2.0;
   ofs[ch] = center;   
 
-  Console.print(F("ADC calibration ch"));
-  Console.print(ch);
-  Console.print(F("="));
-  Console.println(ofs[ch]);
+  Serial.print(F("ADC calibration ch"));
+  Serial.print(ch);
+  Serial.print(F("="));
+  Serial.println(ofs[ch]);
 }
 
 void ADCManager::printCalib(){
-  Console.println(F("---ADC calib---"));  
-  Console.print(F("ADC sampleRate="));
+  Serial.println(F("---ADC calib---"));  
+  Serial.print(F("ADC sampleRate="));
   switch (sampleRate){
-    case SRATE_38462: Console.println(F("38462")); break;
-    case SRATE_19231: Console.println(F("19231")); break;
-    case SRATE_9615 : Console.println(F("9615")); break;
+    case SRATE_38462: Serial.println(F("38462")); break;
+    case SRATE_19231: Serial.println(F("19231")); break;
+    case SRATE_9615 : Serial.println(F("9615")); break;
   }    
   for (int ch=0; ch < CHANNELS; ch++){
-    Console.print(F("AD"));
-    Console.print(ch);
-    Console.print(F("\t"));    
-    Console.print(F("min="));    
-    Console.print(ADCMin[ch]);
-    Console.print(F("\t"));    
-    Console.print(F("max="));    
-    Console.print(ADCMax[ch]);    
-    Console.print(F("\t"));    
-    Console.print(F("diff="));        
-    Console.print(ADCMax[ch]-ADCMin[ch]);    
-    Console.print(F("\t"));    
-    Console.print(F("ofs="));    
-    Console.println(ofs[ch]);
+    Serial.print(F("AD"));
+    Serial.print(ch);
+    Serial.print(F("\t"));    
+    Serial.print(F("min="));    
+    Serial.print(ADCMin[ch]);
+    Serial.print(F("\t"));    
+    Serial.print(F("max="));    
+    Serial.print(ADCMax[ch]);    
+    Serial.print(F("\t"));    
+    Serial.print(F("diff="));        
+    Serial.print(ADCMax[ch]-ADCMin[ch]);    
+    Serial.print(F("\t"));    
+    Serial.print(F("ofs="));    
+    Serial.println(ofs[ch]);
   }
 }
 
 void ADCManager::startADC(int sampleCount){  
-//  Console.print("startADC ch");
-//  Console.println(channel);
+//  Serial.print("startADC ch");
+//  Serial.println(channel);
 #ifdef __AVR__
   // http://www.atmel.com/images/doc2549.pdf
   /*  REFS0 : VCC use as a ref, IR_AUDIO : channel selection, ADEN : ADC Enable, ADSC : ADC Start, ADATE : ADC Auto Trigger Enable, ADIE : ADC Interrupt Enable,  ADPS : ADC Prescaler  */
@@ -199,8 +199,8 @@ void ADCManager::startADC(int sampleCount){
 }
   
 void ADCManager::startCapture(int sampleCount){
-  //Console.print("starting capture ch");
-  //Console.println(channel);
+  //Serial.print("starting capture ch");
+  //Serial.println(channel);
   position = 0;
   busy=true;
   startADC(sampleCount);  
@@ -226,8 +226,8 @@ void ADC_Handler(void){
 }
 
 void ADCManager::stopCapture(){  
-  //Console.print("stopping capture ch");
-  //Console.println(channel);    
+  //Serial.print("stopping capture ch");
+  //Serial.println(channel);    
 #ifdef __AVR__  
   ADCSRA &= ~_BV(ADEN);
 #else  
@@ -253,8 +253,8 @@ void ADCManager::postProcess(){
 
 void ADCManager::run(){
   if (busy) {
-    //Console.print("busy pos=");
-    //Console.println(position);
+    //Serial.print("busy pos=");
+    //Serial.println(position);
     return;
   }  
   if (position != 0){
@@ -349,11 +349,11 @@ boolean ADCManager::loadCalib(){
   int addr = ADDR;
   eeread(addr, magic);
   if (magic != MAGIC) {
-    Console.println(F("ADCMan error: no calib data"));
+    Serial.println(F("ADCMan error: no calib data"));
     return false;   
   }
   calibrationAvail = true;
-  Console.println(F("ADCMan: found calib data"));
+  Serial.println(F("ADCMan: found calib data"));
   loadSaveCalib(true);
   return true;
 }

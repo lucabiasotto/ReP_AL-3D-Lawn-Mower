@@ -1,5 +1,4 @@
 #include "sonar.h"
-
 #include "lcdDisplay.h"
 #include "robot.h"
 #include "settings.h"
@@ -57,21 +56,10 @@ int getSonarDistance(int trigPinX, int echoPinX, int sonarNumber) {
     //distance is then set to 999cm so the missed ping is not seen as an object detected.
     if (distance == 0) {
         distance = 999;
-        Serial.print(F("Sonar"));
-        Serial.print(sonarNumber);
-        Serial.print(F(":FAIL"));
-    } else {
-        //Prints the Sonar letter and distance measured on the serial Monitor
-        Serial.print(F("Sonar"));
-        Serial.print(sonarNumber);
-        Serial.print(F(":"));
-        Serial.print(distance);
-        Serial.print(F("cm|TotalHit:"));
     }
 
     //If sonar distance is less than maximum distance then an object is registered to avoid
     if (distance <= SONAR_MAX_DISTANCE) {
-        
 
         if (sonarNumber == 1) {
             robot.lcdDisplay.setCursor(1, 0);
@@ -92,13 +80,12 @@ int getSonarDistance(int trigPinX, int echoPinX, int sonarNumber) {
         delay(10);  //TODO serve?
 
         if (robot.SonarHit1Total >= SONAR_MAX_HIT || robot.SonarHit2Total >= SONAR_MAX_HIT || robot.SonarHit3Total >= SONAR_MAX_HIT) {
-            Serial.println("|");
-            Serial.println("Sonar Hit Detected");
+            
+            Serial.println("-->Sonar Hit Detected");
         }
+
     } else {
         // If sonar distance is greater than maximum distance then no object is registered to avoid
-
-        
 
         if (sonarNumber == 1) {
             robot.lcdDisplay.setCursor(1, 0);
@@ -119,6 +106,8 @@ int getSonarDistance(int trigPinX, int echoPinX, int sonarNumber) {
         robot.lcdDisplay.print("_"); ////Prints that the path of Sonar _ is open.
         delay(10); //TODO serve?
     }
+
+    Serial.println("|");
 
     return distance;
 }

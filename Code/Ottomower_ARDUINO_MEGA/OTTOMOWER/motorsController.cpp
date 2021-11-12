@@ -7,7 +7,7 @@
 void motorsSetFullSpeed() {
     analogWrite(ENAPin, PWM_MAX_SPEED_RH);  // Speed = 0-255  (255 is max speed). Speed is set in the settings
     analogWrite(ENBPin, PWM_MAX_SPEED_LH);  // Anaolgwirte sends PWM signals Speed = 0-255  (255 is max speed)
-    Console.print(F("Wheel:FULL|"));
+    Serial.print(F("Wheel:FULL|"));
 }
 
 /**
@@ -31,7 +31,7 @@ void motorsStopWheelMotors() {
     digitalWrite(IN3Pin, LOW);
     digitalWrite(IN4Pin, LOW);
 
-    Console.print(F("Wheel:0FF|"));
+    Serial.print(F("Wheel:0FF|"));
 }
 
 /**
@@ -42,7 +42,7 @@ void motorsSetPinsToGoForwards() {   // Motor Bridge pins are set for both motor
     digitalWrite(IN2Pin, HIGH);
     digitalWrite(IN3Pin, LOW);
     digitalWrite(IN4Pin, HIGH);
-    Console.print(F("Wheel:For|"));
+    Serial.print(F("Wheel:For|"));
 }
 
 /**
@@ -53,7 +53,7 @@ void motorsSetPinsToGoBackwards() {   // Motor Bridge pins are set for both moto
     digitalWrite(IN2Pin, LOW);
     digitalWrite(IN3Pin, HIGH);  // Motor 2
     digitalWrite(IN4Pin, LOW);
-    Console.print(F("Wheel:Rev|"));
+    Serial.print(F("Wheel:Rev|"));
     delay(20);
 }
 
@@ -66,7 +66,7 @@ void motorsSetPinsToTurnLeft() {
     digitalWrite(IN2Pin, HIGH);
     digitalWrite(IN3Pin, HIGH);  // Motor 2
     digitalWrite(IN4Pin, LOW);
-    Console.print(F("Wheel:TL_|"));
+    Serial.print(F("Wheel:TL_|"));
 }
 
 /**
@@ -77,7 +77,7 @@ void motorsSetPinsToTurnRight() {     // Pins are set so that Motors drive in op
     digitalWrite(IN2Pin, LOW);
     digitalWrite(IN3Pin, LOW);  //Motor 2
     digitalWrite(IN4Pin, HIGH);
-    Console.print(F("Wheel:R|"));
+    Serial.print(F("Wheel:R|"));
 }
 
 /**
@@ -92,7 +92,7 @@ void motorsActivateSpinBlades() {
         delay(20);
         analogWrite(RPWM, 255);  //TODO SERVE ANCORA?
         delay(20);
-        Console.print("Blades:ON_|");
+        Serial.print("Blades:ON_|");
     } else {
       //Blade not enable
     }
@@ -106,7 +106,7 @@ void motorsStopSpinBlades() {
     digitalWrite(R_EN, LOW);
     digitalWrite(L_EN, LOW);
     delay(20);
-    Console.print("Blades:0FF|");
+    Serial.print("Blades:0FF|");
 }
 
 /**
@@ -116,10 +116,10 @@ void motorsStopSpinBlades() {
 void motorsSetDynamicSteeringSpeed() {
     analogWrite(ENAPin, robot.pwmRight);  // ENA low = Right Swerve   ENB low = Left Swerve
     analogWrite(ENBPin, robot.pwmLeft);
-    Console.print("PWM_R:");
-    Console.print(robot.pwmRight);
-    Console.print("|");
-    Console.print("PWM_L:");
-    Console.print(robot.pwmLeft);
-    Console.print("|");
+    Serial.print("PWM_R:");
+    Serial.print(robot.pwmRight);
+    Serial.print("|");
+    Serial.print("PWM_L:");
+    Serial.print(robot.pwmLeft);
+    Serial.print("|");
 }
