@@ -10,14 +10,15 @@ This projec is based on the: Mower_V6.31
 This project adds some customization to ReP_AL-3D-Lawn-Mower:
 - converted .ino files to class c ++, the project is more organized when there are many files and avoid spaghetti code
 - the arduino nano is no longer needed for read volts, amp and raining
-- rename varible, methods ecc using glbal code convention (e.g. uppercase constants, camel methods etc), the code is more readable
+- rename varible, methods ecc using global code convention (e.g. uppercase constants, camel methods etc), the code is more readable
 - code refactoring, removed consecutive if with opposite logics, used `else` instead :)
-- use char or byte whenever possible to save memory consumption
+- use char or byte or consts whenever possible to reduce memory consumption
 - removed management via EEPROM, setup is hardcoded. I extend the life of my Arduino :) 
 - add italian translations, you can choose language in `translations.h` file
-- fix DFRobot_QMC5883 library, in the original version the method readRegister16 could loop the robot!!
+- use MPU6050 for calculcate pitch,roll,yaw (cheaper than QMC5883L)
 - Add motors pinMode inizialization
 - removed schedules to replace them with time slots in which the robot can work [WIP not ready yet]
+- menu is now more user friendly and menu cose is easy to customize
 
 ## Project Folders
 
@@ -26,7 +27,6 @@ Contains all code you need
 
 #### Libraries
 All the libraries used for the Arduino Code can be found in Libraries folder.
-Note: i improved the "DFRobot_QMC5883-master" library, i replace it with "DFRobot_QMC5883-otto".
 
 #### Ottomower_ARDUINO_MEGA
 This folder contains the mower software  
@@ -45,3 +45,7 @@ CAD Data for printing mower.
 
 ## Docs
 Contains circuit overview and other info.
+
+## Missing feature
+- read AMP for detect charge is WIP
+- rain sensor is WIP

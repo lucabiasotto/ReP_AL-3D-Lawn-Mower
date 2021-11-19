@@ -1,5 +1,5 @@
 {
-    "port": "/dev/cu.usbmodem141301",
+    "port": "/dev/cu.usbmodem144201",
     "configuration": "cpu=atmega2560",
     "board": "arduino:avr:mega",
     "sketch": "OTTOMOWER.ino"

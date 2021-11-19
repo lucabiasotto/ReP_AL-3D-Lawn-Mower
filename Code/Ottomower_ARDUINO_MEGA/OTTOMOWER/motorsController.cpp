@@ -14,7 +14,7 @@ void motorsSetFullSpeed() {
  * Ued to turn the mower at a set speed.
  * @param turnSpeedCompensation, 0 full spedd >0 reduce speed
  */
-void motorsetTurnSpeed(int turnSpeedCompensation) {
+void motorsReduceTurnSpeed(int turnSpeedCompensation) {
     analogWrite(ENAPin, PWM_MAX_SPEED_RH - turnSpeedCompensation);  // Change the 0 value to 10 or 20 to recuce the speed
     analogWrite(ENBPin, PWM_MAX_SPEED_LH - turnSpeedCompensation);  // Change the 0 value to 10 or 20 to recuce the speed
 }

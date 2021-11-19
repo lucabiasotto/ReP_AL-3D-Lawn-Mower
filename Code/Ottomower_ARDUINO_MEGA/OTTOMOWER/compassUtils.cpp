@@ -178,48 +178,14 @@ void readRobotCompassDegrees() {
 
 // Turns the Mower to the correct orientation for the optimum home wire track
 // Avoiding tracking around the whole wire to get back to the docking station
-void Compass_Turn_Mower_To_Home_Direction() {
+void compassTurnMowerToHomeDirection() {
     motorsStopWheelMotors();
     delay(1000);
 
     lcdPrintSearchBoxDirectionWithCompass();
     delay(2000);
-    //TODO serve? Print_LCD_Heading_for_Home();
-    delay(2000);
 
-    robot.lcdDisplay.clear();
-    readRobotCompassDegrees();
-    motorsSetPinsToTurnLeft();
-    Serial.print(F("Compass heading Now : "));
-    Serial.println(robot.compassHeadingDegrees);
-    Serial.println(F("********************************"));
-    delay(100);
-
-    robot.lcdDisplay.print(robot.compassHeadingDegrees);
-    // This spins the mower a little to ensure a true compass reading is being read (calibration).
-    motorsSetPinsToTurnLeft();  // Calls the motor function turn Left
-    motorsetTurnSpeed(0);       // Sets the speed of the turning motion
-    delay(500);
-
-    motorsStopWheelMotors();
-    readRobotCompassDegrees();
-    robot.lcdDisplay.clear();
-    robot.lcdDisplay.print(robot.compassHeadingDegrees);
-    motorsSetPinsToTurnLeft();  // Calls the motor function turn Left
-
-    delay(100);
-    motorsetTurnSpeed(0);  // Sets the speed of the turning motion
-
-    delay(2000);
-    motorsStopWheelMotors();
-    readRobotCompassDegrees();
-    delay(500);
-
-    robot.lcdDisplay.clear();
-    robot.lcdDisplay.print("Compass Set");
-    motorsStopWheelMotors();
-    delay(2000);
-
+    //TODO fare 360-HOME_WIRE_COMPASS_HEADING in base al ciclo pari o dispari?
     turnToCompassTarget(HOME_WIRE_COMPASS_HEADING);
 }
 
@@ -243,13 +209,15 @@ void turnToCompassTarget(float compassTarget) {
 
     const long MAX_TURN_TIME_MS = 30000;  //each cycle in 300ms
     float compassDiff = 0;
-    char turnSpeed = 0;
+    char turnCompensation = 0;
 
     unsigned long endTime = millis() + MAX_TURN_TIME_MS;
 
+    Serial.println(" ");
     while (millis() < endTime  //max attempt
            && (robot.compassHeadingDegrees < minTarget || robot.compassHeadingDegrees > maxTarget)) {
         readRobotCompassDegrees();
+        turnCompensation = 0;
 
         robot.lcdDisplay.setCursor(5, 1);
         if (robot.compassHeadingDegrees < 10) {
@@ -269,23 +237,63 @@ void turnToCompassTarget(float compassTarget) {
         Serial.print(robot.compassHeadingDegrees);
         Serial.print("|");
 
-        if (compassDiff < 0) {
+        //turn in the most shoart direction
+        if (compassDiff > 180) {
             Serial.print("Turn_right|");
             motorsSetPinsToTurnRight();
-            //delay(100); //TODO serviva
-        } else {
+
+            if (compassDiff > 350) {
+                turnCompensation = 120;
+            } else if (compassDiff > 340) {
+                turnCompensation = 100;
+            }
+            if (compassDiff > 310) {
+                turnCompensation = 80;
+            }
+
+        } else if (compassDiff < -180) {
             Serial.print("Turn_left|");
             motorsSetPinsToTurnLeft();
-            //delay(100); //TODO serviva
+
+            if (compassDiff < -350) {
+                turnCompensation = 120;
+            } else if (compassDiff < -340) {
+                turnCompensation = 100;
+            }
+            if (compassDiff < -310) {
+                turnCompensation = 80;
+            }
+
+        } else if (compassDiff < 0) {
+            Serial.print("Turn_right|");
+            motorsSetPinsToTurnRight();
+
+            if (compassDiff > -10) {
+                turnCompensation = 120;
+            } else if (compassDiff > -20) {
+                turnCompensation = 100;
+            }
+            if (compassDiff > -50) {
+                turnCompensation = 80;
+            }
+
+        } else {
+            //compassDiff > 0
+            Serial.print("Turn_left|");
+            motorsSetPinsToTurnLeft();
+
+            if (compassDiff < 10) {
+                turnCompensation = 120;
+            } else if (compassDiff < 20) {
+                turnCompensation = 100;
+            }
+            if (compassDiff < 50) {
+                turnCompensation = 80;
+            }
         }
 
-        if (compassDiff < 10) turnSpeed = 120;
-        if (compassDiff < 20) turnSpeed = 100;
-        if (compassDiff < 50) turnSpeed = 80;
-        if (compassDiff < 180) turnSpeed = 20;
-
-        motorsetTurnSpeed(turnSpeed);  // Sets the speed of the turning motion
-        delay(100);                    //TODO serve o no?
+        motorsReduceTurnSpeed(turnCompensation);  // Sets the speed of the turning motion
+        delay(100);                        //TODO serve o no?
 
         Serial.println(" ");
     }

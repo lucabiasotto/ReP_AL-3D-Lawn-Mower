@@ -41,7 +41,7 @@ void Mower::setup() {
 }
 
 void Mower::loop() {
-    Serial.println("-->");
+    Serial.print(">");
     readVoltAmp();  //update volt and amp info
 
     if (robot.mowerRunning == 1) {
@@ -131,7 +131,7 @@ void Mower::loop() {
         }
     }
 
-    Serial.println("|");
+    Serial.println("<");
 }
 
 void Mower::logMowerStatus() {

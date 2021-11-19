@@ -52,8 +52,6 @@ void robotMoveAroundTheGarden() {
         robotReverseDirection();    // Turn around the mower
         robot.loopCycleMowing = 0;  // Restes the loop cycle to start again.
     }
-
-    
 }
 
 /**
@@ -78,7 +76,7 @@ void robotReverseDirection() {
         delay(500);
 
         Serial.println("");
-        Serial.print("Compas_Leg:");
+        Serial.print("Compas_Direction:");
         Serial.print(robot.endCycleCompassDirection);
         Serial.print("|Turning 90°|");
 
@@ -121,7 +119,7 @@ void robotReverseDirection() {
  */
 void findWire() {
     Serial.println(F("Find Wire Track Function Activated"));
-    robot.searchingWire = true;
+    robot.searchingWire = 1;
     motorsStopSpinBlades();
     motorsStopWheelMotors();  // Stop all wheel motion
     delay(1000);
@@ -130,38 +128,68 @@ void findWire() {
 
     bool wireOn = isWireOn();  // Check to see that the wire is on.
     while (!wireOn) {
-        //TODO percioloso...mettiamo un limite?
+        //TODO mettiamo un limite?
+        //TODO lo spostiamo di poco?
+        
+        robot.lcdDisplay.clear();
+        robot.lcdDisplay.print(TRS_NO_WIRE);
+        delay(100);
+
         wireOn = isWireOn();
     }
+
+    lcdUpdateScreen();
 
     readWireSensor();
     if (robot.inside) {
         //go forward searching wire
+
         motorsSetPinsToGoForwards();
         motorsSetFullSpeed();
-        int cycle = 0;
-        while (robot.inside) {
-            cycle++;
+        long start = millis();
+        while (robot.inside && (millis() - start) < 120000) {  //search cable max for 2 mins
+            Serial.print(millis());
+            Serial.print(">");
+
+            robot.lcdDisplay.setCursor(0, 1);
+            robot.lcdDisplay.write(robot.CHAR_FORWARD);
+            robot.lcdDisplay.setCursor(2, 1);
+            robot.lcdDisplay.write(robot.CHAR_FORWARD);
+
             //stop where robot exit premiter
             readWireSensor();  //check inside/outside perimeter and update inside
-            readVoltAmp();     //update volt and amp info
-            readSonarSensors();
             logBoundaryWireStatus();
+
+            readVoltAmp();  //update volt and amp info
+            readSonarSensors();
             lcdUpdateScreen();  //Update LCD Info
             if (robot.SonarHit1Total >= SONAR_MAX_HIT || robot.SonarHit2Total >= SONAR_MAX_HIT || robot.SonarHit3Total >= SONAR_MAX_HIT) {
                 avoidSonarObstacle();  //TODO prima lo faceva solo se era dentro al perimetro....
-                cycle = 0;
+                //restart motor after avoid
+                motorsSetPinsToGoForwards();
+                motorsSetFullSpeed();
             }
             Serial.println("|");
-        }  //TODO che sia il caso di mettere un limite?
-        robot.wireFound = 1;
+        }
+
+        if (!robot.inside) {
+            robot.wireFound = 1;
+        }
+
     } else {
         //go back searching wire
+        robot.lcdDisplay.setCursor(0, 1);
+        robot.lcdDisplay.write(robot.CHAR_BACK_ARROW);
+        robot.lcdDisplay.setCursor(2, 1);
+        robot.lcdDisplay.write(robot.CHAR_BACK_ARROW);
+
         motorsSetPinsToGoBackwards();
         motorsSetFullSpeed();
         lcdUpdateScreen();  //Update LCD Info
         long start = millis();
-        while (!robot.inside || (millis() - start) < 60000) {  //max forware for 1 minuts, then stop robot
+        while (!robot.inside && (millis() - start) < 60000) {  //max forware for 1 minuts, then stop robot
+            Serial.print(millis());
+            Serial.print(">");
             //stop when enter perimter
             readWireSensor();  //check inside/outside perimeter and update inside
             logBoundaryWireStatus();
@@ -228,6 +256,8 @@ void findWire() {
         //abort wire find
         manouverParkTheMower();
     }
+
+    robot.searchingWire = 0;
 }
 
 /**
@@ -245,11 +275,11 @@ void avoidSonarObstacle() {
 
     if (robot.distance1 < SONAR_MAX_DISTANCE || robot.distance2 < SONAR_MAX_DISTANCE) {
         motorsSetPinsToTurnRight();
-        motorsetTurnSpeed(0);
+        motorsReduceTurnSpeed(0);
         delay(SONAR_TURN_OBSTACLE_DELAY_TIME);
     } else if (robot.distance3 < SONAR_MAX_DISTANCE) {
         motorsSetPinsToTurnLeft();
-        motorsetTurnSpeed(0);
+        motorsReduceTurnSpeed(0);
         delay(SONAR_TURN_OBSTACLE_DELAY_TIME);
     }
 
@@ -348,23 +378,20 @@ void goToChargingStation() {
     delay(500);
 
     // 1.gira a cazzo di cane per posizionarsi giusto verso la base sfruttando il campo magnetico
-    if (robot.mowerParked == 0 && COMPASS_ACTIVATE == 1) {
-        //TODO.....approfondire
-        Compass_Turn_Mower_To_Home_Direction();
+    if (COMPASS_ACTIVATE == 1) {
+        compassTurnMowerToHomeDirection();
     }
 
     //2. corre finchè trova il cavo
-    if (robot.mowerParked == 0) {
-        findWire();
-    }
+    findWire();
 
     //3. segue il filo
-    if (robot.mowerParked == 0 && robot.wireFound == 1) {
+    if (robot.wireFound == 1) {
         followingWireToDock();
     }
 
     //4. si è perso...ricomincia
-    if (robot.wireFound == 1) {
+    if (robot.wireFound == 1) {  //TODO è giusta questa if?
         //ricorsivo
         goToChargingStation();
         //TODO quando si arrende?
@@ -396,7 +423,7 @@ void leaveChargingStation(bool followWireWhenExit) {
 
     motorsStopWheelMotors();     // Stop
     motorsSetPinsToTurnRight();  // Prepare motors to turn left
-    motorsetTurnSpeed(0);        // Turn the wheels
+    motorsReduceTurnSpeed(0);    // Turn the wheels
     delay(1000);                 // Turn time
 
     motorsStopWheelMotors();       // Stop
@@ -405,7 +432,7 @@ void leaveChargingStation(bool followWireWhenExit) {
     delay(1000);                   // Backwards Time
 
     motorsSetPinsToTurnRight();  // Set to go left
-    motorsetTurnSpeed(0);        // Turn the wheels
+    motorsReduceTurnSpeed(0);    // Turn the wheels
     delay(500);                  // Turning time
 
     motorsStopWheelMotors();      // Stop
@@ -478,7 +505,7 @@ void Manouver_Outside_Wire_ReFind_Function() {
         while (robot.distanceBlockage < 300) {
             motorsSetPinsToTurnLeft();
             delay(200);
-            motorsetTurnSpeed(0);
+            motorsReduceTurnSpeed(0);
             delay(100);
             robot.distanceBlockage = getSonarDistance(trigPin1, echoPin1, 1);
             delay(10);
@@ -544,9 +571,9 @@ void Specials_Find_Wire_Track() {
             robot.lcdDisplay.print("Finding Wire  ");
             delay(100);
             while (robot.inside != true) {  // While the mower is still outside the fence run this code
-                motorsSetFullSpeed();                                       // Go full speed (in this case backwards)
-                readWireSensor();                                           // Read the wire sensor and see of the mower is now  or outside the wire
-                logBoundaryWireStatus();                                    // Prints of the status of the wire sensor readings.
+                motorsSetFullSpeed();       // Go full speed (in this case backwards)
+                readWireSensor();           // Read the wire sensor and see of the mower is now  or outside the wire
+                logBoundaryWireStatus();    // Prints of the status of the wire sensor readings.
                 Serial.println("");
             }
         }

@@ -284,7 +284,7 @@ void Test_Sonar_Array() {
     delay(15);
 }
 
-void Test_Compass_Turn_Function() {
+void testCompassTurnFunction() {
     digitalWrite(RELAY_MOTORS_PIN, LOW);
     delay(200);
     motorsSetPinsToGoForwards();

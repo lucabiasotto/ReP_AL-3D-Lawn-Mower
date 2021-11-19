@@ -55,7 +55,6 @@ class Mower {
    public:
     //Perimeter Variables
     unsigned long nextTime = 0;
-    int counter = 0;
     boolean inside = true;
     int wireRefindTries = 0;
     int loopCycleMowing = 0;
@@ -78,7 +77,7 @@ class Mower {
     bool mowerParkedLowBatt = false;
     bool mowerError = false;
     bool trackingWire = false;
-    bool searchingWire = false;
+    bool searchingWire = 1;
 
     //Serial Communication
     float volts;
@@ -102,7 +101,6 @@ class Mower {
 
     //Perimeter Wire Tracking
     bool isPerimeterWireEnable = PERIMETER_WIRE_ENABLED;  //user can disable it
-    double P = 1.2;                                       //TODO che minchia è? dobule? float?     // 0.08//EEPROM           // Multiplication  factor to the error measured to the wire center.  if   jerky movement when tracking reduce number
     int trackWireItterations;
     bool outsideWire;
     int magNow;
@@ -126,7 +124,7 @@ class Mower {
     //Compass Variables
     float compassHeadingDegrees;
     float headingLock;
-    bool endCycleCompassDirection = 0;  //direction when cutting cycle end
+    bool endCycleCompassDirection = 0;  //direction when cutting cycle end, true turn right, false turn left
 
     //Wire Track Printer
     int printInMax;

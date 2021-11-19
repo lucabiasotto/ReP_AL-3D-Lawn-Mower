@@ -134,7 +134,6 @@ void readWireSensor() {
         ADCMan.run();
         if (robot.perimeter.isInside(0) != robot.inside) {
             robot.inside = robot.perimeter.isInside(0);
-            robot.counter++;
         }
     }
 }

@@ -58,6 +58,9 @@ int getSonarDistance(int trigPinX, int echoPinX, int sonarNumber) {
         distance = 999;
     }
 
+    Serial.print("sonar");
+    Serial.print(sonarNumber);
+
     //If sonar distance is less than maximum distance then an object is registered to avoid
     if (distance <= SONAR_MAX_DISTANCE) {
 
@@ -107,7 +110,7 @@ int getSonarDistance(int trigPinX, int echoPinX, int sonarNumber) {
         delay(10); //TODO serve?
     }
 
-    Serial.println("|");
+    Serial.print("|");
 
     return distance;
 }

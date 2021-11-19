@@ -293,7 +293,7 @@ void processCallback(Callbacks callback) {
             robot.lcdDisplay.print("Turn test");
             delay(3000);
             robot.lcdDisplay.clear();
-            Test_Compass_Turn_Function();
+            testCompassTurnFunction();
             break;
         case VOLT_AMP_TEST:
             /*************************** 
@@ -355,7 +355,6 @@ void processCallback(Callbacks callback) {
                     robot.lcdDisplay.print((int)robot.compassHeadingDegrees);
 
                     delay(10);
-                    robot.lcdDisplay.print((int)robot.compassHeadingDegrees);
                     tmpTimer = millis();
                 }
                 readMembraneKeys();

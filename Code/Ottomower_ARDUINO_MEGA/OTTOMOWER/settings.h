@@ -36,7 +36,7 @@
 #define COMPASS_ACTIVATE 1              // Turns on the Compass (needs to be 1 to activate further compass features)
 #define CYCLE_FOR_STABILEZE 10           // number of cycle to ignore when do compass compensation
 #define COMPASS_HEADING_HOLD_ENABLED 1  // Activates the compass heading hold function to keep the mower straight
-#define HOME_WIRE_COMPASS_HEADING 110   // robot.heading the Mower will search for the wire once the mowing is  completed.
+#define HOME_WIRE_COMPASS_HEADING 110   // heading the Mower will search for the wire once the mowing is  completed.
 #define COMPASS_CORRECTION_POWER 2      // Magnification of heading to PWM - How strong the mower  corrects itself in Compass Mowing
 #define COMPASS_MOW_DIRECTION 110       // Mow Direction of line when pattern mow is activated
 
