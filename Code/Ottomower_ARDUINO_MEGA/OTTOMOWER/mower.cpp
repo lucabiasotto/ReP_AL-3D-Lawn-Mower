@@ -36,20 +36,14 @@ void Mower::setup() {
     Setup_Relays();
     Setup_Membrane_Buttons();
     Setup_Motor_Pins();
-    setupRainPins();
     compassInit();
     Setup_ADCMan();
-    
 }
 
 void Mower::loop() {
     Serial.print(">");
-    Serial.print(millis());
-
-    ADCMan.run(); //2021-11-26 read analog value for battery and water
-
     readVoltAmp();  //update volt and amp info
-    
+
     if (robot.mowerRunning == 1) {
         readRainSensor();    // Checks if the water sensor detects Rain
         readSonarSensors();  // If the mower is  the boundary wire check the sonars for obsticles and prints to the LCD
@@ -273,24 +267,9 @@ void Mower::Setup_Membrane_Buttons() {
 void Mower::Setup_ADCMan() {
     Serial.println("ADCMAN");
     ADCMan.init();
-
-    ADCMan.setCapture(VOLT_PIN, 1, false);  //copiato da ardumower
-    if (RAIN_SENSOR_INSTALLED == 1) {
-        ADCMan.setCapture(RAIN_PIN, 1, false);  
-    }
-
     robot.perimeter.setPins(pinPerimeterLeft, pinPerimeterRight);
     robot.perimeter.useDifferentialPerimeterSignal = true;
     robot.perimeter.speedTest();
-    
+    ADCMan.setCapture(A2, 1, false);  //TODO copia da ardumower
     ADCMan.run();
-}
-
-void Mower::setupRainPins() {
-    /* todo cava
-    if (RAIN_SENSOR_INSTALLED == 1) {
-        Serial.println("RAIN PIN");    
-        pinMode(RAIN_PIN, INPUT);
-    }
-    */
 }

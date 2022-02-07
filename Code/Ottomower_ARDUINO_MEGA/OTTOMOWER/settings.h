@@ -41,8 +41,8 @@
 #define COMPASS_MOW_DIRECTION 110       // Mow Direction of line when pattern mow is activated
 
 // Rain sensor
-#define RAIN_SENSOR_INSTALLED 1     // 1 for Rain sensor installed    0 for no sensor installed.
-#define RAIN_TOTAL_HITS_GO_HOME 10  // MAX 127 This sensor only makes sense in combination with a mower docking station as the mower is sent there to get out of the rain.
+#define RAIN_SENSOR_INSTALLED 0     // 1 for Rain sensor installed    0 for no sensor installed.
+#define RAIN_TOTAL_HITS_GO_HOME 10  // This sensor only makes sense in combination with a mower docking station as the mower is sent there to get out of the rain.
 
 // Battery Settings
 #define BATTERY_MAX 12.6              // Max battery volts in robot.volts. 3S = 12.6V
