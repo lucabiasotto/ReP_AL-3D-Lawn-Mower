@@ -1,0 +1,2 @@
+- Upload the `Ottomower_ARDUINO_MEGA` code to the mower Arduino MEGA
+- Upload the `Perimeter_Wire_Transmitter_ARDUINO_UNO` code to the perimeter station Arduino UNO
