@@ -7,7 +7,7 @@
 
 void readVoltAmp() {
     //robot.rawValueAmp = analogRead(A1);
-    robot.rawValueVolt = ADCMan.read(A2) * 4;  //analogRead(A2); TODO, perchè 4?
+    robot.rawValueVolt = ADCMan.read(VOLT_PIN) * 4;  // TODO, perchè 4? vedi ardumower
 
     // Calculate robot.amps from NANO RX Data
     int mVperAmp = 185;

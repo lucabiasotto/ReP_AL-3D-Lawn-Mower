@@ -50,6 +50,10 @@
 // Relay Switch
 #define RELAY_MOTORS_PIN 24  // be careful that you really use PIN24. The order is sometimes labelled so it looks like 24 is actually 22.
 
+//Rain sensor
+#define RAIN_PIN A6
+
+#define VOLT_PIN A2
 
 class Mower {
    public:
@@ -88,7 +92,7 @@ class Mower {
     int rawValueAmp;
     int rawValueVolt;
     int rainDetected;
-    int rainHitDetected = 0;
+    char rainHitDetected = 0;
     bool chargeDetectedMEGA = 0;
 
     //Battery variable
@@ -154,6 +158,7 @@ class Mower {
     virtual void Setup_Motor_Pins();
     virtual void Setup_Membrane_Buttons();
     virtual void Setup_ADCMan();
+    virtual void setupRainPins();
 };
 
 extern Mower robot;
