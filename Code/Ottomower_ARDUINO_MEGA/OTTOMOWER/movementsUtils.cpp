@@ -212,7 +212,7 @@ void findWire() {
     if (robot.wireFound == 1) {
         motorsSetPinsToGoForwards();
         delay(100);
-        motorsSetFullSpeed();
+        motorsSetFullSpeed(); //va avanti di poco per essere sicuro di essere fuori e avere spazio per girare
         delay(500);
         motorsStopWheelMotors();
 
@@ -244,7 +244,8 @@ void findWire() {
         readWireSensor();
         while (robot.inside == false) {
             // Do this loop until mower is back  the wire fence
-            motorsSetFullSpeed();     // Go full speed (in the case turning as set by the previous logic)
+            //motorsSetFullSpeed();     // Go full speed (in the case turning as set by the previous logic)
+            motorsReduceTurnSpeed(100);
             logBoundaryWireStatus();  // Prints of the status of the wire sensor readings.
             readWireSensor();         // Read the wire sensor and see of the mower is now  or outside the wire
         }
@@ -441,7 +442,7 @@ void leaveChargingStation(bool followWireWhenExit) {
 
     robot.lcdDisplay.clear();  // Clears the LCD display
 
-    if (robot.isPerimeterWireEnable == 1) {
+    if (robot.isPerimeterWireEnable) {
         if (isWireOn()) {
             //Function to follow the wire for a specific amount of time set by the itterations 'I'
             if (followWireWhenExit) {

@@ -81,7 +81,7 @@ class Mower {
     bool mowerParkedLowBatt = false;
     bool mowerError = false;
     bool trackingWire = false;
-    bool searchingWire = 1;
+    bool searchingWire = 0;
 
     //Serial Communication
     float volts;

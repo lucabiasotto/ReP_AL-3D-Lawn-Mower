@@ -2,9 +2,9 @@
 
 #include <Arduino.h>
 //#include "MPU6050_light.h"
-//MPU6050 mpu(Wire);
+// MPU6050 mpu(Wire);
 //#include "DFRobot_QMC5883.h"
-//DFRobot_QMC5883 compass;
+// DFRobot_QMC5883 compass;
 #include <Wire.h>
 
 #include "MPU6050.h"
@@ -15,11 +15,11 @@ MPU6050 mpu;
 
 int pitch = 0;
 int roll = 0;
-float yaw = 0;
+static float yaw = 0;
 static unsigned long mpu6050LastReadMS = 0;
 
-//DOCS: https://github.com/ElectronicCats/mpu6050/blob/master/examples/MPU6050_DMP6/MPU6050_DMP6.ino
-//DOCS2: https://www.giuseppecaccavale.it/arduino/roll-pitch-e-yaw-con-mpu6050-arduino/
+// DOCS: https://github.com/ElectronicCats/mpu6050/blob/master/examples/MPU6050_DMP6/MPU6050_DMP6.ino
+// DOCS2: https://www.giuseppecaccavale.it/arduino/roll-pitch-e-yaw-con-mpu6050-arduino/
 
 unsigned int resetCount __attribute__((section(".noinit")));
 
@@ -110,7 +110,7 @@ void compassInit() {
         Serial.println(mpu.getGyroOffsetZ());
         Serial.println();
 
-        //reset the mower when powered because some time MPU6050 some time does not work
+        // reset the mower when powered because some time MPU6050 some time does not work
         if (resetCount == 1) {
             // 1 is the magic number used to flag when i'm after a reset
             Serial.println("AFTER RESET");
@@ -118,13 +118,14 @@ void compassInit() {
             robot.lcdDisplay.print("Setup....");
             delay(500);
         } else {
-            //i need to do a reset because sometimes the MPU6050 not works at first boot
+            // i need to do a reset because sometimes the MPU6050 not works at first boot
             Serial.println("FIRST POWER UP");
             resetCount = 1;
 
+            robot.lcdDisplay.clear();
             robot.lcdDisplay.setCursor(0, 1);
-            robot.lcdDisplay.print("Reboot....");
-            delay(500);
+            robot.lcdDisplay.print("Restart compass");
+            delay(2000);
 
             reset();
         }
@@ -141,13 +142,15 @@ void compassInit() {
 }
 
 /**
- *  Calculates the compass heading as heading & degrees of the onboard compass 
+ *  Calculates the compass heading as heading & degrees of the onboard compass
  * */
 void readRobotCompassDegrees() {
-    long currenttMS = millis();
+    long currentMS = millis();
 
-    if (currenttMS - mpu6050LastReadMS == 0) {
-        //to infinity and beyond
+    float tempYaw = yaw;
+
+    if (currentMS - mpu6050LastReadMS <= 10) {
+        // to infinity and beyond
         return;
     }
 
@@ -158,22 +161,28 @@ void readRobotCompassDegrees() {
     pitch = -(atan2(normAccel.XAxis, sqrt(normAccel.YAxis * normAccel.YAxis + normAccel.ZAxis * normAccel.ZAxis)) * 180.0) / M_PI;
     roll = (atan2(normAccel.YAxis, normAccel.ZAxis) * 180.0) / M_PI;
 
-    //Ignore the gyro if our angular velocity does not meet our threshold
+    // Ignore the gyro if our angular velocity does not meet our threshold
     if (normGyro.ZAxis > 1 || normGyro.ZAxis < -1) {
-        normGyro.ZAxis /= (1000 / (currenttMS - mpu6050LastReadMS));  //è 1000/delay_da_ultima_lettura
-        yaw += normGyro.ZAxis;
+        normGyro.ZAxis /= (1000 / (currentMS - mpu6050LastReadMS));  //è 1000/delay_da_ultima_lettura
+        tempYaw += normGyro.ZAxis;
     }
 
-    //Keep our angle between 0-359 degrees
-    if (yaw < 0) {
-        yaw += 360;
-    } else if (yaw > 359) {
-        yaw -= 360;
+    // Keep our angle between 0-359 degrees
+    if (tempYaw < 0) {
+        tempYaw += 360;
+    } else if (tempYaw > 359) {
+        tempYaw -= 360;
     }
 
-    mpu6050LastReadMS = currenttMS;
+    if (!isnan(tempYaw) && !isinf(tempYaw)) {
+        yaw = tempYaw;
+        robot.compassHeadingDegrees = 360 - yaw;  // clockside direction
+    }else{
+        Serial.println("");
+        Serial.println("YAW NAN found!!");
+    }
 
-    robot.compassHeadingDegrees = 360 - yaw;  //clockside direction
+    mpu6050LastReadMS = currentMS;
 }
 
 // Turns the Mower to the correct orientation for the optimum home wire track
@@ -185,7 +194,7 @@ void compassTurnMowerToHomeDirection() {
     lcdPrintSearchBoxDirectionWithCompass();
     delay(2000);
 
-    //TODO fare 360-HOME_WIRE_COMPASS_HEADING in base al ciclo pari o dispari?
+    // TODO fare 360-HOME_WIRE_COMPASS_HEADING in base al ciclo pari o dispari?
     turnToCompassTarget(HOME_WIRE_COMPASS_HEADING);
 }
 
@@ -204,17 +213,24 @@ void turnToCompassTarget(float compassTarget) {
     robot.lcdDisplay.setCursor(10, 1);
     robot.lcdDisplay.print((int)compassTarget);
 
-    float minTarget = compassTarget - 5;  //TODO rinomina in min e max
-    float maxTarget = compassTarget + 5;
+    const char DEGREE_TOLLERANCE = 10;                    // 5
+    float minTarget = compassTarget - DEGREE_TOLLERANCE;  // TODO rinomina in min e max
+    float maxTarget = compassTarget + DEGREE_TOLLERANCE;
 
-    const long MAX_TURN_TIME_MS = 30000;  //each cycle in 300ms
+    const long MAX_TURN_TIME_MS = 30000;  // each cycle in 300ms
     float compassDiff = 0;
     char turnCompensation = 0;
 
+    const char MAX_SPEED_COMPENSATION = 100;  // 80
+    const char MID_SPEED_COMPENSATION = 125;  // 100
+    const char MIN_SPEED_COMPENSATION = 150;  // 120
+
     unsigned long endTime = millis() + MAX_TURN_TIME_MS;
 
+    char startDirection = 0;
+
     Serial.println(" ");
-    while (millis() < endTime  //max attempt
+    while (millis() < endTime  // max attempt
            && (robot.compassHeadingDegrees < minTarget || robot.compassHeadingDegrees > maxTarget)) {
         readRobotCompassDegrees();
         turnCompensation = 0;
@@ -223,7 +239,7 @@ void turnToCompassTarget(float compassTarget) {
         if (robot.compassHeadingDegrees < 10) {
             robot.lcdDisplay.print("  ");
             robot.lcdDisplay.setCursor(7, 1);
-        } else if (robot.compassHeadingDegrees < 100) {
+        } else { /*if (robot.compassHeadingDegrees < MID_SPEED_COMPENSATION) {*/
             robot.lcdDisplay.print(" ");
             robot.lcdDisplay.setCursor(6, 1);
         }
@@ -237,69 +253,69 @@ void turnToCompassTarget(float compassTarget) {
         Serial.print(robot.compassHeadingDegrees);
         Serial.print("|");
 
-        //turn in the most shoart direction
-        if (compassDiff > 180) {
+        // turn in the most shoart direction
+        if (compassDiff > 180 || startDirection == 1) {
+            startDirection = 1;
             Serial.print("Turn_right|");
             motorsSetPinsToTurnRight();
 
             if (compassDiff > 350) {
-                turnCompensation = 120;
+                turnCompensation = MIN_SPEED_COMPENSATION;
             } else if (compassDiff > 340) {
-                turnCompensation = 100;
-            }
-            if (compassDiff > 310) {
-                turnCompensation = 80;
+                turnCompensation = MID_SPEED_COMPENSATION;
+            } else {
+                turnCompensation = MAX_SPEED_COMPENSATION;
             }
 
-        } else if (compassDiff < -180) {
+        } else if (compassDiff < -180 || startDirection == 2) {
+            startDirection = 2;
             Serial.print("Turn_left|");
             motorsSetPinsToTurnLeft();
 
             if (compassDiff < -350) {
-                turnCompensation = 120;
+                turnCompensation = MIN_SPEED_COMPENSATION;
             } else if (compassDiff < -340) {
-                turnCompensation = 100;
-            }
-            if (compassDiff < -310) {
-                turnCompensation = 80;
+                turnCompensation = MID_SPEED_COMPENSATION;
+            } else {
+                turnCompensation = MAX_SPEED_COMPENSATION;
             }
 
-        } else if (compassDiff < 0) {
+        } else if (compassDiff < 0 || startDirection == 3) {
+            startDirection = 3;
             Serial.print("Turn_right|");
             motorsSetPinsToTurnRight();
 
             if (compassDiff > -10) {
-                turnCompensation = 120;
+                turnCompensation = MIN_SPEED_COMPENSATION;
             } else if (compassDiff > -20) {
-                turnCompensation = 100;
-            }
-            if (compassDiff > -50) {
-                turnCompensation = 80;
+                turnCompensation = MID_SPEED_COMPENSATION;
+            } else {
+                turnCompensation = MAX_SPEED_COMPENSATION;
             }
 
-        } else {
-            //compassDiff > 0
+        } else if (startDirection == 4) {
+            startDirection = 4;
+            // compassDiff > 0
             Serial.print("Turn_left|");
             motorsSetPinsToTurnLeft();
 
             if (compassDiff < 10) {
-                turnCompensation = 120;
+                turnCompensation = MIN_SPEED_COMPENSATION;
             } else if (compassDiff < 20) {
-                turnCompensation = 100;
-            }
-            if (compassDiff < 50) {
-                turnCompensation = 80;
+                turnCompensation = MID_SPEED_COMPENSATION;
+            } else {
+                turnCompensation = MAX_SPEED_COMPENSATION;
             }
         }
 
         motorsReduceTurnSpeed(turnCompensation);  // Sets the speed of the turning motion
-        delay(100);                        //TODO serve o no?
+        delay(100);                               // TODO serve o no?
 
         Serial.println(" ");
     }
 
     if (millis() > endTime) {
-        //robot can't turn
+        // robot can't turn
         robot.turnOffMotorsRelay();
         motorsStopWheelMotors();
         motorsStopSpinBlades();
@@ -309,7 +325,7 @@ void turnToCompassTarget(float compassTarget) {
         robot.lcdDisplay.setCursor(0, 1);
         robot.lcdDisplay.print(TRS_ROBOT_LOCK);
         while (true) {
-            //lock robot
+            // lock robot
         }
     }
 
@@ -334,7 +350,11 @@ void keepDirectionWithCompassWheelCompensation() {
         compassDiff = compassDiff * -1;
     }
 
-    Serial.print(F("Compass_diff:"));
+    Serial.print(F("|compassHeadingDegrees:"));
+    Serial.print(robot.compassHeadingDegrees);
+    Serial.print(F("|headingLock:"));
+    Serial.print(robot.headingLock);
+    Serial.print(F("|compass_diff:"));
     Serial.print(compassDiff);
 
     if (compassDiff < 0) {  // Steer left

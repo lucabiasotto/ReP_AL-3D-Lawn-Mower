@@ -11,7 +11,7 @@
 void Check_Wire_In_Out() {
 
     // If the perimeter wire sensor is activated
-    if (robot.isPerimeterWireEnable == 1) {
+    if (robot.isPerimeterWireEnable) {
         readWireSensor();  // Read the wire sensor and see of the mower is now  or outside the wire
         logBoundaryWireStatus();
 
@@ -87,7 +87,7 @@ bool isWireOn() {
 
     readWireSensor();
 
-    if (robot.isPerimeterWireEnable == 1) {  // Perimeter use is ON - Perimter_USE can be turned on or off in the setup.
+    if (robot.isPerimeterWireEnable) {  // Perimeter use is ON - Perimter_USE can be turned on or off in the setup.
 
         // Checks the MAG field of the boundary wire
         robot.magNow = robot.perimeter.getMagnitude(0);

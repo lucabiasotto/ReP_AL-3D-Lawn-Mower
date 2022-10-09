@@ -88,7 +88,6 @@ void Mower::loop() {
          *********************************************************/
         checkMembranSwitchRunning();  // Check user interation to see if the mower needs to be stopped via keypad
 
-        bool wireOn = isWireOn();
         if (robot.rainHitDetected >= RAIN_TOTAL_HITS_GO_HOME) {
             /*********************************************************
              * It's rain!!
@@ -97,7 +96,7 @@ void Mower::loop() {
             Serial.println("Its raining!");
             motorsStopWheelMotors();
             delay(2000);
-            if (USE_CHARGING_STATION == 1) {
+            if (USE_CHARGING_STATION == 1 && robot.isPerimeterWireEnable) {
                 // Stops the mowing and sends the mower back to the charging station via the permieter wire
                 goToChargingStation();
             } else {
@@ -125,7 +124,7 @@ void Mower::loop() {
              **********************************************************/
             // If sonar hit is detected and mower is the wire, manouver around obsticle
             avoidSonarObstacle();  //TODO prima lo faceva solo se era dentro al perimetro....
-        } else if (wireOn) {
+        } else if (robot.isPerimeterWireEnable && isWireOn()) {
             Check_Wire_In_Out();  // Test if the mower is in or out of the wire fence.
             if (robot.outsideWire == 0) {
                 //in inside perimeter
@@ -134,6 +133,9 @@ void Mower::loop() {
                 //Is outside!!!
                 robotReverseDirection();  // If outside the wire turn around
             }
+        }else{
+            //isPerimeterWireEnable false, move without calbe
+            robotMoveAroundTheGarden();
         }
     }
 

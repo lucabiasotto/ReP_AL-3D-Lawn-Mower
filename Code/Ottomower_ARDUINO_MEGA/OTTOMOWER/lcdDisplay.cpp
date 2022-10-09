@@ -90,7 +90,7 @@ void lcdUpdateScreen() {
     if (robot.mowerDocked == 1 && robot.chargeDetectedMEGA == 1) {
         robot.lcdDisplay.print("                ");
         robot.lcdDisplay.print(TRS_CHARGING);  //is charging
-    } else if (robot.rainDetected == 1) {
+    } else if (robot.rainDetected == 1 || robot.rainHitDetected >= RAIN_TOTAL_HITS_GO_HOME) {
         robot.lcdDisplay.print("                ");
         robot.lcdDisplay.print(TRS_RAIN);
     } else if (robot.mowerError == 1) {
@@ -170,6 +170,7 @@ void lcdUpdateScreen() {
                 robot.lcdDisplay.write(robot.CHAR_FORWARD);
             }
         }
+
 
         if (robot.searchingWire) {
             //is searching wire, pring ->WIRE

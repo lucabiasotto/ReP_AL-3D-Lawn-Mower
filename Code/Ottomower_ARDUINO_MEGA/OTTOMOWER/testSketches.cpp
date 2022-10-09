@@ -296,4 +296,10 @@ void testCompassTurnFunction() {
     motorsSetFullSpeed();
     delay(2000);
     digitalWrite(RELAY_MOTORS_PIN, HIGH);
+    delay(2000);
+    motorsStopWheelMotors();
+    robot.lcdDisplay.clear();
+    robot.lcdDisplay.print("Test Finished");
+    delay(1000);
+    robot.lcdDisplay.clear();
 }
